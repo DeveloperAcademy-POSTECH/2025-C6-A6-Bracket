@@ -20,7 +20,7 @@ struct GroupedPhotosView: View {
     }
     
     var body: some View {
-        NavigationStack {
+        ZStack {
             switch vm.groupingState {
             case .idle, .loading:
                 ProgressView()
@@ -37,7 +37,6 @@ struct GroupedPhotosView: View {
             }
         }
         .task {
-//            vm.configure(container: container)
             vm.startGrouping()
         }
         .onChange(of: vm.groupingState) { _, newState in
