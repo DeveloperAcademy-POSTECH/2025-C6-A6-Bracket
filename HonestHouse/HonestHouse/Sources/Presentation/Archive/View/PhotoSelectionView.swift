@@ -46,7 +46,9 @@ struct PhotoSelectionView: View {
             .navigationTitle("카메라 이름")
             .navigationBarTitleDisplayMode(.large)
             .task {
-                await vm.fetchFirstPageImage()
+                if vm.entireContentUrls.isEmpty {
+                    await vm.fetchAllImages()
+                }
             }
             .onChange(of: vm.state) { _, newState in
                 if case .failure(let error) = newState {
@@ -70,16 +72,7 @@ struct PhotoSelectionView: View {
                         isSelected: vm.selectedPhotos.contains(where: { $0.url == url }),
                         onTapSelectionGridCell: { vm.toggleGridCell(for: photo) }
                     )
-                    .id(url)  // URL을 id로 사용
-                }
-                
-                if vm.hasMore {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .task {
-                            await vm.loadCurrentPageSafely()
-                        }
+                    .id(url)
                 }
             }
             .padding(.horizontal, 2)
