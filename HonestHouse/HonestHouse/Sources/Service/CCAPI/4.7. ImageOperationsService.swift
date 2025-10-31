@@ -84,36 +84,6 @@ final class ImageOperationsService: BaseService, ImageOperationsServiceType {
         return ImageOperations.ContentListResponse(url: allUrls)
     }
     
-    private func getContentListChunked(
-        storage: String,
-        directory: String,
-        type: String,
-        order: String
-    ) async throws -> ImageOperations.ContentListResponse {
-        
-        let url = try buildContentListURL(
-            storage: storage,
-            directory: directory,
-            type: type,
-            kind: "chunked",
-            order: order
-        )
-        
-        var finalUrls: [String] = []
-        
-        try await streamDownloadService.stream(
-            from: url,
-            headers: APIConstants.baseHeader,
-            decoding: ImageOperations.ContentListResponse.self,
-            onProgress: { _ in },
-            onComplete: { responses in
-                finalUrls = responses.flatMap { $0.url ?? [] }
-            }
-        )
-        
-        return ImageOperations.ContentListResponse(url: finalUrls)
-    }
-    
     private func buildContentListURL(
         storage: String,
         directory: String,
