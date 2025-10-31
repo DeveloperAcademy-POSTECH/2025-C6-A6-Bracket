@@ -10,6 +10,9 @@ import Foundation
 /// 점진적 다운로드의 JSON 파싱 델리게이트
 /// - URLSessionDataDelegate 구현
 /// - 실시간으로 완성된 JSON 객체를 파싱하여 콜백
+import Foundation
+
+/// Chunked 스트림의 URLSessionDataDelegate
 final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelegate {
     
     // MARK: - Properties
@@ -22,9 +25,7 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
     
     // MARK: - Parsing State
     
-    private var rawDataBuffer = Data()
-    private var jsonTextBuffer = ""
-    private var braceDepth = 0
+    private var textBuffer = ""  // 텍스트 버퍼만 유지
     private var parsedObjects: [T] = []
     
     private let decoder = JSONDecoder()
@@ -32,7 +33,7 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
     // MARK: - Initialization
     
     init(
-        decodingType: T.Type,  // 파라미터로만 받고 저장 안 함
+        decodingType: T.Type,
         onProgress: @escaping ([T]) -> Void,
         onComplete: @escaping ([T]) -> Void
     ) {
@@ -47,18 +48,18 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
         dataTask: URLSessionDataTask,
         didReceive data: Data
     ) {
-        rawDataBuffer.append(data)
-        
-        print("📥 Chunk received: \(data.count) bytes (Buffer: \(rawDataBuffer.count) bytes)")
-        
         guard let newText = String(data: data, encoding: .utf8) else {
             print("⚠️ Failed to decode chunk as UTF-8")
             return
         }
         
-        jsonTextBuffer.append(newText)
+        // 버퍼에 추가
+        textBuffer.append(newText)
         
-        let newlyParsed = parseCompletedJSONObjects(from: newText)
+        print("📥 Received \(data.count) bytes, buffer: \(textBuffer.count) chars")
+        
+        // 완성된 JSON 객체들 파싱
+        let newlyParsed = extractAndParseJSONObjects()
         
         if !newlyParsed.isEmpty {
             parsedObjects.append(contentsOf: newlyParsed)
@@ -81,6 +82,7 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
         print("📡 Response status: \(httpResponse.statusCode)")
         
         if let error = validateResponseStatus(httpResponse.statusCode) {
+            print("⚠️ Invalid status code, cancelling task")
             completionHandler(.cancel)
             return
         }
@@ -93,7 +95,6 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
         task: URLSessionTask,
         didCompleteWithError error: Error?
     ) {
-        // ✅ 이미 완료되었으면 무시
         guard !hasCompleted else {
             print("⚠️ Already completed, ignoring")
             return
@@ -101,11 +102,19 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
         
         hasCompleted = true
         
+        // 남은 버퍼 처리
+        if !textBuffer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            print("⚠️ Processing remaining buffer: \(textBuffer.count) chars")
+            let remaining = extractAndParseJSONObjects()
+            if !remaining.isEmpty {
+                parsedObjects.append(contentsOf: remaining)
+                print("✅ Parsed \(remaining.count) remaining objects")
+            }
+        }
+        
         if let error = error {
-            // Cancellation은 정상적인 종료 (401 등)
             if (error as NSError).code == NSURLErrorCancelled {
-                print("⚠️ Task cancelled (likely due to error response)")
-                // 상태 코드 에러로 처리
+                print("⚠️ Task cancelled")
                 if let httpResponse = task.response as? HTTPURLResponse,
                    let statusError = validateResponseStatus(httpResponse.statusCode) {
                     completion?(.failure(statusError))
@@ -133,35 +142,84 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
     
     // MARK: - Private Methods - Parsing
     
-    private func parseCompletedJSONObjects(from newText: String) -> [T] {
-        var completed: [T] = []
-        var currentObjectBuffer = ""
+    /// 완성된 JSON 객체들을 추출하고 파싱
+    private func extractAndParseJSONObjects() -> [T] {
+        var parsed: [T] = []
         
-        for char in newText {
-            if char == "{" {
-                if braceDepth == 0 {
-                    currentObjectBuffer = ""
-                }
-                braceDepth += 1
+        while true {
+            // 다음 JSON 객체 찾기
+            guard let (jsonString, consumedLength) = extractNextJSONObject() else {
+                break
             }
             
-            currentObjectBuffer.append(char)
+            // JSON 파싱
+            if let object = decodeJSONObject(from: jsonString) {
+                parsed.append(object)
+            }
             
-            if char == "}" {
-                braceDepth -= 1
-                
-                if braceDepth == 0 {
-                    if let parsed = decodeJSONObject(from: currentObjectBuffer) {
-                        completed.append(parsed)
+            // 파싱된 부분 제거
+            textBuffer.removeFirst(consumedLength)
+        }
+        
+        return parsed
+    }
+    
+    /// 버퍼에서 다음 완성된 JSON 객체 추출
+    /// - Returns: (JSON 문자열, 소비된 길이) 또는 nil
+    private func extractNextJSONObject() -> (String, Int)? {
+        var braceCount = 0
+        var inString = false
+        var escapeNext = false
+        var objectStart: String.Index?
+        var objectEnd: String.Index?
+        
+        for index in textBuffer.indices {
+            let char = textBuffer[index]
+            
+            // 문자열 내부 처리
+            if escapeNext {
+                escapeNext = false
+                continue
+            }
+            
+            if char == "\\" {
+                escapeNext = true
+                continue
+            }
+            
+            if char == "\"" {
+                inString.toggle()
+                continue
+            }
+            
+            // 문자열 밖에서만 중괄호 카운트
+            if !inString {
+                if char == "{" {
+                    if braceCount == 0 {
+                        objectStart = index
                     }
-                    currentObjectBuffer = ""
+                    braceCount += 1
+                } else if char == "}" {
+                    braceCount -= 1
+                    
+                    // 완전한 JSON 객체 완성
+                    if braceCount == 0, let start = objectStart {
+                        objectEnd = textBuffer.index(after: index)
+                        
+                        let jsonString = String(textBuffer[start..<objectEnd!])
+                        let consumedLength = textBuffer.distance(from: textBuffer.startIndex, to: objectEnd!)
+                        
+                        return (jsonString, consumedLength)
+                    }
                 }
             }
         }
         
-        return completed
+        // 완성된 객체 없음
+        return nil
     }
     
+    /// JSON 문자열을 객체로 디코딩
     private func decodeJSONObject(from jsonString: String) -> T? {
         let trimmed = jsonString.trimmingCharacters(in: .whitespacesAndNewlines)
         
