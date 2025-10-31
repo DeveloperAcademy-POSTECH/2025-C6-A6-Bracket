@@ -18,7 +18,7 @@ protocol ImageOperationsServiceType {
     func getDirectoryList(storage: String) async throws -> ImageOperations.DirectoryListResponse
     
     /// contentList(이미지 리스트) 조회
-    func getContentList(storage: String, directory: String, type: String, order: String, onProgress: @escaping ([String]) -> Void) async throws -> ImageOperations.ContentListResponse
+    func getContentList(storage: String, directory: String, type: String, order: String, onProgress: @escaping (ImageOperations.ContentListResponse) -> Void) async throws -> ImageOperations.ContentListResponse
 }
 
 final class ImageOperationsService: BaseService, ImageOperationsServiceType {
@@ -45,7 +45,7 @@ final class ImageOperationsService: BaseService, ImageOperationsServiceType {
         directory: String,
         type: String,
         order: String,
-        onProgress: @escaping ([String]) -> Void
+        onProgress: @escaping (ImageOperations.ContentListResponse) -> Void
     ) async throws -> ImageOperations.ContentListResponse {
         
         let url = try buildContentListURL(
@@ -56,7 +56,7 @@ final class ImageOperationsService: BaseService, ImageOperationsServiceType {
             order: order
         )
         
-        var finalUrls: [String] = []
+        var allResponses: [ImageOperations.ContentListResponse] = []
         
         // StreamDownloadService 사용
         try await streamDownloadService.stream(
@@ -64,18 +64,25 @@ final class ImageOperationsService: BaseService, ImageOperationsServiceType {
             headers: APIConstants.baseHeader,
             decoding: ImageOperations.ContentListResponse.self,
             onProgress: { responses in
-                let allUrls = responses.flatMap { $0.url ?? [] }
-                onProgress(allUrls)
+                let mergedResponse = Self.mergeResponses(responses)
+                onProgress(mergedResponse)
+                
+                allResponses = responses
             },
             onComplete: { responses in
-                finalUrls = responses.flatMap { $0.url ?? [] }
+                allResponses = responses
             }
         )
         
-        return ImageOperations.ContentListResponse(url: finalUrls)
+        return Self.mergeResponses(allResponses)
     }
     
     // MARK: - Private Methods
+    
+    private static func mergeResponses(_ responses: [ImageOperations.ContentListResponse]) -> ImageOperations.ContentListResponse {
+        let allUrls = responses.flatMap { $0.url ?? [] }
+        return ImageOperations.ContentListResponse(url: allUrls)
+    }
     
     private func getContentListChunked(
         storage: String,
@@ -135,7 +142,7 @@ class StubImageOperationsService: ImageOperationsServiceType {
         return .stub1
     }
     
-    func getContentList(storage: String, directory: String, type: String, order: String, onProgress: @escaping ([String]) -> Void) async throws -> ImageOperations.ContentListResponse {
+    func getContentList(storage: String, directory: String, type: String, order: String, onProgress: @escaping (ImageOperations.ContentListResponse) -> Void) async throws -> ImageOperations.ContentListResponse {
         return .stub1
     }
 }
