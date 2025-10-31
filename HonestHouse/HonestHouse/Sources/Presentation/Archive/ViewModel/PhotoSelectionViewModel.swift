@@ -28,18 +28,14 @@ final class PhotoSelectionViewModel {
     var presentStorage: String?
     var presentDirectory: String?
     
-    var currentPage: Int = 1
-    var isLoading: Bool = false
-    var hasMore: Bool = true
     var entireContentUrls: [String] = []
     
-    var selectedPhotos: [Photo] = []
+    var selectedPhotos: Set<Photo> = []
     
     init(container: DIContainer) {
         self.container = container
         self.imageOperationsService = container.services.imageOperationsService
     }
-    
 }
 
 extension PhotoSelectionViewModel: ArchiveErrorHandleable {
@@ -48,7 +44,7 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
         switch action {
             
         case .goToGroupedPhoto:
-            container.navigationRouter.push(to: .groupedPhotos(selectedPhotos))
+            container.navigationRouter.push(to: .groupedPhotos(Array(selectedPhotos)))
         }
     }
     
@@ -81,12 +77,29 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
     }
     
     /// contentListResponse를 받아와서 contentList로 변환
-    func getContentList(storage: String, directory: String, type: String, kind: String, page: Int) async throws {
+    func getContentList(storage: String, directory: String, type: String, order: String) async throws {
         do {
-            let contentListResponse = try await imageOperationsService.getContentList(storage: storage, directory: directory, type: type, kind: kind, page: page)
-            contentList = contentListResponse.toEntity()
+            let response = try await imageOperationsService.getContentList(
+                storage: storage,
+                directory: directory,
+                type: type,
+                order: order,
+                onProgress: handleContentListProgress
+            )
+            
+            contentList = response.toEntity()
+            entireContentUrls = contentList?.url ?? []
         } catch {
             throw SelectionError.from(error)
+        }
+    }
+    
+    /// 점진적 로딩 진행 상황 처리
+    private func handleContentListProgress(_ response: ImageOperations.ContentListResponse) {
+        Task { @MainActor in
+            self.contentList = response.toEntity()
+            self.entireContentUrls = self.contentList?.url ?? []
+            self.state = .success(self.entireContentUrls)
         }
     }
     
@@ -114,81 +127,47 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
         presentDirectory = dirName
     }
     
-    /// 전체 페이지 초기화 및 1페이지 로딩 (state 전환)
-    func fetchFirstPageImage() async {
-        
+    /// 점진적 로딩으로 모든 이미지 가져오기
+    func fetchAllImages() async {
         state = .loading
+        entireContentUrls.removeAll()
         
         do {
+            // 1. Storage 설정
             try await setPresentStorage()
             guard let storage = presentStorage else { throw SelectionError.generic }
             
+            // 2. Directory 설정
             try await setPresentDirectory(storage: storage)
-            resetPaging()
-            try await loadCurrentPage()
+            guard let directory = presentDirectory else { throw SelectionError.generic }
             
+            // 3. Content List 가져오기 (점진적 로딩)
+            try await getContentList(
+                storage: storage,
+                directory: directory,
+                type: "jpeg",
+                order: "desc"
+            )
+            
+            // 4. 최종 완료
             state = .success(entireContentUrls)
-        } catch {
-            handleError(error)
-        }
-    }
-    
-    /// paging처리 초기화
-    func resetPaging() {
-        currentPage = 1
-        hasMore = true
-        entireContentUrls.removeAll()
-    }
-    
-    /// 현재 페이지에 해당하는 이미지들 불러오기 (state 관여 x)
-    func loadCurrentPage() async throws {
-        guard !isLoading, hasMore else { return }
-        guard let storage = presentStorage,
-              let directory = presentDirectory else { throw SelectionError.generic }
-        
-        isLoading = true
-        defer { isLoading = false }
-        
-        // 현재 page의 contentList를 업데이트
-        
-        try await getContentList(
-            storage: storage,
-            directory: directory,
-            type: "jpeg",
-            kind: "list",
-            page: currentPage
-        )
-        
-        // contentList에 append
-        if let urls = contentList?.url, !urls.isEmpty {
-            entireContentUrls.append(contentsOf: urls)
-            currentPage += 1
-        } else {
-            hasMore = false
-        }
-    }
-    
-    // 스크롤 시 추가 로딩 (state 유지)
-    func loadCurrentPageSafely() async {
-        do {
-            try await loadCurrentPage()
-            state = .success(entireContentUrls)
+            
         } catch {
             handleError(error)
         }
     }
     
     func toggleGridCell(for photo: Photo) {
-        if let index = selectedPhotos.firstIndex(where: { $0.url == photo.url }) {
-            selectedPhotos.remove(at: index)
+        if selectedPhotos.contains(photo) {
+            selectedPhotos.remove(photo)
         } else {
-            selectedPhotos.append(photo)
+            selectedPhotos.insert(photo)
         }
     }
 }
 
 extension PhotoSelectionViewModel {
     func goToGroupedPhotos() {
-        container.navigationRouter.push(to: .groupedPhotos(selectedPhotos))
+        container.navigationRouter.push(to: .groupedPhotos(Array(selectedPhotos)))
     }
 }
