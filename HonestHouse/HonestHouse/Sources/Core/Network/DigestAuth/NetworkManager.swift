@@ -129,6 +129,15 @@ class NetworkManager {
         }
     }
     
+    /// Authorization 헤더 생성 (외부에서 사용 가능)
+    func getAuthorizationHeader(method: String, url: String, body: Data?) -> String? {
+        return authManager?.getAuthorizationHeader(
+            method: method,
+            url: url,
+            body: body
+        )
+    }
+    
     /// 인증 리셋
     func resetAuthentication() {
         authManager?.reset()
