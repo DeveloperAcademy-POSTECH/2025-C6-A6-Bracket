@@ -11,7 +11,7 @@ import Moya
 enum ImageOperationsTarget {
     case getStorageList
     case getDirectoryList(String)
-    case getContentList(String, String, String, String, Int)
+    case getContentList(String, String, String, String, String)
 }
 
 extension ImageOperationsTarget: BaseTargetType {
@@ -40,11 +40,11 @@ extension ImageOperationsTarget: BaseTargetType {
         case .getStorageList, .getDirectoryList:
             return .requestPlain
             
-        case .getContentList(_, _, let type, let kind, let page):
+        case .getContentList(_, _, let type, let kind, let order):
             let parameters: [String : Any] = [
                 "type" : type,
                 "kind" : kind,
-                "page" : page
+                "order" : order
             ]
             return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
         }
