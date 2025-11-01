@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 @Observable
 final class PhotoSelectionViewModel {
     typealias Success = [String]
@@ -84,22 +85,20 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
                 directory: directory,
                 type: type,
                 order: order,
-                onProgress: handleContentListProgress
+                onProgress: { [weak self] response in
+                    
+                    guard let self = self else { return }
+                    
+                    self.contentList = response.toEntity()
+                    self.entireContentUrls = self.contentList?.url ?? []
+                    self.state = .success(self.entireContentUrls)
+                }
             )
             
             contentList = response.toEntity()
             entireContentUrls = contentList?.url ?? []
         } catch {
             throw SelectionError.from(error)
-        }
-    }
-    
-    /// 점진적 로딩 진행 상황 처리
-    private func handleContentListProgress(_ response: ImageOperations.ContentListResponse) {
-        Task { @MainActor in
-            self.contentList = response.toEntity()
-            self.entireContentUrls = self.contentList?.url ?? []
-            self.state = .success(self.entireContentUrls)
         }
     }
     
@@ -148,9 +147,6 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
                 type: "jpeg",
                 order: "desc"
             )
-            
-            // 4. 최종 완료
-            state = .success(entireContentUrls)
             
         } catch {
             handleError(error)

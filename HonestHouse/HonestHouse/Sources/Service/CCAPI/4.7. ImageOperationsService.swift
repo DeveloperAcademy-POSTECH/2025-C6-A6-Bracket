@@ -66,7 +66,9 @@ final class ImageOperationsService: BaseService, ImageOperationsServiceType {
             onProgress: { responses in
                 let mergedResponse = Self.mergeResponses(responses)
                 
-                onProgress(mergedResponse)
+                DispatchQueue.main.async {
+                    onProgress(mergedResponse)
+                }
             },
             onComplete: { responses in
                 allResponses = responses

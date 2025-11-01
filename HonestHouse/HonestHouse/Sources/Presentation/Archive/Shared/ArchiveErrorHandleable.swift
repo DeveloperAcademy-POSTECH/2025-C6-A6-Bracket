@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 protocol ArchiveErrorHandleable: AnyObject {
     associatedtype Success: Equatable
     associatedtype Failure: Error & Equatable
