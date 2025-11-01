@@ -11,7 +11,7 @@ import Moya
 enum ImageOperationsTarget {
     case getStorageList
     case getDirectoryList(String)
-    case getContentList(String, String, String, String, String)
+//    case getContentList(String, String, String, String, String)
 }
 
 extension ImageOperationsTarget: BaseTargetType {
@@ -23,14 +23,14 @@ extension ImageOperationsTarget: BaseTargetType {
         case .getDirectoryList(let value):
             return ImageOperationsAPI.directoryList(value).apiDesc
             
-        case .getContentList(let storage, let directory, _, _, _):
-            return ImageOperationsAPI.contentList(storage, directory).apiDesc
+//        case .getContentList(let storage, let directory, _, _, _):
+//            return ImageOperationsAPI.contentList(storage, directory).apiDesc
         }
     }
     
     var method: Moya.Method {
         switch self {
-        case .getStorageList, .getDirectoryList, .getContentList:
+        case .getStorageList, .getDirectoryList:
                 .get
         }
     }
@@ -40,13 +40,13 @@ extension ImageOperationsTarget: BaseTargetType {
         case .getStorageList, .getDirectoryList:
             return .requestPlain
             
-        case .getContentList(_, _, let type, let kind, let order):
-            let parameters: [String : Any] = [
-                "type" : type,
-                "kind" : kind,
-                "order" : order
-            ]
-            return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
+//        case .getContentList(_, _, let type, let kind, let order):
+//            let parameters: [String : Any] = [
+//                "type" : type,
+//                "kind" : kind,
+//                "order" : order
+//            ]
+//            return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
         }
     }
 }
