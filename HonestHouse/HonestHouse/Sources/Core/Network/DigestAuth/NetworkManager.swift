@@ -129,15 +129,6 @@ class NetworkManager {
         }
     }
     
-    /// Authorization 헤더 생성 (외부에서 사용 가능)
-    func getAuthorizationHeader(method: String, url: String, body: Data?) -> String? {
-        return authManager?.getAuthorizationHeader(
-            method: method,
-            url: url,
-            body: body
-        )
-    }
-    
     /// 인증 리셋
     func resetAuthentication() {
         authManager?.reset()
@@ -146,18 +137,6 @@ class NetworkManager {
     /// Digest Auth 헤더 가져오기 (Event Monitoring 등 스트리밍용)
     func getAuthorizationHeader(method: String, url: String, body: Data? = nil) -> String? {
         return authManager?.getAuthorizationHeader(method: method, url: url, body: body)
-    }
-    
-    func getAuthorizationHeader(
-        method: String,
-        url: String,
-        body: Data? = nil
-    ) -> String? {
-        return authManager?.getAuthorizationHeader(
-            method: method,
-            url: url,
-            body: body
-        )
     }
     
     // MARK: - Private Methods
