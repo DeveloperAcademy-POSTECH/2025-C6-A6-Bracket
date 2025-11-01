@@ -7,11 +7,10 @@
 
 import Foundation
 
-class StreamService {
+class StreamService: BaseStreamService {
 
     // MARK: - Properties
-
-    private let networkManager: NetworkManager
+    
     private var urlSession: URLSession?
     private var streamingTask: URLSessionDataTask?
     private(set) var isStreaming = false
@@ -24,12 +23,6 @@ class StreamService {
 
     var httpMethod: String {
         fatalError("Subclass must override httpMethod")
-    }
-
-    // MARK: - Initialization
-
-    init(networkManager: NetworkManager = .shared) {
-        self.networkManager = networkManager
     }
 
     // MARK: - Public Methods
@@ -50,27 +43,19 @@ class StreamService {
             return false
         }
 
-        let authHeader = await getDigestAuthHeader(for: url)
-
-        // Phase 2: Request Setup
-        var request = URLRequest(url: url)
-        request.httpMethod = httpMethod
-        if let authHeader = authHeader {
-            request.setValue(authHeader, forHTTPHeaderField: "Authorization")
-            print("🔑 Authorization header added to streaming request")
-        } else {
-            print("⚠️ No Authorization header - will handle 401 if needed")
-        }
-
-        // Phase 3: Network Streaming Setup
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = .infinity
-        config.timeoutIntervalForResource = .infinity
-        config.waitsForConnectivity = true
+        // BaseStreamService에서 상속
+        
+        let request = await createAuthenticatedRequest(
+            url: url,
+            method: httpMethod
+        )
+        
+        let config = createSessionConfiguration()
 
         let delegate = StreamDelegate(
             onData: onData,
-            onError: onError
+            onError: onError,
+            sslHandler: handleSSLChallenge
         )
 
         urlSession = URLSession(
@@ -111,37 +96,12 @@ class StreamService {
         return URL(string: "\(BaseAPI.base.apiDesc)\(endpoint)")
     }
 
-    private func getDigestAuthHeader(for url: URL) async -> String? {
-        do {
-            try await networkManager.initializeAuthentication()
-        } catch {
-            print("⚠️ Auth initialization failed: \(error)")
-            return nil
-        }
-
-        return networkManager.getAuthorizationHeader(
-            method: httpMethod,
-            url: url.absoluteString,
-            body: nil
-        )
-    }
-
     private func sendDeleteRequest() async throws {
         guard let url = buildURL() else {
             throw CCAPIError.invalidURL
         }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
-
-        if let authHeader = networkManager.getAuthorizationHeader(
-            method: "DELETE",
-            url: url.absoluteString,
-            body: nil
-        ) {
-            request.setValue(authHeader, forHTTPHeaderField: "Authorization")
-            print("🔑 Authorization header added to DELETE request")
-        }
+        let request = await createAuthenticatedRequest(url: url, method: "DELETE")
 
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
@@ -162,13 +122,16 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate {
     private var buffer = Data()
     private let onData: (Data) -> Void
     private let onError: (Error) -> Void
+    private let sslHandler: (URLAuthenticationChallenge, @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) -> Void
 
     init(
         onData: @escaping (Data) -> Void,
-        onError: @escaping (Error) -> Void
+        onError: @escaping (Error) -> Void,
+        sslHandler: @escaping (URLAuthenticationChallenge, @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) -> Void
     ) {
         self.onData = onData
         self.onError = onError
+        self.sslHandler = sslHandler
     }
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
@@ -219,12 +182,6 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate {
         didReceive challenge: URLAuthenticationChallenge,
         completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
     ) {
-        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
-           let serverTrust = challenge.protectionSpace.serverTrust {
-            let credential = URLCredential(trust: serverTrust)
-            completionHandler(.useCredential, credential)
-        } else {
-            completionHandler(.performDefaultHandling, nil)
-        }
+        sslHandler(challenge, completionHandler)
     }
 }

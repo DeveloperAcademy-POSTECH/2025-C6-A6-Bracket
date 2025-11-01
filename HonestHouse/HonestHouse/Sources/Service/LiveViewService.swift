@@ -19,7 +19,7 @@ class LiveViewService: StreamService {
         return ChunkedStreamParser(streamType: .scroll)
     }()
 
-    private init() {
+    private override init() {
         super.init()
     }
 
