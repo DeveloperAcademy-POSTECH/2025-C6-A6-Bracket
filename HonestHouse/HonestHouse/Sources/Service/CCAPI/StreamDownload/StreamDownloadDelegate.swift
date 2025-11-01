@@ -19,6 +19,7 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
     
     private let onProgress: ([T]) -> Void
     private let onComplete: ([T]) -> Void
+    private let sslHandler: (URLAuthenticationChallenge, @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) -> Void
     
     var completion: ((Result<Void, Error>) -> Void)?
     private var hasCompleted = false
@@ -35,10 +36,12 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
     init(
         decodingType: T.Type,
         onProgress: @escaping ([T]) -> Void,
-        onComplete: @escaping ([T]) -> Void
+        onComplete: @escaping ([T]) -> Void,
+        sslHandler: @escaping (URLAuthenticationChallenge, @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) -> Void
     ) {
         self.onProgress = onProgress
         self.onComplete = onComplete
+        self.sslHandler = sslHandler
     }
     
     // MARK: - URLSessionDataDelegate
@@ -81,7 +84,7 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
         
         print("📡 Response status: \(httpResponse.statusCode)")
         
-        if let error = validateResponseStatus(httpResponse.statusCode) {
+        if validateResponseStatus(httpResponse.statusCode) != nil {
             print("⚠️ Invalid status code, cancelling task")
             completionHandler(.cancel)
             return
@@ -255,12 +258,6 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
         _ challenge: URLAuthenticationChallenge,
         completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
     ) {
-        if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
-           let serverTrust = challenge.protectionSpace.serverTrust {
-            let credential = URLCredential(trust: serverTrust)
-            completionHandler(.useCredential, credential)
-        } else {
-            completionHandler(.performDefaultHandling, nil)
-        }
+        sslHandler(challenge, completionHandler)
     }
 }
