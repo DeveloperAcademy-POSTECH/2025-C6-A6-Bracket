@@ -65,9 +65,8 @@ final class ImageOperationsService: BaseService, ImageOperationsServiceType {
             decoding: ImageOperations.ContentListResponse.self,
             onProgress: { responses in
                 let mergedResponse = Self.mergeResponses(responses)
-                onProgress(mergedResponse)
                 
-                allResponses = responses
+                onProgress(mergedResponse)
             },
             onComplete: { responses in
                 allResponses = responses
