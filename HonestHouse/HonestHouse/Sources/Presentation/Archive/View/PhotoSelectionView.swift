@@ -68,10 +68,11 @@ struct PhotoSelectionView: View {
                     let url = vm.entireContentUrls[index]
                     let photo = Photo(url: url)
                     SelectionGridCellView(
-                        item: photo,
-                        isSelected: vm.selectedPhotos.contains(where: { $0.url == url }),
+                        photo: photo,
+                        isSelected: vm.selectedPhotos.contains(photo),
                         onTapSelectionGridCell: { vm.toggleGridCell(for: photo) }
                     )
+                    .environment(vm)
                     .id(url)
                 }
             }
