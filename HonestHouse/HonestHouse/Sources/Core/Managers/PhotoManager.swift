@@ -16,10 +16,17 @@ final class PhotoManager: PhotoManagerType {
         self.imageLoader = imageLoader
     }
     
-    func savePhotos(photos: [Photo]) async throws {
+    func savePhotos(photos: [Photo], onProgress: ((Int, Int) -> Void)? = nil) async throws {
         try await requestAuthorization()
         let album = try await getOrCreateAlbum(albumName: albumName)
-        for photo in photos {
+
+        let total = photos.count
+        for (index, photo) in photos.enumerated() {
+            let current = index + 1
+
+            // Progress 콜백 호출 (저장 시작)
+            onProgress?(current, total)
+
             let imageData = try await imageLoader.fetchImageData(from: photo.url)
             try await saveImageData(imageData, to: album)
         }
@@ -90,7 +97,7 @@ final class PhotoManager: PhotoManagerType {
 // MARK: - StubPhotoManager
 
 final class StubPhotoManager: PhotoManagerType {
-    func savePhotos(photos: [Photo]) async throws {
+    func savePhotos(photos: [Photo], onProgress: ((Int, Int) -> Void)? = nil) async throws {
         return
     }
 }
