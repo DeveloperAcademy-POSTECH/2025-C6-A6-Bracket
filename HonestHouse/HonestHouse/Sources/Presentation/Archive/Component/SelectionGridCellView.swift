@@ -8,16 +8,16 @@
 import SwiftUI
 import Kingfisher
 
-struct SelectionGridCellView<Item: SelectableItem>: View {
-    let item: Item
+struct SelectionGridCellView: View {
+    let photo: Photo
     let isSelected: Bool
     let onTapSelectionGridCell: () -> Void
-    
+    @Environment(PhotoSelectionViewModel.self) var vm
+
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            NavigationLink(destination: PhotoSelectionDetailView(item: item)) {
-                KFImage(URL(string: item.thumbnailURL))
-                    .resizable()
+            NavigationLink(destination: PhotoSelectionDetailView(initialPhoto: photo).environment(vm)) {
+                CachedThumbnailImage(url: photo.thumbnailURL)
                     .aspectRatio(1, contentMode: .fit)
                     .clipped()
                     .overlay(isSelected ? Color.black.opacity(0.3) : Color.clear)
