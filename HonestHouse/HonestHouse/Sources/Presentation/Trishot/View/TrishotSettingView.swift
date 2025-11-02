@@ -27,6 +27,9 @@ struct TrishotSettingView: View {
         VStack(spacing: 32) {
             ForEach(vm.trishotItems.indices) { index in
                 presetView(vm.trishotItems[index], index)
+                    .onTapGesture {
+                        vm.send(action: .togglePreset(vm.trishotItems[index].id))
+                    }
             }
         }
     }
@@ -36,9 +39,6 @@ struct TrishotSettingView: View {
         VStack(alignment: .leading, spacing: 12) {
             titleView(name: item.preset.name)
             contentView(item, index)
-        }
-        .onTapGesture {
-            vm.send(action: .togglePreset(item.id))
         }
     }
     
