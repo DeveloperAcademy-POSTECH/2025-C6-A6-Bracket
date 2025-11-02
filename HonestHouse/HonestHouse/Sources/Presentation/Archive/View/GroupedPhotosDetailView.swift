@@ -25,14 +25,14 @@ struct GroupedPhotosDetailView: View {
     private func photoDetailView(photo: Photo) -> some View {
         ZStack(alignment: .bottomTrailing) {
             // Progressive Display Image (Thumbnail → Display → Display 실패 시 원본)
-            ProgressiveDisplayImage(
+            ProgressiveDisplayImageView(
                 thumbnailURL: photo.thumbnailURL,
                 displayURL: photo.displayURL,
                 originalURL: photo.url
             )
 
             // 선택/해제 버튼
-            selectionButton(photo: photo)
+            selectionButtonView(photo: photo)
                 .padding(16)
         }
         .task {
@@ -41,7 +41,7 @@ struct GroupedPhotosDetailView: View {
         }
     }
 
-    private func selectionButton(photo: Photo) -> some View {
+    private func selectionButtonView(photo: Photo) -> some View {
         Button {
             vm.toggleGroupedPhotoView(for: photo)
         } label: {

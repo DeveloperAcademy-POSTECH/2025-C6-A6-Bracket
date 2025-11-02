@@ -17,7 +17,7 @@ struct SelectionGridCellView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             NavigationLink(destination: PhotoSelectionDetailView(initialPhoto: photo).environment(vm)) {
-                CachedThumbnailImage(url: photo.thumbnailURL)
+                CachedThumbnailImageView(url: photo.thumbnailURL)
                     .aspectRatio(1, contentMode: .fit)
                     .clipped()
                     .overlay(isSelected ? Color.black.opacity(0.3) : Color.clear)
