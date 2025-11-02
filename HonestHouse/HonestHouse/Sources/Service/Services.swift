@@ -23,7 +23,7 @@ class Services: ServiceType {
     var presetService: PresetServiceType
     var liveViewService: LiveViewServiceType
     
-    init(modelContext: ModelContext) {
+    init() {
         self.shootingControlService = ShootingControlService()
         self.shootingSettingsService = ShootingSettingsService()
         self.imageOperationsService = ImageOperationsService()

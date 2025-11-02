@@ -20,9 +20,9 @@ final class PresetDetailViewModel {
     
     var error: PresetError?
 
-    private var presetService: PresetServiceType
     private var shootingControlService: ShootingControlServiceType
     private var shootingSettingsService: ShootingSettingsServiceType
+    private var presetManager: PresetManagerType
     
     enum Action {
         case popToPresetView
@@ -37,20 +37,10 @@ final class PresetDetailViewModel {
         self.presetDetailMode = presetDetailMode
         self.selectedPreset = selectedPreset
 
-        self.presetService = container.services.presetService
         self.shootingControlService = container.services.shootingControlService
         self.shootingSettingsService = container.services.shootingSettingsService
+        self.presetManager = container.managers.presetManager
     }
-}
-
-
-//MARK: - SwiftData Related
-extension PresetDetailViewModel {
-    func loadPreset() { }
-    func createPreset() { }
-    func deletePreset() { }
-    func updatePreset() { }
-
 }
 
 //MARK: - Navigation
