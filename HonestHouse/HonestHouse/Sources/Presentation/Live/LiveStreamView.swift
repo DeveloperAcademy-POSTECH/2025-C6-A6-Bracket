@@ -41,19 +41,6 @@ struct LiveStreamView: View {
             HStack(spacing: 15) {
                 Button {
                     Task {
-                        await connectCamera()
-                    }
-                } label: {
-                    Text(isConnected ? "연결됨" : "카메라 연결")
-                        .padding()
-                        .background(isConnected ? Color.green : Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .disabled(isConnected)
-
-                Button {
-                    Task {
                         await startLiveView()
                     }
                 } label: {
@@ -67,6 +54,7 @@ struct LiveStreamView: View {
 
                 Button {
                     Task {
+                        // TODO: 제대로 동작하게 수정 필요
                         await stopLiveView()
                     }
                 } label: {
@@ -80,24 +68,6 @@ struct LiveStreamView: View {
             }
         }
         .padding()
-    }
-
-    // MARK: - Private Methods
-
-    @MainActor
-    private func connectCamera() async {
-        vm.errorMessage = nil
-
-        do {
-            NetworkManager.shared.configure(cameraIP: BaseURLConstants.cameraIP)
-            try await NetworkManager.shared.initializeAuthentication()
-
-            isConnected = true
-            print("✅ 카메라 연결 성공")
-        } catch {
-            vm.errorMessage = "연결 실패: \(error.localizedDescription)"
-            print("❌ 카메라 연결 실패: \(error)")
-        }
     }
 
     @MainActor

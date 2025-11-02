@@ -34,14 +34,6 @@ struct PresetView: View {
             .padding(.bottom, 24)
 
         }
-        .task {
-            NetworkManager.shared.configure(cameraIP: BaseURLConstants.cameraIP)
-            Task {
-                try await NetworkManager.shared.initializeAuthentication()
-            }
-            
-            await vm.getAperture()
-        }
         .environment(vm)
     }
     
