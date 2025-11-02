@@ -37,7 +37,6 @@ class NetworkManager {
     // MARK: - Initialization
     
     func configure(cameraIP: String,
-                   port: Int,
                    username: String = "",
                    password: String = "") {
         
@@ -45,8 +44,7 @@ class NetworkManager {
         let sslDelegate = SSLPinningDelegate()
         sslDelegate.addTrustedHost(cameraIP)
         
-        // baseURL 생성
-        let baseURL = "https://\(cameraIP):\(port)/ccapi"
+        let baseURL = BaseURLConstants.baseURL
         
         // DigestAuthManager 생성
         self.authManager = DigestAuthManager(

@@ -89,7 +89,7 @@ struct LiveStreamView: View {
         vm.errorMessage = nil
 
         do {
-            NetworkManager.shared.configure(cameraIP: "192.168.1.2", port: 443)
+            NetworkManager.shared.configure(cameraIP: BaseURLConstants.cameraIP)
             try await NetworkManager.shared.initializeAuthentication()
 
             isConnected = true

@@ -12,7 +12,7 @@ protocol BaseTargetType: TargetType {}
 
 extension BaseTargetType {
     public var baseURL: URL {
-        return URL(string: BaseAPI.base.apiDesc)!
+        return URL(string: BaseURLConstants.baseURL)!
     }
     
     public var headers: [String : String]? {

@@ -35,7 +35,7 @@ struct PresetView: View {
 
         }
         .task {
-            NetworkManager.shared.configure(cameraIP: "192.168.1.2", port: 443)
+            NetworkManager.shared.configure(cameraIP: BaseURLConstants.cameraIP)
             Task {
                 try await NetworkManager.shared.initializeAuthentication()
             }

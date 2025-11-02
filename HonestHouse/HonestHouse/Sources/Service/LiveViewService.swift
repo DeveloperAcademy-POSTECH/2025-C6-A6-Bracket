@@ -81,7 +81,7 @@ class LiveViewService: StreamService {
     // MARK: - Private Methods - LiveView Control
 
     private func enableLiveView(size: String, display: String) async throws {
-        let url = URL(string: "\(BaseAPI.base.apiDesc)ver100/shooting/liveview")!
+        let url = URL(string: "\(BaseURLConstants.baseURL)ver100/shooting/liveview")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -123,7 +123,7 @@ class LiveViewService: StreamService {
     }
 
     private func disableLiveView() async throws {
-        let url = URL(string: "\(BaseAPI.base.apiDesc)ver100/shooting/liveview")!
+        let url = URL(string: "\(BaseURLConstants.baseURL)ver100/shooting/liveview")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
