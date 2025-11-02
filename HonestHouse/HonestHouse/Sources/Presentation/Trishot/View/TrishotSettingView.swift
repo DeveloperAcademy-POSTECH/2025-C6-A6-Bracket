@@ -23,7 +23,7 @@ struct TrishotSettingView: View {
     }
     
     // 프리셋 3개 목록 (트라이샷)
-    func presetListView() -> some View {
+    private func presetListView() -> some View {
         VStack(spacing: 32) {
             ForEach(vm.trishotItems.indices) { index in
                 presetView(vm.trishotItems[index], index)
@@ -35,7 +35,7 @@ struct TrishotSettingView: View {
     }
     
     // 프리셋 타이틀 + 내용
-    func presetView(_ item: TrishotItem, _ index: Int) -> some View {
+    private func presetView(_ item: TrishotItem, _ index: Int) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             titleView(name: item.preset.name)
             contentView(item, index)
@@ -43,11 +43,10 @@ struct TrishotSettingView: View {
     }
     
     // 프리셋 타이틀
-    func titleView(name: String) -> some View {
+    private func titleView(name: String) -> some View {
         
         Button {
             vm.send(action: .goToTrishotSelection)
-            
         } label: {
             HStack {
                 Text(name)
@@ -61,7 +60,7 @@ struct TrishotSettingView: View {
     }
     
     // 프리셋 내용
-    func contentView(_ item: TrishotItem, _ index: Int) -> some View {
+    private func contentView(_ item: TrishotItem, _ index: Int) -> some View {
         HStack {
             contentSettingsView(item.preset)
             Spacer()
@@ -74,7 +73,7 @@ struct TrishotSettingView: View {
     }
     
     // 프리셋 내용 - 세팅 종류
-    func contentSettingsView(_ preset: Preset) -> some View {
+    private func contentSettingsView(_ preset: Preset) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Circle().frame(width: 32, height: 32).foregroundStyle(Color.blue)
@@ -92,28 +91,28 @@ struct TrishotSettingView: View {
         
     }
     
-    func filterIcon(iso: ISO) -> some View {
+    private func filterIcon(iso: ISO) -> some View {
         Image("")
     }
     
-    func shootingModeIcon() -> some View {
+    private func shootingModeIcon() -> some View {
         Image("")
     }
     
-    func blueAmberIcon() -> some View {
+    private func blueAmberIcon() -> some View {
         Image("")
     }
     
-    func exposureIcon() -> some View {
+    private func exposureIcon() -> some View {
         Image("")
     }
     
-    func tintIcon() -> some View {
+    private func tintIcon() -> some View {
         Image("")
     }
     
     // 프리셋 내용 - 원
-    func contentCircleView(num: Int) -> some View {
+    private func contentCircleView(num: Int) -> some View {
         Circle()
             .stroke(lineWidth: 0.5)
             .frame(width: 110, height: 110)
@@ -127,13 +126,13 @@ struct TrishotSettingView: View {
             .foregroundStyle(Color.yellow1)
     }
     
-    func shootingDescriptionView(_ preset: Preset) -> some View {
+    private func shootingDescriptionView(_ preset: Preset) -> some View {
         Text(preset.settingsDescription)
             .foregroundStyle(Color.g0)
             .font(.num4)
     }
     
-    func startButtonView() -> some View {
+    private func startButtonView() -> some View {
         Button {
             
         } label: {

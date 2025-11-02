@@ -24,7 +24,7 @@ struct TrishotSelectionView: View {
     }
     
     // (트라이샷을 위한) 프리셋 아이템 리스트
-    func trishotItemListView(_ presetList: [Preset]) -> some View {
+    private func trishotItemListView(_ presetList: [Preset]) -> some View {
         VStack {
             ForEach(presetList, id: \.self) { item in
                 trishotItemView(item)
@@ -33,7 +33,7 @@ struct TrishotSelectionView: View {
     }
     
     // (트라이샷을 위한) 프리셋 아이템
-    func trishotItemView(_ preset: Preset) -> some View {
+    private func trishotItemView(_ preset: Preset) -> some View {
         HStack(alignment: .bottom, spacing: 4) {
             VStack(alignment: .leading, spacing: 14) {
                 nameView(preset.name)
@@ -49,7 +49,7 @@ struct TrishotSelectionView: View {
     }
     
     // 프리셋 이름
-    func nameView(_ name: String) -> some View {
+    private func nameView(_ name: String) -> some View {
         Text(name)
             .font(.labelL)
             .foregroundStyle(Color.g0)
@@ -58,7 +58,7 @@ struct TrishotSelectionView: View {
     
     // TODO: - 아이콘 대입하기
     // 촬영 세팅 아이콘 리스트
-    func iconListView() -> some View {
+    private func iconListView() -> some View {
         HStack {
             Circle().frame(width: 32, height: 32).foregroundStyle(Color.g0)
             Circle().frame(width: 32, height: 32).foregroundStyle(Color.g0)
@@ -70,7 +70,7 @@ struct TrishotSelectionView: View {
     
     // TODO: - component로 빼기
     // F: [ ] ISO: [   ]
-    func shootingDescriptionView(_ preset: Preset) -> some View {
+    private func shootingDescriptionView(_ preset: Preset) -> some View {
         Text(preset.settingsDescription)
             .foregroundStyle(Color.g0)
             .font(.num4)
