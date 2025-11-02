@@ -30,7 +30,12 @@ struct GroupedPhotosView: View {
             case .failure(_):
                 Color.clear
             }
-            
+
+            // 저장 중 Progress Overlay
+            if case .saving(let current, let total) = vm.savingState {
+                savingProgressView(current: current, total: total)
+            }
+
             if showToast {
                 ToastView(message: toastMessage, isShowing: $showToast)
                     .transition(.move(edge: .bottom))
@@ -45,6 +50,20 @@ struct GroupedPhotosView: View {
                 showToast = true
             } else {
                 showToast = false
+            }
+        }
+        .onChange(of: vm.savingState) { _, newState in
+            if case .success = newState {
+                toastMessage = "저장 완료!"
+                showToast = true
+
+                // 성공 후 메인으로 이동
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    vm.goToMain()
+                }
+            } else if case .failure(let error) = newState {
+                toastMessage = "저장 실패: \(error)"
+                showToast = true
             }
         }
     }
@@ -84,6 +103,33 @@ struct GroupedPhotosView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 12)
             }
+        }
+    }
+
+    private func savingProgressView(current: Int, total: Int) -> some View {
+        ZStack {
+            // 반투명 배경
+            Color.black.opacity(0.7)
+                .ignoresSafeArea()
+
+            // Progress UI
+            VStack(spacing: 20) {
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .tint(.white)
+
+                Text("\(current) / \(total)")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+
+                Text("사진을 저장하는 중...")
+                    .font(.body)
+                    .foregroundColor(.white.opacity(0.8))
+            }
+            .padding(40)
+            .background(Color.black.opacity(0.8))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
     }
 }
