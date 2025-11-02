@@ -56,6 +56,8 @@ final class Preset: Hashable {
 
     var tintBlueAmber: Int?
     var tintMagentaGreen: Int?
+    
+    var isSelected: Bool
 
     init(
         id: UUID = UUID(),
@@ -70,7 +72,8 @@ final class Preset: Hashable {
         tintBlueAmber: Int? = nil,
         tintMagentaGreen: Int? = nil,
         createdAt: Date = Date(),
-        updatedAt: Date = Date()
+        updatedAt: Date = Date(),
+        isSelected: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -85,6 +88,7 @@ final class Preset: Hashable {
         self.tintMagentaGreen = tintMagentaGreen
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.isSelected = isSelected
     }
 }
 
@@ -100,7 +104,24 @@ extension Preset {
 }
 
 extension Preset {
+    var settingsDescription: String {
+        let apertureValue = aperture ?? "Auto"
+        let isoValue = iso ?? "Auto"
+        return "F: [\(apertureValue)] ISO: [\(isoValue)]"
+    }
+}
+
+extension Preset {
+
     static var stub1: Preset {
-        .init(name: "", pictureStyle: .auto, shootingMode: .av)
+        .init(id: .init(), name: "프리셋1", pictureStyle: .auto, shootingMode: .av, aperture: "1", shutterSpeed: "1/100", iso: "1000", exposureCompensation: "1/3", colorTemperature: 3400, tintBlueAmber: 10, tintMagentaGreen: 10, createdAt: .init(), updatedAt: .init())
+    }
+    
+    static var stub2: Preset {
+        .init(id: .init(), name: "프리셋2", pictureStyle: .faithful, shootingMode: .p, aperture: "10", shutterSpeed: "1/1000", iso: "4000", exposureCompensation: "0", colorTemperature: 3400, tintBlueAmber: 10, tintMagentaGreen: 10, createdAt: .init(), updatedAt: .init())
+    }
+    
+    static var stub3: Preset {
+        .init(id: .init(), name: "프리셋3", pictureStyle: .landscape, shootingMode: .tv, aperture: "22", shutterSpeed: "1/10", iso: "auto", exposureCompensation: "-1/3", colorTemperature: 4800, tintBlueAmber: 20, tintMagentaGreen: -10, createdAt: .init(), updatedAt: .init())
     }
 }

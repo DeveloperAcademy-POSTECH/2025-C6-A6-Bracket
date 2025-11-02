@@ -16,36 +16,41 @@ struct MainView: View {
      
     var body: some View {
         NavigationStack(path: $container.navigationRouter.destinations) {
-            VStack(spacing: 18) {
-                cameraAndArchiveHeaderView()
-                segmentedControlView()
-                
-                Picker("", selection: $vm.selectedSegment) {
-                    ForEach(MainViewSegmentType.allCases, id: \.self) { _ in
-                    }
-                }
-                .pickerStyle(.palette)
-                
-                switch vm.selectedSegment {
-                case .trishot:
-                    TrishotSettingView()
+            ZStack {
+                Color.g12.ignoresSafeArea(.all)
+                VStack(spacing: 18) {
+                    cameraAndArchiveHeaderView()
+                    segmentedControlView()
                     
-                case .preset:
-                    PresetView(
-                        vm: PresetViewModel(
-                            container: container,
-                            isPresetEditMode: isPresetEditMode,
-                            onEditModeChange: { newValue in
-                                isPresetEditMode = newValue
-                            }
+                    Picker("", selection: $vm.selectedSegment) {
+                        ForEach(MainViewSegmentType.allCases, id: \.self) { _ in
+                        }
+                    }
+                    .pickerStyle(.palette)
+                    
+                    switch vm.selectedSegment {
+                    case .trishot:
+                        TrishotSettingView(
+                            vm: TrishotSettingViewModel(container: container)
                         )
-                    )
+                        
+                    case .preset:
+                        PresetView(
+                            vm: PresetViewModel(
+                                container: container,
+                                isPresetEditMode: isPresetEditMode,
+                                onEditModeChange: { newValue in
+                                    isPresetEditMode = newValue
+                                }
+                            )
+                        )
+                    }
+                    
                 }
-                
-            }
-            .padding(.horizontal, 16)
-            .navigationDestination(for: NavigationDestination.self) {
-                NavigationRoutingView(destination: $0)
+                .padding(.horizontal, 16)
+                .navigationDestination(for: NavigationDestination.self) {
+                    NavigationRoutingView(destination: $0)
+                }
             }
         }
     }

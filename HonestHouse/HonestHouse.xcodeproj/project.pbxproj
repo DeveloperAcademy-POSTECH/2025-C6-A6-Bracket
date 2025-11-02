@@ -18,9 +18,23 @@
 		21C47E2E2E9AA5FC00FB6029 /* HonestHouse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HonestHouse.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6C6E6D962EB3733500F8E6A4 /* Exceptions for "HonestHouse" folder in "HonestHouse" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				Resources/Image/Assets.xcassets,
+			);
+			target = 21C47E2D2E9AA5FC00FB6029 /* HonestHouse */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		21C47E302E9AA5FC00FB6029 /* HonestHouse */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6C6E6D962EB3733500F8E6A4 /* Exceptions for "HonestHouse" folder in "HonestHouse" target */,
+			);
 			path = HonestHouse;
 			sourceTree = "<group>";
 		};
@@ -280,6 +294,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3HYFT54PK2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HonestHouse/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "앨범의 사진을 가져와서 확인하고 기기에 저장하기 위해 사진 앱에 접근 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -295,7 +310,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.honesthouse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development com.honesthouse";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development com.honesthouse 1761025458";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -314,6 +329,7 @@
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3HYFT54PK2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HonestHouse/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "앨범의 사진을 가져와서 확인하고 기기에 저장하기 위해 사진 앱에 접근 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -329,7 +345,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.honesthouse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development com.honesthouse";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development com.honesthouse 1761025458";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

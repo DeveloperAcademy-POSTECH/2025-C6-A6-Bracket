@@ -23,8 +23,23 @@ extension Font {
     static let captionL: Font = .custom("Pretendard-Regular", size: 16) /// Pretendard Regular 16
     static let captionM: Font = .custom("Pretendard-Regular", size: 14) /// Pretendard Regular 14 140%
  
-    static let num1: Font = .custom("SFMonoSemiBold", size: 20)         /// SF Mono SemiBold 20  130%
-    static let num2: Font = .custom("SFMonoSemiBold", size: 18)         /// SF Mono SemiBold 18  130%
-    static let num3: Font = .custom("SFMonoMedium", size: 16)           /// SF Mono Medium 16  130%
-    static let num4: Font = .custom("SFMonoMedium", size: 14)           /// SF Mono Medium 14  130%
+    static let num1: Font = .custom("SFMono-Semibold", size: 20)         /// SF Mono SemiBold 20  130%
+    static let num2: Font = .custom("SFMono-Semibold", size: 18)         /// SF Mono SemiBold 18  130%
+    static let num3: Font = .custom("SFMono-Medium", size: 16)           /// SF Mono Medium 16  130%
+    static let num4: Font = .custom("SFMono-Medium", size: 14)           /// SF Mono Medium 14  130%
+}
+
+/// 폰트가 추가되었는지 확인
+func checkFontFile() {
+    for fontFamily in UIFont.familyNames {
+        for fontName in UIFont.fontNames(forFamilyName: fontFamily) {
+            print(fontName)
+        }
+    }
+}
+
+/// 프레임을 폰트 높이에 맞추기
+func heightForFontSize(_ size: CGFloat) -> CGFloat {
+    let font = UIFont.systemFont(ofSize: size)
+    return font.capHeight
 }
