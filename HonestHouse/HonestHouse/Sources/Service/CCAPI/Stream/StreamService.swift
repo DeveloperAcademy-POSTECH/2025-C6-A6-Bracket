@@ -93,7 +93,7 @@ class StreamService: BaseStreamService {
     // MARK: - Private Methods
 
     private func buildURL() -> URL? {
-        return URL(string: "\(BaseAPI.base.apiDesc)\(endpoint)")
+        return URL(string: "\(BaseURLConstants.baseURL)\(endpoint)")
     }
 
     private func sendDeleteRequest() async throws {

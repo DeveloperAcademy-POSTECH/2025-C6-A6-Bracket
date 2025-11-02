@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ConnectionState {
+enum ConnectionState: Equatable {
     case disconnected
     case connecting
     case connected
@@ -26,11 +26,11 @@ final class CameraConnectionManager: ObservableObject, CameraConnectionManagerTy
         self.networkManager = networkManager
     }
     
-    func connectCamera(ipAddress: String, port: Int) {
+    func connectCamera(ipAddress: String) {
         connectionState = .connecting
         errorMessage = nil
         
-        networkManager.configure(cameraIP: ipAddress, port: port)
+        networkManager.configure(cameraIP: ipAddress)
         
         Task {
             do {
@@ -55,7 +55,12 @@ final class CameraConnectionManager: ObservableObject, CameraConnectionManagerTy
 }
 
 final class StubCameraConnectionManager: CameraConnectionManagerType {
-    func connectCamera(ipAddress: String, port: Int) {
+    
+    @Published var isConnected: Bool = false
+    @Published var connectionState: ConnectionState = .disconnected
+    @Published var errorMessage: String? = nil
+    
+    func connectCamera(ipAddress: String) {
         return
     }
     

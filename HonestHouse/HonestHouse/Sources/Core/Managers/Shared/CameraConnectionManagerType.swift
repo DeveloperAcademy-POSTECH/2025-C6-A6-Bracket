@@ -7,7 +7,11 @@
 
 import Foundation
 
-protocol CameraConnectionManagerType {
-    func connectCamera(ipAddress: String, port: Int)
+protocol CameraConnectionManagerType: ObservableObject {
+    var isConnected: Bool { get }
+    var connectionState: ConnectionState { get }
+    var errorMessage: String? { get }
+    
+    func connectCamera(ipAddress: String)
     func disconnectCamera()
 }
