@@ -19,7 +19,8 @@ final class PhotoSelectionViewModel {
     
     private var container: DIContainer
     private var imageOperationsService: ImageOperationsServiceType
-    
+    private var imagePrefetchManager: ImagePrefetchManagerType
+
     var state: ArchiveState<Success, Failure> = .idle
     
     var storageList: StorageList?
@@ -30,12 +31,24 @@ final class PhotoSelectionViewModel {
     var presentDirectory: String?
     
     var entireContentUrls: [String] = []
-    
+
     var selectedPhotos: Set<Photo> = []
-    
+
+    // Prefetch 시작 여부 플래그 (chunk 중복 방지)
+    private var hasStartedInitialPrefetch = false
+
+    // State 업데이트 플래그 (첫 chunk에서만 .success 설정)
+    private var hasSetSuccessState = false
+
+    // Computed property: 전체 Photo 리스트
+    var allPhotos: [Photo] {
+        entireContentUrls.map { Photo(url: $0) }
+    }
+
     init(container: DIContainer) {
         self.container = container
         self.imageOperationsService = container.services.imageOperationsService
+        self.imagePrefetchManager = container.managers.imagePrefetchManager
     }
 }
 
@@ -86,12 +99,24 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
                 type: type,
                 order: order,
                 onProgress: { [weak self] response in
-                    
+
                     guard let self = self else { return }
-                    
+
                     self.contentList = response.toEntity()
                     self.entireContentUrls = self.contentList?.url ?? []
-                    self.state = .success(self.entireContentUrls)
+
+                    // 첫 chunk에서만 state를 .success로 설정
+                    if !self.hasSetSuccessState {
+                        self.hasSetSuccessState = true
+                        self.state = .success(self.entireContentUrls)
+                    }
+
+                    // 첫 100장 도착 시 prefetch 시작 (한 번만)
+                    if !self.hasStartedInitialPrefetch && self.entireContentUrls.count >= 100 {
+                        self.hasStartedInitialPrefetch = true
+                        let photos = self.entireContentUrls.map { Photo(url: $0) }
+                        self.imagePrefetchManager.startInitialPrefetch(photos: photos, count: 50)
+                    }
                 }
             )
             
@@ -130,6 +155,8 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
     func fetchAllImages() async {
         state = .loading
         entireContentUrls.removeAll()
+        hasSetSuccessState = false
+        hasStartedInitialPrefetch = false
         
         do {
             // 1. Storage 설정
@@ -147,7 +174,7 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
                 type: "jpeg",
                 order: "desc"
             )
-            
+
         } catch {
             handleError(error)
         }
@@ -164,6 +191,29 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
 
 extension PhotoSelectionViewModel {
     func goToGroupedPhotos() {
+        // 초기 prefetch 중단 (리소스 절약)
+        imagePrefetchManager.cancelInitialPrefetch()
+
         container.navigationRouter.push(to: .groupedPhotos(Array(selectedPhotos)))
+    }
+
+    // MARK: - DetailView 유틸리티
+
+    /// 현재 Photo의 좌우 Photo 가져오기
+    func getAdjacentPhotos(current: Photo) -> (previous: Photo?, next: Photo?) {
+        guard let currentIndex = allPhotos.firstIndex(where: { $0.url == current.url }) else {
+            return (nil, nil)
+        }
+
+        let previous = currentIndex > 0 ? allPhotos[currentIndex - 1] : nil
+        let next = currentIndex < allPhotos.count - 1 ? allPhotos[currentIndex + 1] : nil
+
+        return (previous, next)
+    }
+
+    /// DetailView에서 좌우 1장씩 prefetch
+    func prefetchAdjacentPhotos(current: Photo) {
+        let (previous, next) = getAdjacentPhotos(current: current)
+        imagePrefetchManager.prefetchAdjacent(current: current, previous: previous, next: next)
     }
 }
