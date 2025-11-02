@@ -14,7 +14,7 @@ protocol PresetErrorHandleable: AnyObject {
 
 extension PresetErrorHandleable {
     func handleError(_ error: Error) {
-        if let presetServiceError = error as? PresetServiceError {
+        if let presetServiceError = error as? PresetManagerError {
             self.error = PresetError.from(presetServiceError: presetServiceError)
         } else if let ccapiError = error as? CCAPIError {
             self.error = PresetError.from(ccapiError: ccapiError)
