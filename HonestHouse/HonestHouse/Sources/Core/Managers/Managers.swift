@@ -6,21 +6,26 @@
 //
 
 import Foundation
+import CoreData
 
 protocol ManagersType {
     var visionManager: VisionManagerType { get }
     var photoManager: PhotoManagerType { get }
     var imagePrefetchManager: ImagePrefetchManagerType { get }
+    var presetManager: PresetManagerType { get }
 }
 
 final class Managers: ManagersType {
     var visionManager: VisionManagerType
     var photoManager: PhotoManagerType
     var imagePrefetchManager: ImagePrefetchManagerType
-    init() {
+    var presetManager: PresetManagerType
+    
+    init(viewContext: NSManagedObjectContext) {
         self.visionManager = VisionManager()
         self.photoManager = PhotoManager()
         self.imagePrefetchManager = ImagePrefetchManager()
+        self.presetManager = PresetManager(viewContext: viewContext)
     }
 }
 
@@ -30,4 +35,5 @@ final class StubManagers: ManagersType {
     var visionManager: VisionManagerType = StubVisionManager()
     var photoManager: PhotoManagerType = StubPhotoManager()
     var imagePrefetchManager: ImagePrefetchManagerType = StubImagePrefetchManager()
+    var presetManager: PresetManagerType = StubPresetManager()
 }

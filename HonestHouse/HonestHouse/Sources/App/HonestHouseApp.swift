@@ -6,30 +6,27 @@
 //
 
 import SwiftUI
-import SwiftData
+import CoreData
 
 @main
 struct HonestHouseApp: App {
-    let modelContainer: ModelContainer
-    
+    let persistenceController = PersistenceController.shared  // ← 추가
     @State var container: DIContainer
     @StateObject var cameraConnectionManager = CameraConnectionManager()
     @State private var showConnectionSheet = false
 
     init() {
-        do {
-            modelContainer = try ModelContainer(for: Preset.self)
-            let services = Services(modelContext: modelContainer.mainContext)
-            container = DIContainer(services: services, managers: Managers())
-        } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
-        }
+        let viewContext = persistenceController.viewContext  // ← viewContext 추출
+        let services = Services()
+        let managers = Managers(viewContext: viewContext)  // ← viewContext 주입
+        container = DIContainer(services: services, managers: managers)
     }
 
     var body: some Scene {
         WindowGroup {
             MainView(vm: MainViewModel(container: container))
                 .environmentObject(container)
+                .environment(\.managedObjectContext, persistenceController.viewContext)  // ← 추가
                 .environmentObject(cameraConnectionManager)
                 .preferredColorScheme(.dark)
                 .onAppear {
@@ -46,6 +43,5 @@ struct HonestHouseApp: App {
                         .environmentObject(cameraConnectionManager)
                 }
         }
-        .modelContainer(modelContainer)
     }
 }
