@@ -11,50 +11,54 @@ import Kingfisher
 struct GroupedPhotosDetailView: View {
     let groupedPhotos: SimilarPhotoGroup
     @Environment(GroupedPhotosViewModel.self) var vm
-    /// selectedPhotosInGroup: vm.selectedPhotosInGroup,
-   /// onTapGroupedPhoto: vm.toggleGroupedPhotoView
-//    let finalSelectedPhotos: [Photo]
-//    let onTapGroupedPhoto: (Photo) -> Void
-    
+
     var body: some View {
         TabView {
-            groupedImagesView()
-        }
-        .tabViewStyle(.page)
-        .indexViewStyle(.page(backgroundDisplayMode: .always))
-    }
-    
-    //MARK: View Component
-    private func groupedImagesView() -> some View {
-        ForEach(vm.selectedPhotosInGroup) { photo in
-            ZStack(alignment: .bottomTrailing) {
-                KFImage(URL(string: photo.url))
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                
-                selectionButtonView(photo: photo)
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
+            ForEach(groupedPhotos.photos) { photo in
+                photoDetailView(photo: photo)
+                    .tag(photo)
             }
         }
+        .tabViewStyle(.page(indexDisplayMode: .never)) // PageControl 숨김
     }
-    
-    private func selectionButtonView(photo: Photo) -> some View {
-        Button(action: { vm.toggleGroupedPhotoView(for: photo) }) {
+
+    private func photoDetailView(photo: Photo) -> some View {
+        ZStack(alignment: .bottomTrailing) {
+            // Progressive Display Image (Thumbnail → Display → Display 실패 시 원본)
+            ProgressiveDisplayImage(
+                thumbnailURL: photo.thumbnailURL,
+                displayURL: photo.displayURL,
+                originalURL: photo.url
+            )
+
+            // 선택/해제 버튼
+            selectionButton(photo: photo)
+                .padding(16)
+        }
+        .task {
+            // 현재 사진이 나타날 때 좌우 1-2장 prefetch
+            vm.prefetchAdjacentPhotosInGroup(group: groupedPhotos, current: photo)
+        }
+    }
+
+    private func selectionButton(photo: Photo) -> some View {
+        Button {
+            vm.toggleGroupedPhotoView(for: photo)
+        } label: {
             if vm.selectedPhotosInGroup.contains(where: { $0.id == photo.id }) {
                 ZStack {
                     Circle()
                         .fill(Color.white)
-                        .frame(width: 24, height: 24)
-                    
+                        .frame(width: 32, height: 32)
+
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.blue)
-                        .font(.system(size: 24))
+                        .font(.system(size: 32))
                 }
             } else {
                 Circle()
-                    .fill(Color.white)
-                    .frame(width: 24, height: 24)
+                    .fill(Color.white.opacity(0.8))
+                    .frame(width: 32, height: 32)
             }
         }
     }
