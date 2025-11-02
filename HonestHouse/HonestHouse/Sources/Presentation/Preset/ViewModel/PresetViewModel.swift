@@ -137,7 +137,7 @@ extension PresetViewModel {
     func deleteSelectedPresets() {
         do {
             for id in selectedPresets {
-                try presetService.delete(at: id)
+                try presetManager.deletePreset(by: id)
             }
             selectedPresets.removeAll()
             loadPresets()
@@ -152,7 +152,7 @@ extension PresetViewModel {
     func loadPresets() {
 
         do {
-            presets = try presetService.fetchAll()
+            presets = try presetManager.fetchAllPresets()
             error = nil
         } catch {
             handleError(error)
