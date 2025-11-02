@@ -8,5 +8,5 @@
 import Foundation
 
 protocol PhotoManagerType {
-    func savePhotos(photos: [Photo]) async throws
+    func savePhotos(photos: [Photo], onProgress: ((Int, Int) -> Void)?) async throws
 }
