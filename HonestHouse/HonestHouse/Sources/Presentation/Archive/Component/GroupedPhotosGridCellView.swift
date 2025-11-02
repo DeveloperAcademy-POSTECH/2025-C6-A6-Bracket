@@ -10,23 +10,14 @@ import Kingfisher
 
 struct GroupedPhotosGridCellView: View {
     let group: SimilarPhotoGroup
-//    let selectedPhotosInGroup: [Photo]
-//    let onTapGroupedPhoto: (Photo) -> Void
-    
+    @Environment(GroupedPhotosViewModel.self) var vm
+
     var body: some View {
-        NavigationLink(
-            destination: GroupedPhotosDetailView(
-                groupedPhotos: group
-//                finalSelectedPhotos: selectedPhotosInGroup,
-//                onTapGroupedPhoto: onTapGroupedPhoto
-            )
-        ) {
+        NavigationLink(destination: GroupedPhotosDetailView(groupedPhotos: group).environment(vm)) {
             if let firstPhoto = group.photos.first {
-                KFImage(URL(string: firstPhoto.url))
-                    .resizable()
+                CachedThumbnailImage(url: firstPhoto.thumbnailURL)
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 160, height: 120)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
                         ZStack(alignment: .topTrailing) {
                             Text("\(group.photos.count)")
