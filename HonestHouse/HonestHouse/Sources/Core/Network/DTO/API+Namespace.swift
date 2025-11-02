@@ -7,7 +7,6 @@
 
 import Foundation
 
-enum LiveView { }
 enum ImageOperations { }    // 4.7. Image Operations
 enum ShootingControl { }    // 4.8. Shooting Control
 enum ShootingSettings { }   // 4.9. Shooting Settings
