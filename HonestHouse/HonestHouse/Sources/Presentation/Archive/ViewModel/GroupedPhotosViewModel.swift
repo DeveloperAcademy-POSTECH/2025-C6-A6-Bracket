@@ -12,6 +12,7 @@ import SwiftUI
 class GroupedPhotosViewModel {
     private var visionManager: VisionManagerType
     private var photoManager: PhotoManagerType
+    private var imagePrefetchManager: ImagePrefetchManagerType
     private var container: DIContainer
     
     var photosFromSelection: [Photo]
@@ -27,33 +28,33 @@ class GroupedPhotosViewModel {
         self.container = container
         visionManager = container.managers.visionManager
         photoManager = container.managers.photoManager
-        
+        imagePrefetchManager = container.managers.imagePrefetchManager
+
         self.photosFromSelection = selectedPhotos
     }
     
-//    func configure(container: DIContainer) {
-//        guard self.visionManager == nil else { return }
-//        self.visionManager = container.services.visionManager
-//        
-//        guard self.photoManager == nil else { return }
-//        self.photoManager = container.services.photoManager
-//    }
-    
     func startGrouping() {
-//        guard let visionManager else {
-//            groupingState = .failure(.unknown)
-//            return
-//        }
-        
         if case .loading = groupingState { return }
         if case .success = groupingState { return }
-        
+
         groupingState = .loading
-        
+
         Task {
             do {
-                let result = try await visionManager.analyzeImages(photosFromSelection, threshold: 0.8)
-                groupingState = .success(result)
+                // Vision 처리 + 그룹 prefetch 병렬 실행
+                async let visionResult = visionManager.analyzeImages(photosFromSelection, threshold: 0.8)
+
+                // Vision 완료 후 그룹 첫 사진 prefetch
+                let groups = try await visionResult
+                print("[Vision] Completed with \(groups.count) groups")
+
+                // 그룹 첫 사진 prefetch (await으로 완료 대기)
+                await imagePrefetchManager.prefetchGroupFirstPhotos(groups: groups)
+                print("[Group Prefetch] Completed")
+
+                // 둘 다 완료 후 상태 업데이트
+                groupingState = .success(groups)
+
             } catch let error as VisionError {
                 groupingState = .failure(GroupingError.from(visionError: error))
             } catch {
@@ -63,16 +64,22 @@ class GroupedPhotosViewModel {
     }
     
     func saveSelectedPhotos() {
-//        guard let photoManager else {
-//            savingState = .failure("PhotoManager not exist")
-//            return
-//        }
-//        
-        savingState = .saving
-        
+        let total = selectedPhotosInGroup.count
+        savingState = .saving(current: 0, total: total)
+
         Task {
             do {
-                try await photoManager.savePhotos(photos: selectedPhotosInGroup)
+                // Original 다운로드 + 갤러리 저장 (progress 콜백)
+                try await photoManager.savePhotos(photos: selectedPhotosInGroup) { [weak self] current, total in
+                    guard let self = self else { return }
+                    Task { @MainActor in
+                        self.savingState = .saving(current: current, total: total)
+                    }
+                }
+
+                // 저장 완료 후 모든 캐시 삭제
+                imagePrefetchManager.clearAllCache()
+
                 savingState = .success
             } catch {
                 savingState = .failure(error.localizedDescription)
@@ -92,5 +99,25 @@ class GroupedPhotosViewModel {
 extension GroupedPhotosViewModel {
     func goToMain() {
         container.navigationRouter.popToRoot()
+    }
+
+    // MARK: - DetailView 유틸리티
+
+    /// 그룹 내 현재 Photo의 좌우 Photo 가져오기
+    func getAdjacentPhotosInGroup(group: SimilarPhotoGroup, current: Photo) -> (previous: Photo?, next: Photo?) {
+        guard let currentIndex = group.photos.firstIndex(where: { $0.url == current.url }) else {
+            return (nil, nil)
+        }
+
+        let previous = currentIndex > 0 ? group.photos[currentIndex - 1] : nil
+        let next = currentIndex < group.photos.count - 1 ? group.photos[currentIndex + 1] : nil
+
+        return (previous, next)
+    }
+
+    /// GroupedDetailView에서 좌우 1-2장 prefetch
+    func prefetchAdjacentPhotosInGroup(group: SimilarPhotoGroup, current: Photo) {
+        let (previous, next) = getAdjacentPhotosInGroup(group: group, current: current)
+        imagePrefetchManager.prefetchAdjacent(current: current, previous: previous, next: next)
     }
 }
