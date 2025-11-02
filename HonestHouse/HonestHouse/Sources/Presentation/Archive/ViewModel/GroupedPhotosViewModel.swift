@@ -9,7 +9,10 @@ import SwiftUI
 
 @MainActor
 @Observable
-class GroupedPhotosViewModel {
+class GroupedPhotosViewModel: ArchiveErrorHandleable {
+    typealias Success = [SimilarPhotoGroup]
+    typealias Failure = GroupingError
+    
     private var visionManager: VisionManagerType
     private var photoManager: PhotoManagerType
     private var imagePrefetchManager: ImagePrefetchManagerType
@@ -18,7 +21,7 @@ class GroupedPhotosViewModel {
     var photosFromSelection: [Photo]
     var selectedPhotosInGroup: [Photo] = []
     
-    var groupingState: GroupingState = .idle
+    var state: ArchiveState<Success, Failure> = .idle // GroupingState
     var savingState: SavingState = .idle
     
     init(
@@ -33,11 +36,22 @@ class GroupedPhotosViewModel {
         self.photosFromSelection = selectedPhotos
     }
     
+    func handleError(_ error: Error) {
+        if let groupingError = error as? GroupingError {
+            state = .failure(groupingError)
+        } else if let visionError = error as? VisionError {
+            state = .failure(GroupingError.from(visionError: visionError))
+        } else {
+            // 예상치 못한 에러
+            state = .failure(.unknown)
+        }
+    }
+    
     func startGrouping() {
-        if case .loading = groupingState { return }
-        if case .success = groupingState { return }
+        if case .loading = state { return }
+        if case .success = state { return }
 
-        groupingState = .loading
+        state = .loading
 
         Task {
             do {
@@ -53,12 +67,10 @@ class GroupedPhotosViewModel {
                 print("[Group Prefetch] Completed")
 
                 // 둘 다 완료 후 상태 업데이트
-                groupingState = .success(groups)
+                state = .success(groups)
 
-            } catch let error as VisionError {
-                groupingState = .failure(GroupingError.from(visionError: error))
             } catch {
-                groupingState = .failure(.unknown)
+                handleError(error)
             }
         }
     }
