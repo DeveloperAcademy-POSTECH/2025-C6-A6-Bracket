@@ -9,7 +9,7 @@ import Foundation
 
 enum SavingState: Equatable {
     case idle
-    case saving
+    case saving(current: Int, total: Int)
     case success
     case failure(String)
 }
