@@ -138,13 +138,8 @@ struct TrishotSettingView: View {
             
         } label: {
             Text("시작하기")
-                .font(.labelL)
-                .foregroundStyle(Color.g12)
-                .padding(.vertical, 20)
-                .frame(maxWidth: .infinity)
-                .background(Color.g0)
-                .clipShape(RoundedRectangle(cornerRadius: 62))
         }
+        .buttonStyle(DefaultButtonStyle())
     }
 }
 
