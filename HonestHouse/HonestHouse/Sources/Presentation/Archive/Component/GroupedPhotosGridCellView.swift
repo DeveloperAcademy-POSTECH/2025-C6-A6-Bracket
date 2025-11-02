@@ -15,7 +15,7 @@ struct GroupedPhotosGridCellView: View {
     var body: some View {
         NavigationLink(destination: GroupedPhotosDetailView(groupedPhotos: group).environment(vm)) {
             if let firstPhoto = group.photos.first {
-                CachedThumbnailImage(url: firstPhoto.thumbnailURL)
+                CachedThumbnailImageView(url: firstPhoto.thumbnailURL)
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 160, height: 120)
                     .overlay(

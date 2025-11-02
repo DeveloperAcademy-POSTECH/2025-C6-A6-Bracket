@@ -9,7 +9,7 @@ import SwiftUI
 import Kingfisher
 
 /// Thumbnail 이미지만 표시 (그리드, 그룹 대표 이미지 등)
-struct CachedThumbnailImage: View {
+struct CachedThumbnailImageView: View {
     let url: String
 
     var body: some View {

@@ -9,7 +9,7 @@ import SwiftUI
 import Kingfisher
 
 /// DetailView용 이미지 (Thumbnail 먼저 표시 → Display 로딩 → Display 실패 시 원본)
-struct ProgressiveDisplayImage: View {
+struct ProgressiveDisplayImageView: View {
     let thumbnailURL: String
     let displayURL: String
     let originalURL: String  // Display 실패 시 fallback

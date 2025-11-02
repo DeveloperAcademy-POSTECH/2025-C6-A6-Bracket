@@ -38,13 +38,13 @@ struct PhotoSelectionDetailView: View {
 
     private func photoDetailView(photo: Photo) -> some View {
         ZStack(alignment: .bottomTrailing) {
-            ProgressiveDisplayImage(
+            ProgressiveDisplayImageView(
                 thumbnailURL: photo.thumbnailURL,
                 displayURL: photo.displayURL,
                 originalURL: photo.url
             )
 
-            selectionButton(photo: photo)
+            selectionButtonView(photo: photo)
                 .padding(16)
         }
         .task {
@@ -53,7 +53,7 @@ struct PhotoSelectionDetailView: View {
         }
     }
 
-    private func selectionButton(photo: Photo) -> some View {
+    private func selectionButtonView(photo: Photo) -> some View {
         Button {
             vm.toggleGridCell(for: photo)
         } label: {
