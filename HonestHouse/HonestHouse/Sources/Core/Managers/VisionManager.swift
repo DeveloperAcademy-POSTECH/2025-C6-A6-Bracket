@@ -34,23 +34,24 @@ class VisionManager: VisionManagerType {
         
         for photo in photos {
             do {
-                let uiImage = try await imageLoader.fetchUIImage(from: photo.url)
-                
+                // Thumbnail 사용 (300x300, Vision에 충분)
+                let uiImage = try await imageLoader.fetchUIImage(from: photo.thumbnailURL)
+
                 guard let cgImage = uiImage.cgImage else {
-                    errorInfos.append((photo, VisionError.cgImageConversion(url: photo.url)))
+                    errorInfos.append((photo, VisionError.cgImageConversion(url: photo.thumbnailURL)))
                     continue
                 }
-                
+
                 let request = VNGenerateImageFeaturePrintRequest()
                 let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-                
+
                 try handler.perform([request])
-                
+
                 guard let observation = request.results?.first else {
-                    errorInfos.append((photo, VisionError.observation(url: photo.url)))
+                    errorInfos.append((photo, VisionError.observation(url: photo.thumbnailURL)))
                     continue
                 }
-                
+
                 features.append(
                     AnalyzedPhoto(
                         photo: photo,
@@ -59,7 +60,7 @@ class VisionManager: VisionManagerType {
                 )
             }
             catch let error {
-                errorInfos.append((photo, VisionError.imageFetching(url: photo.url, underlyingError: error)))
+                errorInfos.append((photo, VisionError.imageFetching(url: photo.thumbnailURL, underlyingError: error)))
                 continue
             }
         }
