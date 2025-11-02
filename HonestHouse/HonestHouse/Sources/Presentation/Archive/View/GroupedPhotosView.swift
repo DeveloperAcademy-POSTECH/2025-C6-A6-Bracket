@@ -21,7 +21,7 @@ struct GroupedPhotosView: View {
     
     var body: some View {
         ZStack {
-            switch vm.groupingState {
+            switch vm.state {
             case .idle, .loading:
                 ProgressView()
             case .success(let groupedPhotos):
@@ -44,7 +44,7 @@ struct GroupedPhotosView: View {
         .task {
             vm.startGrouping()
         }
-        .onChange(of: vm.groupingState) { _, newState in
+        .onChange(of: vm.state) { _, newState in
             if case .failure(let groupingError) = newState {
                 toastMessage = "오류 발생: \(groupingError.localizedDescription)"
                 showToast = true
