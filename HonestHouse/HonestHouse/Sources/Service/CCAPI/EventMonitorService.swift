@@ -12,7 +12,7 @@ class EventMonitorService: StreamService {
     // TODO: 현재 빠른 테스트를 위해서 싱글톤 -> 추후 다른 서비스와 같이 주입하는 방식으로 변경 필요
     static let shared = EventMonitorService()
 
-    private init() {
+    private override init() {
         super.init()
     }
 

@@ -39,5 +39,5 @@ class StubServices: ServiceType {
     var shootingSettingsService: ShootingSettingsServiceType = StubShootingSettingsService()
     var imageOperationsService: ImageOperationsServiceType = StubImageOperationsService()
     var presetService: PresetServiceType = StubPresetService()
-    var liveViewService: LiveViewServiceType = StubLiveViewSetvice()
+    var liveViewService: LiveViewServiceType = StubLiveViewService()
 }

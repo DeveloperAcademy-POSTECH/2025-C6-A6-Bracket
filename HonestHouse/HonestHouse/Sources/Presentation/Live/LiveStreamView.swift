@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct LiveStreamView: View {
-    @State var vm: LiveStreamViewModel
+    @EnvironmentObject var container: DIContainer
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
+    @State var vm: LiveStreamViewModel
 
     var body: some View {
 

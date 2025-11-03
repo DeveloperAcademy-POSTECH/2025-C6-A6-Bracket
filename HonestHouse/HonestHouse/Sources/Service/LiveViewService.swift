@@ -286,7 +286,7 @@ private class SSLTrustDelegate: NSObject, URLSessionDelegate {
     }
 }
 
-final class StubLiveViewSetvice: LiveViewServiceType {
+final class StubLiveViewService: LiveViewServiceType {
     func startLiveView(
         onFrame: @escaping (ParsedFrame) -> Void,
         onError: @escaping (any Error) -> Void,
