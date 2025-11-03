@@ -38,7 +38,6 @@ final class Preset: Hashable, Identifiable {
         tintMagentaGreen: Int? = nil,
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
-        isSelected: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -53,7 +52,6 @@ final class Preset: Hashable, Identifiable {
         self.tintMagentaGreen = tintMagentaGreen
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.isSelected = isSelected
     }
 }
 
