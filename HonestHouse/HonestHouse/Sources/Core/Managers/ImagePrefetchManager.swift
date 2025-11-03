@@ -11,8 +11,6 @@ import UIKit
 
 final class ImagePrefetchManager: ImagePrefetchManagerType {
 
-    static let shared = ImagePrefetchManager()
-
     private let cache = ImageCache.default
     private let downloadQueue = DispatchQueue(label: "camera.prefetch", qos: .background)
 
@@ -25,7 +23,7 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
     private var lastDownloadTime: Date = .distantPast
     private var isInitialPrefetchCancelled = false
 
-    private init() {
+    init() {
         configureCache()
     }
 

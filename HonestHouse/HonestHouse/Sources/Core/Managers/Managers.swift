@@ -21,7 +21,7 @@ final class Managers: ManagersType {
     init() {
         self.visionManager = VisionManager()
         self.photoManager = PhotoManager()
-        self.imagePrefetchManager = ImagePrefetchManager.shared
+        self.imagePrefetchManager = ImagePrefetchManager()
     }
 }
 
