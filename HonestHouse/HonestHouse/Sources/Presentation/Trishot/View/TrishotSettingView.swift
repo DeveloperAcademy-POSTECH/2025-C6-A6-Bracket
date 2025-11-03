@@ -140,7 +140,7 @@ struct TrishotSettingView: View {
         } label: {
             Text("시작하기")
         }
-        .buttonStyle(DefaultButtonStyle())
+        .buttonStyle(DefaultButtonStyle(.activated))
     }
 }
 
