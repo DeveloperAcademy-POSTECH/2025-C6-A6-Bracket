@@ -13,24 +13,29 @@ struct GroupedPhotosGridCellView: View {
     @Environment(GroupedPhotosViewModel.self) var vm
 
     var body: some View {
-        NavigationLink(destination: GroupedPhotosDetailView(groupedPhotos: group).environment(vm)) {
-            if let firstPhoto = group.photos.first {
-                CachedThumbnailImageView(url: firstPhoto.thumbnailURL)
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 160, height: 120)
-                    .overlay(
-                        ZStack(alignment: .topTrailing) {
-                            Text("\(group.photos.count)")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .padding(6)
-                                .background(Color.black.opacity(0.7))
-                                .clipShape(Circle())
-                                .padding(8)
-                        }
-                    )
+        if let firstPhoto = group.photos.first {
+            ZStack(alignment: .bottomLeading) {
+                NavigationLink(destination: GroupedPhotosDetailView(groupedPhotos: group).environment(vm)) {
+                    CachedThumbnailImageView(url: firstPhoto.thumbnailURL)
+                        .frame(height: 118)
+                }
+
+                selectNumBadge()
+                    .padding(8)
             }
+            .clipShape(RoundedRectangle(cornerRadius: 8))
         }
+    }
+    
+    private func selectNumBadge() -> some View {
+        Text("\(vm.selectedCount(in: group))/\(vm.totalCount(in: group))")
+            .font(.num4)
+            .foregroundStyle(Color.g0)
+            .frame(width: 42, height: 24)
+            .background {
+                Capsule()
+                    .fill(Color.black.opacity(0.2))
+                    .strokeBorder(Color.g0, lineWidth: 0.5)
+            }
     }
 }

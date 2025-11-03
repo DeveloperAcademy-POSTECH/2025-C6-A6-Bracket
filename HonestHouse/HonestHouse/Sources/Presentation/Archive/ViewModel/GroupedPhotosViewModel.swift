@@ -89,6 +89,10 @@ class GroupedPhotosViewModel: ArchiveErrorHandleable {
                     }
                 }
 
+                // 완료 표시 (progressbar 끝까지)
+                savingState = .saving(current: total, total: total)
+                try await Task.sleep(nanoseconds: 300_000_000) // 0.3초
+
                 // 저장 완료 후 모든 캐시 삭제
                 imagePrefetchManager.clearAllCache()
 
@@ -131,5 +135,18 @@ extension GroupedPhotosViewModel {
     func prefetchAdjacentPhotosInGroup(group: SimilarPhotoGroup, current: Photo) {
         let (previous, next) = getAdjacentPhotosInGroup(group: group, current: current)
         imagePrefetchManager.prefetchAdjacent(current: current, previous: previous, next: next)
+    }
+
+    // MARK: - 그룹별 선택 개수 관리
+    /// 특정 그룹에서 선택된 사진 개수
+    func selectedCount(in group: SimilarPhotoGroup) -> Int {
+        selectedPhotosInGroup.filter { selectedPhoto in
+            group.photos.contains(where: { $0.url == selectedPhoto.url })
+        }.count
+    }
+
+    /// 특정 그룹의 전체 사진 개수
+    func totalCount(in group: SimilarPhotoGroup) -> Int {
+        group.photos.count
     }
 }

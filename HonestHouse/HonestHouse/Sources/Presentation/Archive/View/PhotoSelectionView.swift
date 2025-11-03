@@ -26,7 +26,7 @@ struct PhotoSelectionView: View {
             ZStack {
                 switch vm.state {
                 case .idle, .loading:
-                    ProgressView("사진을 불러오는 중...")
+                    ProgressWithTextView(text: "사진 가져오는 중")
                     
                 case .success:
                     ZStack {
