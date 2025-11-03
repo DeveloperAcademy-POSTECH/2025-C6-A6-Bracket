@@ -74,15 +74,16 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
         }
     }
 
-    /// 초기 Prefetch 중단 (완료 버튼 시)
-    func cancelInitialPrefetch() {
+    /// 완료 버튼 시, 초기 50개 Prefetch 중단 (low) + PhotoSelectionDetailView에서 쌓였던 인접 사진들 Prefetch 중단 (mid)
+    func cancelSelectionPartPrefetch() {
         downloadQueue.async { [weak self] in
             guard let self = self else { return }
 
             self.isInitialPrefetchCancelled = true
             self.lowPriorityQueue.removeAll()
+            self.mediumPriorityQueue.removeAll()
 
-            print("[Initial Prefetch] Stopped - Low priority queue cleared")
+            print("[Selection Prefetch] Stopped - Low and Medium priority queues cleared")
         }
     }
 
@@ -93,14 +94,14 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
         downloadQueue.async { [weak self] in
             guard let self = self else { return }
 
-            // 다음 사진 우선
-            if let next = next, !self.isCached(next.displayURL) {
-                self.mediumPriorityQueue.insert(next.displayURL, at: 0)
+            // Previous 먼저 추가 (맨 앞)
+            if let previous = previous, !self.isCached(previous.displayURL) {
+                self.mediumPriorityQueue.insert(previous.displayURL, at: 0)
             }
 
-            // 이전 사진
-            if let previous = previous, !self.isCached(previous.displayURL) {
-                self.mediumPriorityQueue.append(previous.displayURL)
+            // Next를 Previous보다 앞에 추가 (최우선)
+            if let next = next, !self.isCached(next.displayURL) {
+                self.mediumPriorityQueue.insert(next.displayURL, at: 0)
             }
 
             if !self.isProcessing {
@@ -290,6 +291,18 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
     // MARK: - Clear Cache
 
     func clearAllCache() {
+        // 모든 우선순위 큐 비우기
+        downloadQueue.async { [weak self] in
+            guard let self = self else { return }
+
+            self.highPriorityQueue.removeAll()
+            self.mediumPriorityQueue.removeAll()
+            self.lowPriorityQueue.removeAll()
+
+            print("🗑️ [Queue] All priority queues cleared")
+        }
+
+        // 캐시 삭제
         cache.clearMemoryCache()
         cache.clearDiskCache {
             print("🗑️ [Cache] All cache cleared (Memory + Disk)")
@@ -301,7 +314,7 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
 
 final class StubImagePrefetchManager: ImagePrefetchManagerType {
     func startInitialPrefetch(photos: [Photo], count: Int) {}
-    func cancelInitialPrefetch() {}
+    func cancelSelectionPartPrefetch() {}
     func prefetchAdjacent(current: Photo, previous: Photo?, next: Photo?) {}
     func prefetchGroupFirstPhotos(groups: [SimilarPhotoGroup]) async {}
     func clearAllCache() {}
