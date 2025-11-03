@@ -27,6 +27,6 @@ class DIContainer: ObservableObject {
 
 extension DIContainer {
     static var stub: DIContainer {
-        .init(services: StubServices(), managers: StubManagers())
+        .init(services: StubServices(), managers: StubManagers(), navigationRouter: StubNavigationRouter())
     }
 }

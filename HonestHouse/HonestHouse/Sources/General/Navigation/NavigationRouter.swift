@@ -38,3 +38,25 @@ class NavigationRouter: NavigationRoutable, ObservableObjectSettable {
         destinations = []
     }
 }
+
+class StubNavigationRouter: NavigationRoutable, ObservableObjectSettable {
+    var objectWillChange: ObservableObjectPublisher?
+    
+    var destinations: [NavigationDestination] = [] {
+        didSet {
+            objectWillChange?.send()
+        }
+    }
+    
+    func push(to view: NavigationDestination) {
+        destinations.append(view)
+    }
+    
+    func pop() {
+        _ = destinations.popLast()
+    }
+    
+    func popToRoot() {
+        destinations = []
+    }
+}
