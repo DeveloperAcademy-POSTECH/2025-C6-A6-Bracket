@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct LiveStreamView: View {
-    @State private var vm = LiveStreamViewModel()
-    @State private var isConnected = false
+    @State var vm: LiveStreamViewModel
+    @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
 
     var body: some View {
 
@@ -23,9 +23,9 @@ struct LiveStreamView: View {
                     .foregroundColor(.gray)
             }
 
-            Text("상태: \(isConnected ? (vm.isStreaming ? "스트리밍" : "연결됨") : "연결 안 됨")")
+            Text("상태: \(cameraConnectionManager.isConnected ? (vm.isStreaming ? "스트리밍" : "연결됨") : "연결 안 됨")")
                 .font(.caption)
-                .foregroundColor(isConnected ? (vm.isStreaming ? .green : .orange) : .gray)
+                .foregroundColor(cameraConnectionManager.isConnected ? (vm.isStreaming ? .green : .orange) : .gray)
 
             if vm.isStreaming {
                 Text("FPS: \(String(format: "%.1f", vm.fps))")
@@ -50,7 +50,7 @@ struct LiveStreamView: View {
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
-                .disabled(!isConnected || vm.isStreaming)
+                .disabled(!cameraConnectionManager.isConnected || vm.isStreaming)
 
                 Button {
                     Task {
@@ -72,7 +72,7 @@ struct LiveStreamView: View {
 
     @MainActor
     private func startLiveView() async {
-        guard isConnected else {
+        guard cameraConnectionManager.isConnected else {
             vm.errorMessage = "먼저 카메라를 연결하세요"
             return
         }

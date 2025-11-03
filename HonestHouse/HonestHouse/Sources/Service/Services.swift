@@ -13,7 +13,7 @@ protocol ServiceType {
     var shootingSettingsService: ShootingSettingsServiceType { get set }
     var imageOperationsService: ImageOperationsServiceType { get set }
     var presetService: PresetServiceType { get }
-
+    var liveViewService: LiveViewServiceType { get }
 }
 
 class Services: ServiceType {
@@ -21,12 +21,14 @@ class Services: ServiceType {
     var shootingSettingsService: ShootingSettingsServiceType
     var imageOperationsService: ImageOperationsServiceType
     var presetService: PresetServiceType
+    var liveViewService: LiveViewServiceType
     
     init(modelContext: ModelContext) {
         self.shootingControlService = ShootingControlService()
         self.shootingSettingsService = ShootingSettingsService()
         self.imageOperationsService = ImageOperationsService()
         self.presetService = PresetService(modelContext: modelContext)
+        self.liveViewService = LiveViewService()
     }
 }
 
@@ -37,4 +39,5 @@ class StubServices: ServiceType {
     var shootingSettingsService: ShootingSettingsServiceType = StubShootingSettingsService()
     var imageOperationsService: ImageOperationsServiceType = StubImageOperationsService()
     var presetService: PresetServiceType = StubPresetService()
+    var liveViewService: LiveViewServiceType = StubLiveViewSetvice()
 }

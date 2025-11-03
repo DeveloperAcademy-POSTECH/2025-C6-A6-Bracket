@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TrishotSettingView: View {
+    @EnvironmentObject var container: DIContainer
+    
     
     @State var vm: TrishotSettingViewModel
     
