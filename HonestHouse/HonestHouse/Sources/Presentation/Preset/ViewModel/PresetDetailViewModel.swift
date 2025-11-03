@@ -32,7 +32,7 @@ final class PresetDetailViewModel {
     init(
         container: DIContainer,
         presetDetailMode: PresetDetailMode,
-        selectedPreset: Preset
+        selectedPreset: Preset?
     ) {
         self.container = container
         self.presetDetailMode = presetDetailMode
