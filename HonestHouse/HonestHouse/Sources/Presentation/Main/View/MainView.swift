@@ -10,7 +10,6 @@ import SwiftData
 
 struct MainView: View {
     @EnvironmentObject private var container: DIContainer
-    @Environment(\.modelContext) private var modelContext
     @State var vm: MainViewModel
     @State var isPresetEditMode: Bool = false
      
