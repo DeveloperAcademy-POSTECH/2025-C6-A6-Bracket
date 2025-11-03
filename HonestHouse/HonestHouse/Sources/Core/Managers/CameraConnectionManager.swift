@@ -14,7 +14,8 @@ enum ConnectionState: Equatable {
     case failed(String)
 }
 
-final class CameraConnectionManager: ObservableObject, CameraConnectionManagerType {
+@MainActor
+final class CameraConnectionManager: ObservableObject {
     
     @Published var isConnected: Bool = false
     @Published var connectionState: ConnectionState = .disconnected
@@ -51,20 +52,5 @@ final class CameraConnectionManager: ObservableObject, CameraConnectionManagerTy
         // TODO: 필요시 구현
         isConnected = false
         connectionState = .disconnected
-    }
-}
-
-final class StubCameraConnectionManager: CameraConnectionManagerType {
-    
-    @Published var isConnected: Bool = false
-    @Published var connectionState: ConnectionState = .disconnected
-    @Published var errorMessage: String? = nil
-    
-    func connectCamera(ipAddress: String) {
-        return
-    }
-    
-    func disconnectCamera() {
-        return
     }
 }

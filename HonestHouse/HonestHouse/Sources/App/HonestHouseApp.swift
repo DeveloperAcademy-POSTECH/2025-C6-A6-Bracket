@@ -12,6 +12,7 @@ import SwiftData
 struct HonestHouseApp: App {
     let modelContainer: ModelContainer
     @State var container: DIContainer
+    @StateObject var cameraConnectionManager = CameraConnectionManager()
 
     init() {
         do {
@@ -27,6 +28,7 @@ struct HonestHouseApp: App {
         WindowGroup {
             MainView(vm: MainViewModel(container: container))
                 .environmentObject(container)
+                .environmentObject(cameraConnectionManager)
                 .preferredColorScheme(.dark)
         }
         .modelContainer(modelContainer)

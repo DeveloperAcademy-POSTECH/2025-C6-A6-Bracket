@@ -3,12 +3,13 @@ import SwiftUI
 struct CameraConnectionView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
     
     var body: some View {
         VStack {
             connectionStatusView()
             
-            if let errorMessage = container.managers.cameraConnectionManager.errorMessage {
+            if let errorMessage = cameraConnectionManager.errorMessage {
                 Text("Error: \(errorMessage)")
                     .foregroundColor(.red)
                     .padding()
@@ -26,7 +27,7 @@ struct CameraConnectionView: View {
     }
     
     private func connectionStatusView() -> some View {
-        switch container.managers.cameraConnectionManager.connectionState {
+        switch cameraConnectionManager.connectionState {
         case .disconnected:
             Text("Disconnected")
                 .foregroundColor(.gray)
@@ -44,18 +45,18 @@ struct CameraConnectionView: View {
     
     private func cameraConnectButton() -> some View {
         Button {
-            container.managers.cameraConnectionManager.connectCamera(ipAddress: BaseURLConstants.cameraIP)
+            cameraConnectionManager.connectCamera(ipAddress: BaseURLConstants.cameraIP)
         } label: {
             Text("Connect to Camera")
                 .font(.headline)
                 .foregroundColor(.white)
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(container.managers.cameraConnectionManager.connectionState == .connecting ? Color.gray : Color.blue)
+                .background(cameraConnectionManager.connectionState == .connecting ? Color.gray : Color.blue)
                 .cornerRadius(10)
         }
         .padding()
-        .disabled(container.managers.cameraConnectionManager.connectionState == .connecting)
+        .disabled(cameraConnectionManager.connectionState == .connecting)
     }
 }
 
