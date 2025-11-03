@@ -23,20 +23,16 @@ struct SelectionGridCellView: View {
             
             Button(action: onTapSelectionGridCell) {
                 Group {
-                    ZStack(alignment: .bottomTrailing) {
-                        if isSelected {
-                            Image(.checkSelectBtnS)
-                                .resizable()
-                        } else {
-                            Image(.checkUnselectBtnS)
-                                .resizable()
-                        }
+                    if isSelected {
+                        Image(.checkSelectBtnS)
+                            .resizable()
+                    } else {
+                        Image(.checkUnselectBtnS)
+                            .resizable()
                     }
-                    .frame(width: 20, height: 20)
-                    .padding(.bottom, 8)
-                    .padding(.trailing, 8)
                 }
-                .contentShape(Rectangle())
+                .frame(width: 20, height: 20)
+                .padding(8)
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 8))
