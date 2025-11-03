@@ -9,6 +9,8 @@ import SwiftUI
 
 struct TrishotSelectionView: View {
     
+    @State var vm: TrishotSelectionViewModel
+    
     // TODO: - Preset 전체 목록 어떻게 넘길지 정하기
 //    var preset: Preset = .stub1
     var presetList: [Preset] = [.stub1, .stub2, .stub3, .stub1, .stub2, .stub3, .stub1, .stub2, .stub3, .stub1, .stub2, .stub3, .stub1, .stub2, .stub3, .stub1, .stub2, .stub3]
@@ -78,5 +80,5 @@ struct TrishotSelectionView: View {
 }
 
 #Preview {
-    TrishotSelectionView()
+    TrishotSelectionView(vm: .init(container: .stub))
 }

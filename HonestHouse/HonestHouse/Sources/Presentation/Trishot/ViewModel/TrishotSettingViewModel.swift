@@ -20,6 +20,7 @@ final class TrishotSettingViewModel {
     
     enum Action {
         case goToTrishotSelection
+        case goToTrishotMode
         case togglePreset(UUID)
     }
     
@@ -33,6 +34,10 @@ extension TrishotSettingViewModel {
         switch action {
         case .goToTrishotSelection:
             container.navigationRouter.push(to: .trishotSelection)
+        
+        case .goToTrishotMode:
+            container.navigationRouter.push(to: .trimode)
+            
         case .togglePreset(let id):
             if let index = trishotItems.firstIndex(where: { $0.id == id }) {
                 trishotItems[index].isSelected.toggle()
