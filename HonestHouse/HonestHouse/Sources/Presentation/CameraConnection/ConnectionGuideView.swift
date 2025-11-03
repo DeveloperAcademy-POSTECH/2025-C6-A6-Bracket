@@ -52,13 +52,13 @@ struct ConnectionGuideView: View {
         }
     }
     
-    //TODO: IP 직접 입력 구현 필요
+    //TODO: IP 직접 입력 후 연결 구현 필요
     private func ipAddressTextField() -> some View {
-        TextField("196.100.100", text: $ipAddress)
+        TextField("http://192.168.1.2:8080/ccapi/", text: $ipAddress)
             .font(.num4)
             .foregroundColor(.g0)
             .multilineTextAlignment(.center)
-            .keyboardType(.decimalPad)
+            .keyboardType(.webSearch)
             .padding(.vertical, 12)
             .background(Color.clear)
             .overlay(
