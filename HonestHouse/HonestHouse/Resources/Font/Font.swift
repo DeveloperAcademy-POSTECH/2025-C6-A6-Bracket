@@ -25,8 +25,11 @@ extension Font {
  
     static let num1: Font = .custom("SFMono-Semibold", size: 20)         /// SF Mono SemiBold 20  130%
     static let num2: Font = .custom("SFMono-Semibold", size: 18)         /// SF Mono SemiBold 18  130%
-    static let num3: Font = .custom("SFMono-Medium", size: 16)           /// SF Mono Medium 16  130%
-    static let num4: Font = .custom("SFMono-Medium", size: 14)           /// SF Mono Medium 14  130%
+    static let num3: Font = .custom("SFMono-Semibold", size: 16)         /// SF Mono Semibold 16  130%
+    static let num4: Font = .custom("SFMono-Medium", size: 16)           /// SF Mono Medium 16  130%
+    static let num5: Font = .custom("SFMono-Semibold", size: 14)         /// SF Mono Semibold 14  130%
+    static let num6: Font = .custom("SFMono-Medium", size: 14)           /// SF Mono Medium 14  130%
+    static let num7: Font = .custom("SFMono-Semibold", size: 12)         /// SF Mono Semibold 12  130%
 }
 
 /// 폰트가 추가되었는지 확인
