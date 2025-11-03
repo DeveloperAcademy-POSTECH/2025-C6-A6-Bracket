@@ -192,7 +192,7 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
 extension PhotoSelectionViewModel {
     func goToGroupedPhotos() {
         // 초기 prefetch 중단 (리소스 절약)
-        imagePrefetchManager.cancelInitialPrefetch()
+        imagePrefetchManager.cancelSelectionPartPrefetch()
 
         container.navigationRouter.push(to: .groupedPhotos(Array(selectedPhotos)))
     }

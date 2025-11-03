@@ -11,7 +11,7 @@ import UIKit
 
 protocol ImagePrefetchManagerType {
     func startInitialPrefetch(photos: [Photo], count: Int)
-    func cancelInitialPrefetch()
+    func cancelSelectionPartPrefetch()
     func prefetchAdjacent(current: Photo, previous: Photo?, next: Photo?)
     func prefetchGroupFirstPhotos(groups: [SimilarPhotoGroup]) async
     func clearAllCache()
