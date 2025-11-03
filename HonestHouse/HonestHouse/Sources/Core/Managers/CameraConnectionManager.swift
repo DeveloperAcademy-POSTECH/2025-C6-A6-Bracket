@@ -7,13 +7,6 @@
 
 import Foundation
 
-enum ConnectionState: Equatable {
-    case disconnected
-    case connecting
-    case connected
-    case failed(String)
-}
-
 @MainActor
 final class CameraConnectionManager: ObservableObject {
     
