@@ -68,6 +68,7 @@ struct PhotoSelectionDetailView: View {
                 if vm.selectedPhotos.contains(photo) {
                     Image(.checkSelectBtnM)
                         .resizable()
+                        .shadow(color: .black.opacity(0.2), radius: 2.5, x: 0, y: 0)
                 } else {
                     Image(.checkUnselectBtnM)
                         .resizable()

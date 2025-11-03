@@ -57,6 +57,7 @@ struct GroupedPhotosDetailView: View {
                 if vm.selectedPhotosInGroup.contains(where: { $0.id == photo.id }) {
                     Image(.checkSelectBtnM)
                         .resizable()
+                        .shadow(color: .black.opacity(0.2), radius: 2.5, x: 0, y: 0)
                 } else {
                     Image(.checkUnselectBtnM)
                         .resizable()
