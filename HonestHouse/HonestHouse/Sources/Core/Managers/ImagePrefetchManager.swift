@@ -225,14 +225,14 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
                 case .success(let imageResult):
                     let source = imageResult.cacheType == .none ? "Network" :
                                  imageResult.cacheType == .memory ? "Memory" : "Disk"
-                    print("✅ [\(priority)] Success from \(source): \(url.lastPathComponent)")
+                    print("[\(priority)] Success from \(source): \(url.lastPathComponent)")
                 case .failure(let error):
-                    print("❌ [\(priority)] Failed: \(url.lastPathComponent) - \(error.localizedDescription)")
+                    print("[\(priority)] Failed: \(url.lastPathComponent) - \(error.localizedDescription)")
 
                     // Display 실패 시 Original로 fallback prefetch
                     if urlString.contains("?kind=display") {
                         let originalURL = urlString.replacingOccurrences(of: "?kind=display", with: "")
-                        print("🔄 [\(priority)] Fallback to original: \(url.lastPathComponent)")
+                        print("[\(priority)] Fallback to original: \(url.lastPathComponent)")
 
                         // Original을 같은 우선순위 큐의 맨 앞에 추가
                         self.downloadQueue.async {

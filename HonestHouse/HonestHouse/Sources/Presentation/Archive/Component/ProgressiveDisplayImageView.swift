@@ -20,38 +20,47 @@ struct ProgressiveDisplayImageView: View {
         Group {
             if shouldUseFallback {
                 // Display 실패 시 원본 사용
-                KFImage(URL(string: originalURL))
-                    .placeholder {
-                        KFImage(URL(string: thumbnailURL))
-                            .cacheMemoryOnly()
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    }
-                    .retry(maxCount: 2, interval: .seconds(2))
-                    .cacheOriginalImage()
-                    .resizable()
-                    .fade(duration: 0.3)
-                    .aspectRatio(contentMode: .fit)
+                originalImageView(url: originalURL)
             } else {
                 // Display 먼저 시도
-                KFImage(URL(string: displayURL))
-                    .placeholder {
-                        KFImage(URL(string: thumbnailURL))
-                            .cacheMemoryOnly()
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    }
-                    .onFailure { error in
-                        print("[Display] Failed: \(displayURL) - \(error.localizedDescription)")
-                        print("[Fallback] Using original: \(originalURL)")
-                        shouldUseFallback = true
-                    }
-                    .retry(maxCount: 2, interval: .seconds(2))
-                    .cacheOriginalImage()
-                    .resizable()
-                    .fade(duration: 0.3)
-                    .aspectRatio(contentMode: .fit)
+                displayImageView(url: displayURL)
             }
         }
+    }
+    
+    private func displayImageView(url: String) -> some View {
+        KFImage(URL(string: url))
+            .placeholder {
+                thumbnailImageView(url: thumbnailURL)
+            }
+            .onFailure { error in
+                print("[Display] Failed: \(displayURL) - \(error.localizedDescription)")
+                print("[Fallback] Using original: \(originalURL)")
+                shouldUseFallback = true
+            }
+            .retry(maxCount: 2, interval: .seconds(2))
+            .cacheOriginalImage()
+            .resizable()
+            .fade(duration: 0.3)
+            .aspectRatio(contentMode: .fit)
+    }
+
+    private func originalImageView(url: String) -> some View {
+        KFImage(URL(string: url))
+            .placeholder {
+                thumbnailImageView(url: thumbnailURL)
+            }
+            .retry(maxCount: 2, interval: .seconds(2))
+            .cacheOriginalImage()
+            .resizable()
+            .fade(duration: 0.3)
+            .aspectRatio(contentMode: .fit)
+    }
+    
+    private func thumbnailImageView(url: String) -> some View {
+        KFImage(URL(string: url))
+            .cacheMemoryOnly()
+            .resizable()
+            .aspectRatio(contentMode: .fit)
     }
 }
