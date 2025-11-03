@@ -24,11 +24,11 @@ final class PhotoManager: PhotoManagerType {
         for (index, photo) in photos.enumerated() {
             let current = index + 1
 
-            // Progress 콜백 호출 (저장 시작)
-            onProgress?(current, total)
-
             let imageData = try await imageLoader.fetchImageData(from: photo.url)
             try await saveImageData(imageData, to: album)
+
+            // Progress 콜백 호출 (저장 완료)
+            onProgress?(current, total)
         }
     }
     
