@@ -14,6 +14,7 @@ struct PhotoSelectionDetailView: View {
 
     @State private var selectedURL: String
     @State private var photos: [Photo] = []  // 스냅샷 (chunk 변경 무시)
+    @State private var loadedImages: Set<String> = []  // 로딩 완료된 이미지 URL
 
     init(initialPhoto: Photo) {
         self.initialPhoto = initialPhoto
@@ -41,11 +42,17 @@ struct PhotoSelectionDetailView: View {
             ProgressiveDisplayImageView(
                 thumbnailURL: photo.thumbnailURL,
                 displayURL: photo.displayURL,
-                originalURL: photo.url
+                originalURL: photo.url,
+                onImageLoaded: {
+                    loadedImages.insert(photo.url)
+                }
             )
 
-            selectionButtonView(photo: photo)
-                .padding(16)
+            if loadedImages.contains(photo.url) {
+                selectionButtonView(photo: photo)
+                    .padding(16)
+                    .transition(.opacity)
+            }
         }
         .task {
             // 현재 사진이 나타날 때 좌우 1장씩 prefetch
@@ -57,21 +64,16 @@ struct PhotoSelectionDetailView: View {
         Button {
             vm.toggleGridCell(for: photo)
         } label: {
-            if vm.selectedPhotos.contains(photo) {
-                ZStack {
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: 32, height: 32)
-
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.blue)
-                        .font(.system(size: 32))
+            Group {
+                if vm.selectedPhotos.contains(photo) {
+                    Image(.checkSelectBtnM)
+                        .resizable()
+                } else {
+                    Image(.checkUnselectBtnM)
+                        .resizable()
                 }
-            } else {
-                Circle()
-                    .fill(Color.white.opacity(0.8))
-                    .frame(width: 32, height: 32)
             }
+            .frame(width: 24, height: 24)
         }
     }
 }
