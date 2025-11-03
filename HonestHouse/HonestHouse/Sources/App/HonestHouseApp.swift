@@ -10,23 +10,15 @@ import CoreData
 
 @main
 struct HonestHouseApp: App {
-    let persistenceController = PersistenceController.shared  // ← 추가
-    @State var container: DIContainer
-    @StateObject var cameraConnectionManager = CameraConnectionManager()
-    @State private var showConnectionSheet = false
-
-    init() {
-        let viewContext = persistenceController.viewContext  // ← viewContext 추출
-        let services = Services()
-        let managers = Managers(viewContext: viewContext)  // ← viewContext 주입
-        container = DIContainer(services: services, managers: managers)
-    }
-
+    
+    static let persistenceController = PersistenceController.shared
+    @StateObject var container: DIContainer = .init(services: Services(), managers: Managers(viewContext: persistenceController.viewContext))
+    
     var body: some Scene {
         WindowGroup {
             MainView(vm: MainViewModel(container: container))
                 .environmentObject(container)
-                .environment(\.managedObjectContext, persistenceController.viewContext)  // ← 추가
+                .environment(\.managedObjectContext, Self.persistenceController.viewContext)
                 .environmentObject(cameraConnectionManager)
                 .preferredColorScheme(.dark)
                 .onAppear {
