@@ -18,12 +18,12 @@ final class PresetViewModel {
     var selectedPresets: Set<UUID> = []
     var error: PresetError?
     
-    private var presetService: PresetServiceType
     private var shootingControlService: ShootingControlServiceType
     private var shootingSettingsService: ShootingSettingsServiceType
+    private var presetManager: PresetManagerType
 
     enum Action {
-        case goToPresetDetail(PresetDetailMode, Preset)
+        case goToPresetDetail(PresetDetailMode, Preset?)
     }
     
     init(
@@ -34,9 +34,9 @@ final class PresetViewModel {
         self.container = container
         self.isPresetEditMode = isPresetEditMode
         
-        self.presetService = container.services.presetService
         self.shootingControlService = container.services.shootingControlService
         self.shootingSettingsService = container.services.shootingSettingsService
+        self.presetManager = container.managers.presetManager
     }
 }
 
@@ -47,7 +47,6 @@ extension PresetViewModel {
             
         case .goToPresetDetail(let mode, let preset):
             container.navigationRouter.push(to: .presetEditor(mode, preset))
-            
         }
     }
     
@@ -137,7 +136,7 @@ extension PresetViewModel {
     func deleteSelectedPresets() {
         do {
             for id in selectedPresets {
-                try presetService.delete(at: id)
+                try presetManager.deletePreset(by: id)
             }
             selectedPresets.removeAll()
             loadPresets()
@@ -152,7 +151,7 @@ extension PresetViewModel {
     func loadPresets() {
 
         do {
-            presets = try presetService.fetchAll()
+            presets = try presetManager.fetchAllPresets()
             error = nil
         } catch {
             handleError(error)

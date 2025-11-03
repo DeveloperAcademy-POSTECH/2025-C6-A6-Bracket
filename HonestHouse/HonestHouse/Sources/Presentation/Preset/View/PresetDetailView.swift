@@ -43,15 +43,15 @@ struct PresetDetailView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button(toolbarButtonTitle) {
                     
-                    switch vm.presetDetailMode {
-                        case .view:
-                        vm.loadPreset()
-                    case .edit:
-                        vm.updatePreset()
-                    case .create:
-                        vm.createPreset()
-                        
-                    }
+//                    switch vm.presetDetailMode {
+//                        case .view:
+//                        vm.loadPreset()
+//                    case .edit:
+//                        vm.updatePreset()
+//                    case .create:
+//                        vm.createPreset()
+//                        
+//                    }
                 }
             }
         }
@@ -72,7 +72,7 @@ struct PresetDetailView: View {
     private var navigationTitle: String {
         switch vm.presetDetailMode {
         case .view:
-            return vm.selectedPreset.name
+            return vm.selectedPreset!.name
         case .edit:
             return "프리셋 편집"
         case .create:

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24299" systemVersion="25A362" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="PresetEntity" representedClassName="PresetEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="aperture" optional="YES" attributeType="String"/>
+        <attribute name="colorTemperature" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="exposureCompensation" optional="YES" attributeType="String"/>
+        <attribute name="iso" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="pictureStyle" optional="YES" attributeType="String"/>
+        <attribute name="presetId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="shootingMode" optional="YES" attributeType="String"/>
+        <attribute name="shutterSpeed" optional="YES" attributeType="String"/>
+        <attribute name="tintBlueAmber" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="tintMagentaGreen" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="selectedPreset" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SelectedPresetEntity" inverseName="preset" inverseEntity="SelectedPresetEntity"/>
+    </entity>
+    <entity name="SelectedPresetEntity" representedClassName="SelectedPresetEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="isActivated" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="order" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="preset" maxCount="1" deletionRule="Cascade" destinationEntity="PresetEntity" inverseName="selectedPreset" inverseEntity="PresetEntity"/>
+    </entity>
+</model>

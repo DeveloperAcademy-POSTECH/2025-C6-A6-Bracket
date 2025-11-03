@@ -6,30 +6,19 @@
 //
 
 import SwiftUI
-import SwiftData
+import CoreData
 
 @main
 struct HonestHouseApp: App {
-    let modelContainer: ModelContainer
     
-    @State var container: DIContainer
-    @StateObject var cameraConnectionManager = CameraConnectionManager()
-    @State private var showConnectionSheet = false
-
-    init() {
-        do {
-            modelContainer = try ModelContainer(for: Preset.self)
-            let services = Services(modelContext: modelContainer.mainContext)
-            container = DIContainer(services: services, managers: Managers())
-        } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
-        }
-    }
-
+    static let persistenceController = PersistenceController.shared
+    @StateObject var container: DIContainer = .init(services: Services(), managers: Managers(viewContext: persistenceController.viewContext))
+    
     var body: some Scene {
         WindowGroup {
             MainView(vm: MainViewModel(container: container))
                 .environmentObject(container)
+                .environment(\.managedObjectContext, Self.persistenceController.viewContext)
                 .environmentObject(cameraConnectionManager)
                 .preferredColorScheme(.dark)
                 .onAppear {
@@ -46,6 +35,5 @@ struct HonestHouseApp: App {
                         .environmentObject(cameraConnectionManager)
                 }
         }
-        .modelContainer(modelContainer)
     }
 }

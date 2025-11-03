@@ -45,10 +45,12 @@ enum PresetError: Error, LocalizedError {
 }
 
 extension PresetError: Equatable {
-    static func from(presetServiceError: PresetServiceError) -> PresetError {
+    static func from(presetServiceError: PresetManagerError) -> PresetError {
         switch presetServiceError {
         case .presetNotFound:
             return .presetNotFound
+        case .saveFailed(_):
+            return .cameraBusy
         }
     }
 

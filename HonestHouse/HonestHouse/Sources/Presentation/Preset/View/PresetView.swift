@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct PresetView: View {
-    @Query(sort: \Preset.createdAt, order: .reverse) private var presets: [Preset]
+//    @Query(sort: \Preset.createdAt, order: .reverse) private var presets: [Preset]
     
     @EnvironmentObject private var container: DIContainer
     
@@ -54,20 +54,20 @@ struct PresetView: View {
         ]
         
         return LazyVGrid(columns: columns, spacing: 10) {
-            ForEach(presets) { preset in
-                PresetGridCellView(
-                    preset: preset,
-                    isEditMode: vm.isPresetEditMode,
-                    isSelected: vm.selectedPresets.contains(preset.id)
-                )
-                .environment(vm)
-            }
+//            ForEach(presets) { preset in
+//                PresetGridCellView(
+//                    preset: preset,
+//                    isEditMode: vm.isPresetEditMode,
+//                    isSelected: vm.selectedPresets.contains(preset.id)
+//                )
+//                .environment(vm)
+//            }
         }
     }
 
     private func addButton() -> some View {
         Button {
-            
+            vm.send(action: .goToPresetDetail(.create, nil))
         } label: {
             if #available(iOS 26.0, *) {
                 Image(systemName: "plus")
