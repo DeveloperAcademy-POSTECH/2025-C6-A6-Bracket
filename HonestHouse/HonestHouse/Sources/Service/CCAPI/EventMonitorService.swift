@@ -7,11 +7,16 @@
 
 import Foundation
 
-final class EventMonitorService: StreamService {
-    // TODO: 현재 빠른 테스트를 위해서 싱글톤 -> 추후 다른 서비스와 같이 주입하는 방식으로 변경 필요
-    static let shared = EventMonitorService()
+protocol EventMonitorServiceType {
+    func startMonitoring(
+        onEvent: @escaping (CameraStatus.EventMonitorResponse) -> Void,
+        onError: @escaping (Error) -> Void
+    ) async -> Bool
+    func stopMonitoring() async throws
+}
 
-    private override init() {
+class EventMonitorService: StreamService, EventMonitorServiceType {
+    override init() {
         super.init()
     }
 
@@ -102,5 +107,17 @@ final class EventMonitorService: StreamService {
         } catch {
             return nil
         }
+    }
+}
+
+final class StubEventMonitorService: EventMonitorServiceType {
+    func startMonitoring(
+        onEvent: @escaping (CameraStatus.EventMonitorResponse) -> Void,
+        onError: @escaping (Error) -> Void
+    ) async -> Bool {
+        return true
+    }
+
+    func stopMonitoring() async throws {
     }
 }
