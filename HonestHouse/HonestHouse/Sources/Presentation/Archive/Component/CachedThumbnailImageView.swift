@@ -15,7 +15,9 @@ struct CachedThumbnailImageView: View {
     var body: some View {
         KFImage(URL(string: url))
             .placeholder {
-                Color.g9
+                Color.g10
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(3/2, contentMode: .fit)
             }
             .retry(maxCount: 2, interval: .seconds(1))
             .cacheMemoryOnly() // Thumbnail은 메모리만

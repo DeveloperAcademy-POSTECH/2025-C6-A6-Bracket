@@ -14,15 +14,18 @@ struct GroupedPhotosView: View {
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     
+    let columnCount: Int = 2
+    
     var columns: [GridItem] {
-        Array(repeating: GridItem(.flexible()), count: 2)
+        Array(repeating: GridItem(.flexible(), spacing: 9), count: columnCount)
     }
     
     var body: some View {
         ZStack {
+            // 메인 상태 (Grouping)
             switch vm.state {
             case .idle, .loading:
-                ProgressView()
+                ProgressWithTextView(text: "비슷한 사진끼리 분류중")
             case .success(let groupedPhotos):
                 groupedPhotosGridView(groupedPhotos: groupedPhotos)
                 selectionCompleteButtonView()
@@ -30,9 +33,16 @@ struct GroupedPhotosView: View {
                 Color.clear
             }
 
-            // 저장 중 Progress Overlay
-            if case .saving(let current, let total) = vm.savingState {
+            // 저장 상태 Overlay
+            switch vm.savingState {
+            case .idle:
+                Color.clear
+            case .saving(let current, let total):
                 savingProgressView(current: current, total: total)
+            case .success:
+                SuccessSavingView()
+            case .failure:
+                Color.clear
             }
 
             if showToast {
@@ -52,38 +62,36 @@ struct GroupedPhotosView: View {
             }
         }
         .onChange(of: vm.savingState) { _, newState in
-            if case .success = newState {
-                toastMessage = "저장 완료!"
-                showToast = true
-
+            switch newState {
+            case .success:
                 // 성공 후 메인으로 이동
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                     vm.goToMain()
                 }
-            } else if case .failure(let error) = newState {
+            case .failure(let error):
                 toastMessage = "저장 실패: \(error)"
                 showToast = true
+            default:
+                break
             }
         }
     }
     
     private func groupedPhotosGridView(groupedPhotos: [SimilarPhotoGroup]) -> some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 10) {
+            LazyVGrid(columns: columns, spacing: 9) {
                 ForEach(groupedPhotos) { group in
                     GroupedPhotosGridCellView(
                         group: group
-//                        selectedPhotosInGroup: vm.selectedPhotosInGroup,
-//                        onTapGroupedPhoto: vm.toggleGroupedPhotoView
                     )
                     .environment(vm)
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 32)
         }
     }
     
+    // TODO: - 공통 컴포넌트로 교체
     private func selectionCompleteButtonView() -> some View {
         VStack {
             Spacer()
@@ -104,32 +112,42 @@ struct GroupedPhotosView: View {
             }
         }
     }
-
+    
     private func savingProgressView(current: Int, total: Int) -> some View {
         ZStack {
             // 반투명 배경
-            Color.black.opacity(0.7)
+            Color.black.opacity(0.8)
                 .ignoresSafeArea()
 
-            // Progress UI
             VStack(spacing: 20) {
-                ProgressView()
-                    .scaleEffect(1.5)
-                    .tint(.white)
-
-                Text("\(current) / \(total)")
-                    .font(.title2)
-                    .fontWeight(.bold)
+                Text("\(current)/\(total)")
+                    .font(.num2)
                     .foregroundColor(.white)
 
-                Text("사진을 저장하는 중...")
-                    .font(.body)
-                    .foregroundColor(.white.opacity(0.8))
+                // 프로그레스 바
+                ProgressView(value: Double(current), total: Double(total))
+                    .progressViewStyle(LinearProgressViewStyle(tint: Color.yellow1))
+                    .frame(maxWidth: .infinity)
             }
-            .padding(40)
-            .background(Color.black.opacity(0.8))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .padding(.horizontal, 32)
+        }
+    }
+    
+    private func SuccessSavingView() -> some View {
+        ZStack {
+            // 반투명 배경
+            Color.black.opacity(0.8)
+                .ignoresSafeArea()
+
+            VStack(alignment: .center, spacing: 16) {
+                Image(.checkBtnLYellow)
+                    .resizable()
+                    .frame(width: 40, height: 40)
+
+                Text("앨범에 저장되었습니다!")
+                    .font(.num2)
+                    .foregroundStyle(.white)
+            }
         }
     }
 }
-

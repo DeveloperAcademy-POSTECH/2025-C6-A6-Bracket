@@ -7,7 +7,7 @@
 
 import Foundation
 
- enum GroupingError: Error, LocalizedError {
+enum GroupingError: Error, LocalizedError {
      case imageLoadingFailed
      case imageAnalysisFailed
      case partialAnalysis(failedCount: Int) /// 일부 이미지 실패 시
