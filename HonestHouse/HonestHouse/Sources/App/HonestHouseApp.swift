@@ -10,9 +10,9 @@ import CoreData
 
 @main
 struct HonestHouseApp: App {
-    
     static let persistenceController = PersistenceController.shared
     @StateObject var container: DIContainer = .init(services: Services(), managers: Managers(viewContext: persistenceController.viewContext))
+    @StateObject var cameraConnectionManager = CameraConnectionManager()
     
     var body: some Scene {
         WindowGroup {
