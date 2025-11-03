@@ -19,7 +19,7 @@ struct PhotoSelectionView: View {
     let columnCount: Int = 3
     
     var columns: [GridItem] {
-        Array(repeating: GridItem(.flexible(), spacing: 2), count: columnCount)
+        Array(repeating: GridItem(.flexible(), spacing: 5), count: columnCount)
     }
     
     var body: some View {
@@ -43,7 +43,6 @@ struct PhotoSelectionView: View {
                         .transition(.move(edge: .bottom))
                 }
             }
-            .navigationTitle("카메라 이름")
             .navigationBarTitleDisplayMode(.large)
             .task {
                 if vm.entireContentUrls.isEmpty {
@@ -63,7 +62,7 @@ struct PhotoSelectionView: View {
     
     private func photoSelectionGridView() -> some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 2) {
+            LazyVGrid(columns: columns, spacing: 5) {
                 ForEach(vm.entireContentUrls.indices, id: \.self) { index in
                     let url = vm.entireContentUrls[index]
                     let photo = Photo(url: url)
@@ -76,10 +75,11 @@ struct PhotoSelectionView: View {
                     .id(url)
                 }
             }
-            .padding(.horizontal, 2)
+            .padding(.horizontal, 16)
         }
     }
     
+    // TODO: - 공통 컴포넌트로 교체
     private func selectionCompleteButtonView() -> some View {
         VStack {
             Spacer()
