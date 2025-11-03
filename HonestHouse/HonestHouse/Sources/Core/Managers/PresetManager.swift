@@ -76,6 +76,16 @@ final class PresetManager: PresetManagerType {
         return selectedEntities.compactMap { $0.preset?.toPreset() }
     }
     
+    /// 활성화된 SelectedPreset 조회 (order 기준 오름차순)
+    func fetchActivatedSelectedPresets() throws -> [Preset] {
+        let request = SelectedPresetEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "isActivated == YES")
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \SelectedPresetEntity.order, ascending: true)]
+
+        let selectedEntities = try viewContext.fetch(request)
+        return selectedEntities.compactMap { $0.preset?.toPreset() }
+    }
+    
     // MARK: - Create
     
     /// 새 Preset 생성
