@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24D70" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24299" systemVersion="25A362" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="PresetEntity" representedClassName="PresetEntity" syncable="YES" codeGenerationType="class">
         <attribute name="aperture" optional="YES" attributeType="String"/>
         <attribute name="colorTemperature" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -17,6 +17,7 @@
         <relationship name="selectedPreset" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SelectedPresetEntity" inverseName="preset" inverseEntity="SelectedPresetEntity"/>
     </entity>
     <entity name="SelectedPresetEntity" representedClassName="SelectedPresetEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="isActivated" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="order" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="preset" maxCount="1" deletionRule="Cascade" destinationEntity="PresetEntity" inverseName="selectedPreset" inverseEntity="PresetEntity"/>
     </entity>
