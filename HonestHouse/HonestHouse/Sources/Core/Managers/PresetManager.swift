@@ -8,6 +8,29 @@
 import Foundation
 import CoreData
 
+protocol PresetManagerType {
+    /// 모든 Preset 조회
+    func fetchAllPresets() throws -> [Preset]
+    
+    /// ID로 Preset 조회
+    func fetchPreset(by id: UUID) throws -> Preset?
+    
+    /// 활성화된 SelectedPreset 조회 (order 기준 오름차순)
+    func fetchActivatedSelectedPresets() throws -> [Preset]
+
+    /// 새 Preset 생성
+    func createPreset(_ preset: Preset) throws
+    
+    /// Preset 업데이트
+    func updatePreset(_ preset: Preset) throws
+    
+    /// Preset 삭제
+    func deletePreset(_ preset: Preset) throws
+    
+    /// ID로 Preset 삭제
+    func deletePreset(by id: UUID) throws
+}
+
 final class PresetManager: PresetManagerType {
     private let viewContext: NSManagedObjectContext
     
@@ -34,6 +57,16 @@ final class PresetManager: PresetManagerType {
         return entities.first?.toPreset()
     }
     
+    /// 활성화된 SelectedPreset 조회 (order 기준 오름차순)
+    func fetchActivatedSelectedPresets() throws -> [Preset] {
+        let request = SelectedPresetEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "isActivated == YES")
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \SelectedPresetEntity.order, ascending: true)]
+
+        let selectedEntities = try viewContext.fetch(request)
+        return selectedEntities.compactMap { $0.preset?.toPreset() }
+    }
+        
     /// 새 Preset 생성
     func createPreset(_ preset: Preset) throws {
         let entity = PresetEntity(context: viewContext)
@@ -116,7 +149,11 @@ final class StubPresetManager: PresetManagerType {
     func fetchPreset(by id: UUID) throws -> Preset? {
         return presets.first { $0.id == id }
     }
-    
+
+    func fetchActivatedSelectedPresets() throws -> [Preset] {
+        return [.stub1, .stub2, .stub3]
+    }
+
     func createPreset(_ preset: Preset) throws {
         presets.append(preset)
     }
