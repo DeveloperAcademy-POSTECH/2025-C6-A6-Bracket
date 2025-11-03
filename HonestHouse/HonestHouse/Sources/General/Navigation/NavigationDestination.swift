@@ -15,7 +15,7 @@ enum NavigationDestination: Hashable {
     case trimode
     
     // Preset
-    case presetEditor(PresetDetailMode, Preset) // TODO: PresetModeType
+    case presetEditor(PresetDetailMode, Preset?)
     
     // Photos
     case photoSelection

@@ -12,7 +12,8 @@ import SwiftData
 final class PresetDetailViewModel {
     var container: DIContainer
     var presetDetailMode: PresetDetailMode
-    var selectedPreset: Preset
+    var newPreset: Preset?
+    var selectedPreset: Preset?
 
     var showingCreateSheet = false
     var showingShootAlert = false
@@ -62,9 +63,13 @@ extension PresetDetailViewModel {
     func createPreset() {
         do {
             // updatedAt을 현재 시간으로 설정
-            selectedPreset.updatedAt = Date()
+            newPreset?.updatedAt = Date()
             
-            try presetManager.createPreset(selectedPreset)
+            if let newPreset = newPreset {
+                try presetManager.createPreset(newPreset)
+            }
+            
+            
             error = nil
             
             // 생성 후 목록으로 돌아가기
@@ -78,6 +83,7 @@ extension PresetDetailViewModel {
     func updatePreset() {
         do {
             // updatedAt을 현재 시간으로 설정
+            guard let selectedPreset else { return }
             selectedPreset.updatedAt = Date()
             
             try presetManager.updatePreset(selectedPreset)
@@ -93,6 +99,7 @@ extension PresetDetailViewModel {
     /// Preset 삭제
     func deletePreset() {
         do {
+            guard let selectedPreset else { return }
             try presetManager.deletePreset(selectedPreset)
             error = nil
             

@@ -67,7 +67,7 @@ struct PresetView: View {
 
     private func addButton() -> some View {
         Button {
-            
+            vm.send(action: .goToPresetDetail(.create, nil))
         } label: {
             if #available(iOS 26.0, *) {
                 Image(systemName: "plus")

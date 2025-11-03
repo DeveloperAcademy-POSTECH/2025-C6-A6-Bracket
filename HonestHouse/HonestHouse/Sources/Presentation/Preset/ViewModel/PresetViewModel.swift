@@ -23,7 +23,7 @@ final class PresetViewModel {
     private var presetManager: PresetManagerType
 
     enum Action {
-        case goToPresetDetail(PresetDetailMode, Preset)
+        case goToPresetDetail(PresetDetailMode, Preset?)
     }
     
     init(
@@ -47,7 +47,6 @@ extension PresetViewModel {
             
         case .goToPresetDetail(let mode, let preset):
             container.navigationRouter.push(to: .presetEditor(mode, preset))
-            
         }
     }
     
