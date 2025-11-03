@@ -17,7 +17,6 @@ final class Managers: ManagersType {
     var visionManager: VisionManagerType
     var photoManager: PhotoManagerType
     var imagePrefetchManager: ImagePrefetchManagerType
-
     init() {
         self.visionManager = VisionManager()
         self.photoManager = PhotoManager()

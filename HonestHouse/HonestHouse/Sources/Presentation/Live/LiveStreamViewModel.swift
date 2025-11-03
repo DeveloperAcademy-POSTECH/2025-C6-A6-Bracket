@@ -12,21 +12,23 @@ final class LiveStreamViewModel {
 
     // MARK: - Properties
 
-    private let liveViewService = LiveViewService.shared
-
     var isStreaming = false
     var currentImage: UIImage?
     var afFrames: [LiveViewInfo.AFFrame] = []
     var errorMessage: String?
     var fps: Double = 0.0
-
+    
     private var frameCount = 0
     private var fpsStartTime = Date()
     private let fpsUpdateInterval: TimeInterval = 1.0
+    
+    private var container: DIContainer
 
     // MARK: - Initialization
-
-    init() { }
+    
+    init(container: DIContainer) {
+        self.container = container
+    }
 }
 
 // MARK: - Public Methods
@@ -40,13 +42,15 @@ extension LiveStreamViewModel {
         }
 
         Task { @MainActor in
-            let success = await liveViewService.startLiveView(
+            let success = await container.services.liveViewService.startLiveView(
                 onFrame: { [weak self] frame in
                     self?.handleFrame(frame)
                 },
                 onError: { [weak self] error in
                     self?.handleError(error)
-                }
+                },
+                size: "medium",
+                display: "on"
             )
 
             if success {
@@ -67,7 +71,7 @@ extension LiveStreamViewModel {
 
         Task { @MainActor in
             do {
-                try await liveViewService.stopLiveView()
+                try await container.services.liveViewService.stopLiveView()
                 isStreaming = false
                 currentImage = nil
                 afFrames.removeAll()

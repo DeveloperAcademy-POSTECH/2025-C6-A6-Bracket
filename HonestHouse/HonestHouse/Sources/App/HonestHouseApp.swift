@@ -11,7 +11,10 @@ import SwiftData
 @main
 struct HonestHouseApp: App {
     let modelContainer: ModelContainer
+    
     @State var container: DIContainer
+    @StateObject var cameraConnectionManager = CameraConnectionManager()
+    @State private var showConnectionSheet = false
 
     init() {
         do {
@@ -27,9 +30,22 @@ struct HonestHouseApp: App {
         WindowGroup {
             MainView(vm: MainViewModel(container: container))
                 .environmentObject(container)
+                .environmentObject(cameraConnectionManager)
                 .preferredColorScheme(.dark)
+                .onAppear {
+                    if !cameraConnectionManager.isConnected {
+                        showConnectionSheet = true
+                    }
+                }
+                .onChange(of: cameraConnectionManager.isConnected) { _, isConnected in
+                    showConnectionSheet = !isConnected
+                }
+                .sheet(isPresented: $showConnectionSheet) {
+                    CameraConnectionView()
+                        .environmentObject(container)
+                        .environmentObject(cameraConnectionManager)
+                }
         }
         .modelContainer(modelContainer)
-        
     }
 }

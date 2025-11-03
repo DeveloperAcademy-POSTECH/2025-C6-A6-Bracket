@@ -9,7 +9,6 @@ import SwiftUI
 import Kingfisher
 
 struct GroupedPhotosView: View {
-    @EnvironmentObject var container: DIContainer
     @State var vm: GroupedPhotosViewModel
     
     @State private var showToast: Bool = false

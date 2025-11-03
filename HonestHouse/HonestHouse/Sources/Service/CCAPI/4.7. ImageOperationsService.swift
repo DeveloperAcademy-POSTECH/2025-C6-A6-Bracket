@@ -92,7 +92,7 @@ final class ImageOperationsService: BaseService, ImageOperationsServiceType {
         kind: String,
         order: String
     ) throws -> URL {
-        let urlString = "\(BaseAPI.base.apiDesc)ver100/contents/\(storage)/\(directory)?type=\(type)&kind=\(kind)&order=\(order)"
+        let urlString = "\(BaseURLConstants.baseURL)ver100/contents/\(storage)/\(directory)?type=\(type)&kind=\(kind)&order=\(order)"
         
         guard let url = URL(string: urlString) else {
             throw CCAPIError.invalidURL

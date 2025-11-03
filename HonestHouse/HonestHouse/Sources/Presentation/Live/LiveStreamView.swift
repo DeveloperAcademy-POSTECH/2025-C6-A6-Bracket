@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct LiveStreamView: View {
-    @State private var vm = LiveStreamViewModel()
-    @State private var isConnected = false
+    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
+    @State var vm: LiveStreamViewModel
 
     var body: some View {
 
@@ -23,9 +24,9 @@ struct LiveStreamView: View {
                     .foregroundColor(.gray)
             }
 
-            Text("상태: \(isConnected ? (vm.isStreaming ? "스트리밍" : "연결됨") : "연결 안 됨")")
+            Text("상태: \(cameraConnectionManager.isConnected ? (vm.isStreaming ? "스트리밍" : "연결됨") : "연결 안 됨")")
                 .font(.caption)
-                .foregroundColor(isConnected ? (vm.isStreaming ? .green : .orange) : .gray)
+                .foregroundColor(cameraConnectionManager.isConnected ? (vm.isStreaming ? .green : .orange) : .gray)
 
             if vm.isStreaming {
                 Text("FPS: \(String(format: "%.1f", vm.fps))")
@@ -41,19 +42,6 @@ struct LiveStreamView: View {
             HStack(spacing: 15) {
                 Button {
                     Task {
-                        await connectCamera()
-                    }
-                } label: {
-                    Text(isConnected ? "연결됨" : "카메라 연결")
-                        .padding()
-                        .background(isConnected ? Color.green : Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .disabled(isConnected)
-
-                Button {
-                    Task {
                         await startLiveView()
                     }
                 } label: {
@@ -63,10 +51,11 @@ struct LiveStreamView: View {
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
-                .disabled(!isConnected || vm.isStreaming)
+                .disabled(!cameraConnectionManager.isConnected || vm.isStreaming)
 
                 Button {
                     Task {
+                        // TODO: 제대로 동작하게 수정 필요
                         await stopLiveView()
                     }
                 } label: {
@@ -82,27 +71,9 @@ struct LiveStreamView: View {
         .padding()
     }
 
-    // MARK: - Private Methods
-
-    @MainActor
-    private func connectCamera() async {
-        vm.errorMessage = nil
-
-        do {
-            NetworkManager.shared.configure(cameraIP: "192.168.1.2", port: 443)
-            try await NetworkManager.shared.initializeAuthentication()
-
-            isConnected = true
-            print("✅ 카메라 연결 성공")
-        } catch {
-            vm.errorMessage = "연결 실패: \(error.localizedDescription)"
-            print("❌ 카메라 연결 실패: \(error)")
-        }
-    }
-
     @MainActor
     private func startLiveView() async {
-        guard isConnected else {
+        guard cameraConnectionManager.isConnected else {
             vm.errorMessage = "먼저 카메라를 연결하세요"
             return
         }

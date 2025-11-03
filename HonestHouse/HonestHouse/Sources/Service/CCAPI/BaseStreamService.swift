@@ -27,13 +27,6 @@ class BaseStreamService {
     
     /// 인증 헤더 가져오기
     func getAuthorizationHeader(for url: URL, method: String) async -> String? {
-        do {
-            try await networkManager.initializeAuthentication()
-        } catch {
-            print("⚠️ Auth initialization failed: \(error)")
-            return nil
-        }
-        
         return networkManager.getAuthorizationHeader(
             method: method,
             url: url.absoluteString,
