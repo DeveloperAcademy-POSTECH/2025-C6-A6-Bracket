@@ -16,15 +16,19 @@ final class PersistenceController {
         let viewContext = controller.container.viewContext
         
         // Preview용 샘플 데이터 생성
-        for i in 0..<5 {
-            let preset = PresetEntity(context: viewContext)
-            preset.name = "Sample Preset \(i + 1)"
-            preset.pictureStyle = "auto"
-            preset.shootingMode = "av"
-            preset.createdAt = Date()
-            preset.updatedAt = Date()
-            // ... 나머지 속성
-        }
+for i in 0..<5 {
+    let preset = PresetEntity(context: viewContext)
+    preset.presetId = UUID()
+    preset.name = "Sample Preset \(i + 1)"
+    preset.pictureStyle = "auto"
+    preset.shootingMode = "av"
+    preset.createdAt = Date()
+    preset.updatedAt = Date()
+    preset.aperture = "5.6"
+    preset.shutterSpeed = "1/125"
+    preset.iso = "400"
+    preset.exposureCompensation = "0"
+}
         
         try? viewContext.save()
         return controller
