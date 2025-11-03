@@ -14,9 +14,9 @@ enum MainViewSegmentType: CaseIterable {
     var displayName: String {
         switch self {
         case .trishot:
-            return "트라이샷"
+            return "Tri-shot"
         case .preset:
-            return "프리셋"
+            return "Preset"
         }
     }
 }

@@ -20,31 +20,8 @@ struct MainView: View {
                 Color.g12.ignoresSafeArea(.all)
                 VStack(spacing: 18) {
                     cameraAndArchiveHeaderView()
-                    segmentedControlView()
-                    
-                    Picker("", selection: $vm.selectedSegment) {
-                        ForEach(MainViewSegmentType.allCases, id: \.self) { _ in
-                        }
-                    }
-                    .pickerStyle(.palette)
-                    
-                    switch vm.selectedSegment {
-                    case .trishot:
-                        TrishotSettingView(
-                            vm: TrishotSettingViewModel(container: container)
-                        )
-                        
-                    case .preset:
-                        PresetView(
-                            vm: PresetViewModel(
-                                container: container,
-                                isPresetEditMode: isPresetEditMode,
-                                onEditModeChange: { newValue in
-                                    isPresetEditMode = newValue
-                                }
-                            )
-                        )
-                    }
+                    CustomSegmentedControl(selection: $vm.selectedSegment)
+                    selectedSegmentView()
                     
                 }
                 .padding(.horizontal, 16)
@@ -90,7 +67,6 @@ struct MainView: View {
         .foregroundStyle(.black)
     }
     
-    
     private func segmentedControlView() -> some View {
         Picker("", selection: Binding(
             get: { vm.selectedSegment },
@@ -101,7 +77,28 @@ struct MainView: View {
                     .font(.system(size: 14, weight: .semibold))
             }
         }
-        .pickerStyle(.segmented)
+        .pickerStyle(.palette)
+    }
+    
+    @ViewBuilder
+    private func selectedSegmentView() -> some View {
+        switch vm.selectedSegment {
+        case .trishot:
+            TrishotSettingView(
+                vm: TrishotSettingViewModel(container: container)
+            )
+            
+        case .preset:
+            PresetView(
+                vm: PresetViewModel(
+                    container: container,
+                    isPresetEditMode: isPresetEditMode,
+                    onEditModeChange: { newValue in
+                        isPresetEditMode = newValue
+                    }
+                )
+            )
+        }
     }
 }
 
