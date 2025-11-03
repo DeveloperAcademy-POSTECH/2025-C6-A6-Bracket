@@ -12,6 +12,8 @@ struct GroupedPhotosDetailView: View {
     let groupedPhotos: SimilarPhotoGroup
     @Environment(GroupedPhotosViewModel.self) var vm
 
+    @State private var loadedImages: Set<String> = []  // 로딩 완료된 이미지 URL
+
     var body: some View {
         TabView {
             ForEach(groupedPhotos.photos) { photo in
@@ -28,12 +30,18 @@ struct GroupedPhotosDetailView: View {
             ProgressiveDisplayImageView(
                 thumbnailURL: photo.thumbnailURL,
                 displayURL: photo.displayURL,
-                originalURL: photo.url
+                originalURL: photo.url,
+                onImageLoaded: {
+                    loadedImages.insert(photo.url)
+                }
             )
 
-            // 선택/해제 버튼
-            selectionButtonView(photo: photo)
-                .padding(16)
+            // 선택/해제 버튼 (이미지 로딩 완료 후 표시)
+            if loadedImages.contains(photo.url) {
+                selectionButtonView(photo: photo)
+                    .padding(16)
+                    .transition(.opacity)
+            }
         }
         .task {
             // 현재 사진이 나타날 때 좌우 1-2장 prefetch
@@ -45,21 +53,16 @@ struct GroupedPhotosDetailView: View {
         Button {
             vm.toggleGroupedPhotoView(for: photo)
         } label: {
-            if vm.selectedPhotosInGroup.contains(where: { $0.id == photo.id }) {
-                ZStack {
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: 32, height: 32)
-
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.blue)
-                        .font(.system(size: 32))
+            Group {
+                if vm.selectedPhotosInGroup.contains(where: { $0.id == photo.id }) {
+                    Image(.checkSelectBtnM)
+                        .resizable()
+                } else {
+                    Image(.checkUnselectBtnM)
+                        .resizable()
                 }
-            } else {
-                Circle()
-                    .fill(Color.white.opacity(0.8))
-                    .frame(width: 32, height: 32)
             }
+            .frame(width: 24, height: 24)
         }
     }
 }
