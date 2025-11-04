@@ -27,6 +27,7 @@ final class TrishotSettingViewModel {
 
     var allSelectedPresets: [Preset] = []
     var activatedPresets: [Preset] = []
+    var error: TrishotError?
 
     private var presetManager: PresetManagerType
     
@@ -42,6 +43,7 @@ final class TrishotSettingViewModel {
             activatedPresets = try presetManager.fetchActivatedPresets()
             error = nil
         } catch {
+            handleError(error)
         }
     }
 
@@ -50,6 +52,9 @@ final class TrishotSettingViewModel {
     }
 }
 
+extension TrishotSettingViewModel: TrishotErrorHandleable {
+    var errorMessage: String? {
+        error?.errorDescription
     }
 }
 
@@ -76,6 +81,7 @@ extension TrishotSettingViewModel {
             }
 
             guard let presetToActivate = deactivatedPresets.first else {
+                error = .noDeactivatedPresetAvailable
                 return
             }
 
@@ -84,12 +90,14 @@ extension TrishotSettingViewModel {
                 try presetManager.toggleSelectedPresetActivation(presetId: presetToActivate.id)
                 loadPresets()
             } catch {
+                handleError(error)
             }
         } else {
             do {
                 try presetManager.toggleSelectedPresetActivation(presetId: presetId)
                 loadPresets()
             } catch {
+                handleError(error)
             }
         }
     }
