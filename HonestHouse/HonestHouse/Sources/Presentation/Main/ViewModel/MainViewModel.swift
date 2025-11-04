@@ -16,9 +16,6 @@ enum MainAction {
 
 @Observable
 final class MainViewModel {
-    
-    private let container: DIContainer
-    
     var selectedSegment: MainViewSegmentType = .trishot
     var segments: [MainViewSegmentType] = [.trishot, .preset]
     var isPresetEditMode: Bool = false
@@ -34,12 +31,6 @@ final class MainViewModel {
     
     func send(action: MainAction) {
         switch action {
-        case .goToTriShotSelection:
-            container.navigationRouter.push(to: .trishotSelection)
-            
-        case .goToTriMode:
-            container.navigationRouter.push(to: .trimode)
-            
         case .goToPresetEditor(let mode, let preset):
             container.navigationRouter.push(to: .presetEditor(mode, preset))
             
