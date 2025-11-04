@@ -15,8 +15,8 @@ struct NavigationRoutingView: View {
         switch destination {
             
         // Trishot
-        case .trishotSelection(let order):
-            TrishotSelectionView(vm: .init(container: container, targetOrder: order))
+        case .trishotSelection:
+            TrishotSelectionView(vm: .init(container: container))
         case .trishotActivation:
             TrishotActivationView(vm: .init(container: container))
                 

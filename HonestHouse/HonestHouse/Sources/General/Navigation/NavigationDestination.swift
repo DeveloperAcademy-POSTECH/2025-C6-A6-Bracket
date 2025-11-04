@@ -7,7 +7,7 @@
 
 enum NavigationDestination: Hashable {
     // Trishot
-    case trishotSelection(order: Int)
+    case trishotSelection
     case trishotActivation
     
     // Preset
