@@ -132,12 +132,14 @@ struct TrishotSettingView: View {
     }
     
     private func startButtonView() -> some View {
-        Button {
-            vm.send(action: .goToTrishotMode)
+        let canStart = vm.activatedPresets.count >= 2
+        return Button {
+            vm.send(action: .goToTrishotActivation)
         } label: {
             Text("시작하기")
         }
-        .buttonStyle(DefaultButtonStyle(.activated))
+        .buttonStyle(DefaultButtonStyle(canStart ? .activated : .deactivated))
+        .disabled(!canStart)
     }
 }
 
