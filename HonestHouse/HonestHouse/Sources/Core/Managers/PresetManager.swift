@@ -15,6 +15,8 @@ protocol PresetManagerType {
     /// ID로 Preset 조회
     func fetchPreset(by id: UUID) throws -> Preset?
     
+    /// 모든 SelectedPreset 조회 (order 기준 오름차순)
+    func fetchSelectedPresets() throws -> [Preset]
     /// 활성화된 SelectedPreset 조회 (order 기준 오름차순)
     func fetchActivatedSelectedPresets() throws -> [Preset]
 
@@ -60,16 +62,6 @@ final class PresetManager: PresetManagerType {
     /// 모든 SelectedPreset 조회 (order 기준 오름차순)
     func fetchSelectedPresets() throws -> [Preset] {
         let request = SelectedPresetEntity.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \SelectedPresetEntity.order, ascending: true)]
-
-        let selectedEntities = try viewContext.fetch(request)
-        return selectedEntities.compactMap { $0.preset?.toPreset() }
-    }
-    
-    /// 활성화된 SelectedPreset 조회 (order 기준 오름차순)
-    func fetchActivatedSelectedPresets() throws -> [Preset] {
-        let request = SelectedPresetEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "isActivated == YES")
         request.sortDescriptors = [NSSortDescriptor(keyPath: \SelectedPresetEntity.order, ascending: true)]
 
         let selectedEntities = try viewContext.fetch(request)
