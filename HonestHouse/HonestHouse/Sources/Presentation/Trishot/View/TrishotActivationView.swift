@@ -20,6 +20,17 @@ struct TrishotActivationView: View {
                 Spacer()
                 deactivateButtonView()
             }
+            .allowsHitTesting(!vm.isScreenLocked)
+
+            VStack {
+                Spacer()
+                HStack {
+                    lockButtonView()
+                        .padding(.leading, 16)
+                        .padding(.bottom, 86)
+                    Spacer()
+                }
+            }
         }
         .task {
             vm.activateTrishot()
@@ -33,7 +44,24 @@ struct TrishotActivationView: View {
             .foregroundStyle(Color.g7)
             .padding(.top, 41)
     }
-        
+    
+    private func lockButtonView() -> some View {
+        Button {
+            vm.toggleScreenLock()
+        } label: {
+            Circle()
+                .fill(vm.isScreenLocked ? Color.g0 : Color.clear)
+                .stroke(Color.g0, lineWidth: 1)
+                .frame(width: 50, height: 50)
+                .overlay {
+                    // TODO: Custom Asset으로 변경
+                    Image(systemName: vm.isScreenLocked ? "lock.fill" : "lock.open.fill")
+                        .foregroundStyle(vm.isScreenLocked ? Color.g12 : Color.g0)
+                        .font(.system(size: 20))
+                }
+        }
+    }
+    
     private func triCircleListView(_ index: Int) -> some View {
         VStack(spacing: 40) {
             ForEach(Array(vm.selectedPresets.enumerated()), id: \.element.id) { index, preset in
