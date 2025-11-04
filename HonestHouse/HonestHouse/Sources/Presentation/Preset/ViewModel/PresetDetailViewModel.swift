@@ -59,6 +59,9 @@ class PresetDetailViewModel {
     
     // MARK: - Camera Mode Management
     func changeCameraMode(to mode: CameraMode) {
+        
+        
+        
         guard currentPreset.cameraMode != mode else { return }
         
         currentPreset.cameraMode = mode
@@ -104,7 +107,7 @@ class PresetDetailViewModel {
         case .shutterSpeed:
             return currentPreset.cameraMode == .Tv ? .active : .disabled
             
-        case .iso, .filter, .exposure, .colorTemp:
+        case .iso, .filter, .tint, .exposure, .colorTemp:
             return .active
         }
     }
@@ -137,10 +140,10 @@ class PresetDetailViewModel {
         currentPreset.colorTemperature = value
     }
     
-    func toggleFilter() {
-        guard isSettingEditable(.filter) else { return }
-        currentPreset.filterEnabled.toggle()
-    }
+//    func toggleFilter() {
+//        guard isSettingEditable(.filter) else { return }
+//        currentPreset.filterEnabled.toggle()
+//    }
     
     // MARK: - Value Formatting
     func formatAperture(_ value: Double?) -> String {
@@ -215,7 +218,7 @@ class PresetDetailViewModel {
                lhs.aperture == rhs.aperture &&
                lhs.shutterSpeed == rhs.shutterSpeed &&
                lhs.iso == rhs.iso &&
-               lhs.filterEnabled == rhs.filterEnabled &&
+               lhs.tint == rhs.tint &&
                lhs.exposureCompensation == rhs.exposureCompensation &&
                lhs.colorTemperature == rhs.colorTemperature
     }
