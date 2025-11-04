@@ -18,4 +18,28 @@ extension View {
     func screenPadding() -> some View {
         self.padding(Spacing.screen)
     }
+    
+    /*
+     <사용법>
+     .navigationBarWithBack(title: "", showShadow: false) {
+         dismiss()
+     } rightView: {
+         EmptyView()
+     }
+     */
+    func navigationBarWithBack<RightContent: View>(
+        title: String,
+        showShadow: Bool,
+        onBackTapped: (() -> Void)? = nil,
+        @ViewBuilder rightView: () -> RightContent = { EmptyView() }
+    ) -> some View {
+        self.modifier(
+            NavigationBarWithBackButton(
+                title: title,
+                showShadow: showShadow,
+                onBackTapped: onBackTapped,
+                rightView: rightView
+            )
+        )
+    }
 }
