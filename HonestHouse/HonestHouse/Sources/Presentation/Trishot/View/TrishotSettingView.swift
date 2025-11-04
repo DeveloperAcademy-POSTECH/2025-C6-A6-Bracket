@@ -29,106 +29,79 @@ struct TrishotSettingView: View {
     /// 프리셋 3개 목록 (트라이샷)
     private func presetListView() -> some View {
         VStack(spacing: 32) {
-            ForEach(vm.trishotItems.indices, id: \.self) { index in
-                presetView(vm.trishotItems[index], index)
-                    .onTapGesture {
-                        vm.send(action: .togglePreset(vm.trishotItems[index].id))
-                    }
+            ForEach(0..<3, id: \.self) { index in
+                if index < $vm.allSelectedPresets.count {
+                    presetView(vm.allSelectedPresets[index], index)
+                } else {
+                    emptySlotView(index)
+                }
             }
         }
     }
     
     /// 프리셋 타이틀 + 내용
-    private func presetView(_ item: TrishotItem, _ index: Int) -> some View {
+    private func presetView(_ preset: Preset, _ index: Int) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            titleView(name: item.preset.name)
-            contentView(item, index)
+            titleView(name: preset.name, order: index)
+            contentView(preset, index)
         }
     }
-    
+
+    /// 등록된 프리셋 없는 경우
+    private func emptySlotView(_ index: Int) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("프리셋 \(index + 1)")
+                .font(.title3)
+                .foregroundStyle(Color.g0)
+            Button {
+                // TODO: Preset 생성 뷰로 이동하도록 연결
+            } label: {
+                HStack {
+                    Spacer()
+                    Image(systemName: "plus")
+                        .foregroundStyle(Color.g0)
+                    Spacer()
+                }
+            }
+            .frame(height: 110)
+            .background(Color.g11)
+            .clipShape(RoundedRectangle(cornerRadius: 100))
+        }
+    }
+
     /// 프리셋 타이틀
-    private func titleView(name: String) -> some View {
+    private func titleView(name: String, order: Int) -> some View {
         Button {
             vm.send(action: .goToTrishotSelection(order: order))
         } label: {
-            HStack {
+            HStack(spacing: 4) {
                 Text(name)
                     .font(.title3)
                     .foregroundStyle(Color.g0)
+                // TODO: Custom Asset으로 대체
                 Image(systemName: "chevron.right")
+                    .font(.system(size: 24))
                     .foregroundStyle(Color.g7)
             }
         }
     }
     
     /// 프리셋 내용
-    private func contentView(_ item: TrishotItem, _ index: Int) -> some View {
-        HStack {
-            contentSettingsView(item.preset)
-            Spacer()
-            contentCircleView(num: index + 1)
-        }
-        .environment(\.layoutDirection, item.isSelected ? .leftToRight : .rightToLeft)
-        .animation(.default, value: item.isSelected)
+    private func contentView(_ preset: Preset, _ index: Int) -> some View {
+        let isActivated = vm.isPresetActivated(preset.id)
+        return PresetActivationToggleView(
+            preset: preset,
+            presetNumber: index + 1,
+            isActivated: isActivated,
+            onToggle: {
+                vm.send(action: .togglePreset(preset.id))
+            }
+        )
+        .frame(height: 122)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 0)
         .background(Color.g11)
         .clipShape(RoundedRectangle(cornerRadius: 100))
-    }
-    
-    /// 프리셋 내용 - 세팅 종류
-    private func contentSettingsView(_ preset: Preset) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Circle().frame(width: 32, height: 32).foregroundStyle(Color.blue)
-                Circle().frame(width: 32, height: 32).foregroundStyle(Color.white)
-                Circle().frame(width: 32, height: 32).foregroundStyle(Color.white)
-                Circle().frame(width: 32, height: 32).foregroundStyle(Color.white)
-                Circle().frame(width: 32, height: 32).foregroundStyle(Color.white)
-            }
-            shootingDescriptionView(preset)
-        }
-        .frame(maxWidth: .infinity)
-        .environment(\.layoutDirection, .leftToRight)
-        .padding(.leading, 39)
-    }
-    
-    private func filterIcon(iso: ISO) -> some View {
-        Image("")
-    }
-    
-    private func shootingModeIcon() -> some View {
-        Image("")
-    }
-    
-    private func blueAmberIcon() -> some View {
-        Image("")
-    }
-    
-    private func exposureIcon() -> some View {
-        Image("")
-    }
-    
-    private func tintIcon() -> some View {
-        Image("")
-    }
-    
-    /// 프리셋 내용 - 원
-    private func contentCircleView(num: Int) -> some View {
-        Circle()
-            .stroke(lineWidth: 0.5)
-            .frame(width: 110, height: 110)
-            .overlay {
-                Text("\(num)")
-                    .font(.num1)
-            }
-            .padding(.vertical, 6)
-            .padding(.trailing, 8)
-            .foregroundStyle(Color.yellow1)
-    }
-    
-    private func shootingDescriptionView(_ preset: Preset) -> some View {
-        Text(preset.settingsDescription)
-            .foregroundStyle(Color.g0)
-            .font(.num4)
     }
     
     private func startButtonView() -> some View {
