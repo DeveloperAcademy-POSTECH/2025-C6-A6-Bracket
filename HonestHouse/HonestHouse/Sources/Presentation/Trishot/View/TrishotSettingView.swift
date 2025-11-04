@@ -9,7 +9,7 @@ import SwiftUI
 
 struct TrishotSettingView: View {
     @EnvironmentObject var container: DIContainer
-    
+
     @State var vm: TrishotSettingViewModel
     
     var body: some View {
@@ -20,6 +20,9 @@ struct TrishotSettingView: View {
                 Spacer()
                 startButtonView()
             }
+        }
+        .task {
+            vm.loadPresets()
         }
     }
     
@@ -46,7 +49,7 @@ struct TrishotSettingView: View {
     /// 프리셋 타이틀
     private func titleView(name: String) -> some View {
         Button {
-            vm.send(action: .goToTrishotSelection)
+            vm.send(action: .goToTrishotSelection(order: order))
         } label: {
             HStack {
                 Text(name)
