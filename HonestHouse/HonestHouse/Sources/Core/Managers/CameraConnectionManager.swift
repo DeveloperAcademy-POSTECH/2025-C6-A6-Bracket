@@ -7,7 +7,7 @@
 import SwiftUI
 
 @MainActor
-final class CameraConnectionManager: ObservableObject {
+final class CameraConnectionManager: BaseService, ObservableObject {
     
     @Published var productName: String = ""
     @Published var connectionState: ConnectionState = .disconnected
@@ -37,7 +37,7 @@ final class CameraConnectionManager: ObservableObject {
                 self.connectionState = .connected
                 print("✅ 카메라 연결 성공")
                 
-                let cameraInfo = try await getCameraInfo(with: .ver100)
+                let cameraInfo = try await getCameraInfo()
                 
                 if let productName = cameraInfo.productName {
                     self.productName = productName
@@ -57,7 +57,7 @@ final class CameraConnectionManager: ObservableObject {
     @discardableResult
     func checkConnectionStatus() async -> Bool {
         do {
-            _ = try await getCameraInfo(with: .ver100)
+            _ = try await getCameraInfo()
             self.connectionState = .connected
             return true
         } catch {
@@ -66,14 +66,9 @@ final class CameraConnectionManager: ObservableObject {
         }
     }
     
-    func getCameraInfo(with: VersionType) async throws -> CameraInformation.CameraFixedInformationResponse {
-        let response = try await networkManager.request(CameraInformationTarget.getCameraFixedInformation)
+    func getCameraInfo() async throws -> CameraInformation.CameraFixedInformationResponse {
+        let response = try await request(CameraInformationTarget.getCameraFixedInformation, decoding: CameraInformation.CameraFixedInformationResponse.self)
         
-        do {
-            let decodedResponse = try jsonDecoder.decode(CameraInformation.CameraFixedInformationResponse.self, from: response.data)
-            return decodedResponse
-        } catch {
-            throw error
-        }
+        return response
     }
 }

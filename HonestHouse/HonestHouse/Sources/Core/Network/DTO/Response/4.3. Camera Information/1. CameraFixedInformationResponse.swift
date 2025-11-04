@@ -1,5 +1,5 @@
 //
-//  1. CameraFixedInformationResponse.swift
+//  CameraFixedInformationResponse.swift
 //  HonestHouse
 //
 //  Created by Rama on 11/4/25.

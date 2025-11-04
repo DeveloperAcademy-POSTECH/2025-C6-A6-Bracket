@@ -10,10 +10,14 @@ import Foundation
 enum CameraInformationAPI {
     case cameraFixedInformation
     
-    var apiDesc: String {
+    var endpoint: String {
         switch self {
         case .cameraFixedInformation:
-            "ver100/deviceinformation"
+            "deviceinformation"
         }
+    }
+    
+    func path(with version: VersionType) -> String {
+        return "\(version.description)/\(endpoint)"
     }
 }

@@ -16,7 +16,7 @@ extension CameraInformationTarget: BaseTargetType {
     var path: String {
         switch self {
         case .getCameraFixedInformation:
-            return CameraInformationAPI.cameraFixedInformation.apiDesc
+            return CameraInformationAPI.cameraFixedInformation.path(with: .ver100)
         }
     }
     
