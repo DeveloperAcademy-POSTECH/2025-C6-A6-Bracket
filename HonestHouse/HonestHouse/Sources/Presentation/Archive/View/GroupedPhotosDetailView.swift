@@ -11,6 +11,7 @@ import Kingfisher
 struct GroupedPhotosDetailView: View {
     let groupedPhotos: SimilarPhotoGroup
     @Environment(GroupedPhotosViewModel.self) var vm
+    @Environment(\.dismiss) private var dismiss
 
     @State private var loadedImages: Set<String> = []  // 로딩 완료된 이미지 URL
 
@@ -22,6 +23,11 @@ struct GroupedPhotosDetailView: View {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never)) // PageControl 숨김
+        .navigationBarWithBack(title: "", showShadow: false) {
+            dismiss()
+        } rightView: {
+            EmptyView()
+        }
     }
 
     private func photoDetailView(photo: Photo) -> some View {
@@ -57,13 +63,12 @@ struct GroupedPhotosDetailView: View {
                 if vm.selectedPhotosInGroup.contains(where: { $0.id == photo.id }) {
                     Image(.checkSelectBtnM)
                         .resizable()
-                        .shadow(color: .black.opacity(0.2), radius: 2.5, x: 0, y: 0)
                 } else {
                     Image(.checkUnselectBtnM)
                         .resizable()
                 }
             }
-            .frame(width: 24, height: 24)
+            .frame(width: 30, height: 30)
         }
     }
 }

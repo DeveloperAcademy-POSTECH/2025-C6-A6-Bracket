@@ -196,6 +196,10 @@ extension PhotoSelectionViewModel {
 
         container.navigationRouter.push(to: .groupedPhotos(Array(selectedPhotos)))
     }
+    
+    func goToBack() {
+        container.navigationRouter.pop()
+    }
 
     // MARK: - DetailView 유틸리티
 

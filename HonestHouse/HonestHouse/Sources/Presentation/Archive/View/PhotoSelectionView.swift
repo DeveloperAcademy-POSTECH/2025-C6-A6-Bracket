@@ -23,41 +23,46 @@ struct PhotoSelectionView: View {
     }
     
     var body: some View {
-            ZStack {
-                switch vm.state {
-                case .idle, .loading:
+        ZStack {
+            switch vm.state {
+            case .idle, .loading:
+                ZStack {
+                    PhotoSelectionSkeletonView()
                     ProgressWithTextView(text: "사진 가져오는 중")
-                    
-                case .success:
-                    ZStack {
-                        photoSelectionGridView()
-                        selectionCompleteButtonView()
-                    }
-                    
-                case .failure(_):
-                    Color.clear
                 }
-                
-                if showToast {
-                    ToastView(message: toastMessage, isShowing: $showToast)
-                        .transition(.move(edge: .bottom))
+            case .success:
+                ZStack {
+                    photoSelectionGridView()
+                    selectionCompleteButtonView()
                 }
-            }
-            .navigationBarTitleDisplayMode(.large)
-            .task {
-                if vm.entireContentUrls.isEmpty {
-                    await vm.fetchAllImages()
-                }
-            }
-            .onChange(of: vm.state) { _, newState in
-                if case .failure(let error) = newState {
-                    toastMessage = error.localizedDescription
-                    showToast = true
-                } else {
-                    showToast = false
-                }
+
+            case .failure(_):
+                Color.clear
             }
 
+            if showToast {
+                ToastView(message: toastMessage, isShowing: $showToast)
+                    .transition(.move(edge: .bottom))
+            }
+        }
+        .task {
+            if vm.entireContentUrls.isEmpty {
+                await vm.fetchAllImages()
+            }
+        }
+        .onChange(of: vm.state) { _, newState in
+            if case .failure(let error) = newState {
+                toastMessage = error.localizedDescription
+                showToast = true
+            } else {
+                showToast = false
+            }
+        }
+        .navigationBarWithBack(title: "", showShadow: true, rightView: {
+            Text("\(vm.selectedPhotos.count)장")
+                .font(.num4)
+                .foregroundStyle(Color.g0)
+        })
     }
     
     private func photoSelectionGridView() -> some View {
@@ -75,29 +80,26 @@ struct PhotoSelectionView: View {
                     .id(url)
                 }
             }
-            .padding(.horizontal, 16)
+            .screenPadding()
         }
     }
     
-    // TODO: - 공통 컴포넌트로 교체
     private func selectionCompleteButtonView() -> some View {
         VStack {
             Spacer()
-            if !vm.selectedPhotos.isEmpty {
+            
+            ZStack {
+                ShadowView(startBottom: true)
+                
                 Button {
                     vm.goToGroupedPhotos()
                 } label: {
                     Text("완료")
-                        .font(.title3)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 20)
-                        .background(Color.gray)
-                        .foregroundStyle(Color.black)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
+                .buttonStyle(DefaultButtonStyle(vm.selectedPhotos.isEmpty ? .deactivated : .activated))
+                .screenPadding()
             }
         }
+        .ignoresSafeArea(edges: .bottom)
     }
 }

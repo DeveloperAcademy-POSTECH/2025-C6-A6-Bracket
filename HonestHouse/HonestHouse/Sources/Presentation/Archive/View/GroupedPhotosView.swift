@@ -25,10 +25,15 @@ struct GroupedPhotosView: View {
             // 메인 상태 (Grouping)
             switch vm.state {
             case .idle, .loading:
-                ProgressWithTextView(text: "비슷한 사진끼리 분류중")
+                ZStack {
+                    GroupedPhotosSkeletonView()
+                    ProgressWithTextView(text: "비슷한 사진끼리 분류중")
+                }
             case .success(let groupedPhotos):
-                groupedPhotosGridView(groupedPhotos: groupedPhotos)
-                selectionCompleteButtonView()
+                ZStack {
+                    groupedPhotosGridView(groupedPhotos: groupedPhotos)
+                    selectionCompleteButtonView()
+                }
             case .failure(_):
                 Color.clear
             }
@@ -75,6 +80,9 @@ struct GroupedPhotosView: View {
                 break
             }
         }
+        .navigationBarWithBack(title: "", showShadow: true, rightView: {
+           EmptyView()
+        })
     }
     
     private func groupedPhotosGridView(groupedPhotos: [SimilarPhotoGroup]) -> some View {
@@ -87,30 +95,28 @@ struct GroupedPhotosView: View {
                     .environment(vm)
                 }
             }
-            .padding(.horizontal, 16)
+            .screenPadding()
         }
     }
     
-    // TODO: - 공통 컴포넌트로 교체
     private func selectionCompleteButtonView() -> some View {
         VStack {
             Spacer()
-            if !vm.selectedPhotosInGroup.isEmpty {
+
+            ZStack {
+                ShadowView(startBottom: true)
+                    .ignoresSafeArea(edges: [.top, .bottom])
+
                 Button {
                     vm.saveSelectedPhotos()
                 } label: {
-                    Text("완료")
-                        .font(.title3)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 20)
-                        .background(Color.gray)
-                        .foregroundStyle(Color.black)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    Text("저장")
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
+                .buttonStyle(DefaultButtonStyle(vm.selectedPhotosInGroup.isEmpty ? .deactivated : .activated))
+                .screenPadding()
             }
         }
+        .ignoresSafeArea(edges: .bottom)
     }
     
     private func savingProgressView(current: Int, total: Int) -> some View {
