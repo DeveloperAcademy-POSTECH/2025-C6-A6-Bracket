@@ -205,6 +205,30 @@ final class PresetManager: PresetManagerType {
     }
 }
 
+// MARK: - Error
+
+enum PresetManagerError: LocalizedError {
+    case presetNotFound(UUID)
+    case selectedPresetNotFound(UUID)
+    case invalidOrder(Int)
+    case saveFailed(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .presetNotFound(let id):
+            return "Preset not found: \(id.uuidString)"
+        case .selectedPresetNotFound(let id):
+            return "SelectedPreset not found: \(id.uuidString)"
+        case .invalidOrder(let order):
+            return "Invalid order: \(order). Order must be between 0 and 2"
+        case .saveFailed(let error):
+            return "Failed to save context: \(error.localizedDescription)"
+        }
+    }
+}
+
+// MARK: - StubPresetManager
+
 final class StubPresetManager: PresetManagerType {
     private var presets: [Preset] = [.stub1, .stub2, .stub3]
     
