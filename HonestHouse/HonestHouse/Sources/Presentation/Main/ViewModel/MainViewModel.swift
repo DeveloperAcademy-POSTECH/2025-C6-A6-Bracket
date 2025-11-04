@@ -16,6 +16,11 @@ enum MainAction {
 
 @Observable
 final class MainViewModel {
+    enum Action {
+        case goToPresetEditor(PresetDetailMode, Preset)
+        case goToPhotoSelection
+    }
+    
     var selectedSegment: MainViewSegmentType = .trishot
     var segments: [MainViewSegmentType] = [.trishot, .preset]
     var isPresetEditMode: Bool = false
