@@ -35,6 +35,7 @@ struct TrishotActivationView: View {
         .task {
             vm.activateTrishot()
         }
+        .navigationBarBackButtonHidden(true)
     }
     
     private func noticeTextView() -> some View {
