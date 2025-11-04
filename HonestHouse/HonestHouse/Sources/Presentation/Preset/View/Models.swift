@@ -33,8 +33,10 @@ enum SettingType: String {
     case shutterSpeed = "s"
     case iso = "ISO"
     case filter = "Filter"
-    case exposure = "Exposure"
-    case colorTemp = "Color Temp"
+    
+    case tint = "Tint"
+    case exposure = "Exp"
+    case colorTemp = "Temp"
 }
 
 // MARK: - Data Model
@@ -45,7 +47,9 @@ struct CameraPreset: Identifiable, Codable {
     var aperture: Double?        // nil when Auto
     var shutterSpeed: Double?    // nil when Auto
     var iso: Int
-    var filterEnabled: Bool
+    var filter: String
+    
+    var tint: Int
     var exposureCompensation: Double
     var colorTemperature: Int
     var createdAt: Date
@@ -58,7 +62,9 @@ struct CameraPreset: Identifiable, Codable {
         aperture: Double? = nil,
         shutterSpeed: Double? = nil,
         iso: Int = 400,
-        filterEnabled: Bool = false,
+        filter: String = "",
+        
+        tint: Int = 0,
         exposureCompensation: Double = 0.0,
         colorTemperature: Int = 5000,
         createdAt: Date = Date(),
@@ -70,7 +76,9 @@ struct CameraPreset: Identifiable, Codable {
         self.aperture = aperture
         self.shutterSpeed = shutterSpeed
         self.iso = iso
-        self.filterEnabled = filterEnabled
+        self.filter = filter
+        
+        self.tint = tint
         self.exposureCompensation = exposureCompensation
         self.colorTemperature = colorTemperature
         self.createdAt = createdAt
@@ -85,7 +93,9 @@ struct CameraPreset: Identifiable, Codable {
             aperture: self.aperture,
             shutterSpeed: self.shutterSpeed,
             iso: self.iso,
-            filterEnabled: self.filterEnabled,
+            filter: self.filter,
+            
+            tint: self.tint,
             exposureCompensation: self.exposureCompensation,
             colorTemperature: self.colorTemperature,
             createdAt: self.createdAt,
@@ -107,6 +117,10 @@ struct CameraConstants {
         1/30, 1/25, 1/20, 1/15, 1/13, 1/10, 1/8, 1/6,
         1/5, 1/4, 0.3, 0.4, 0.5, 0.6, 0.8, 1, 1.3, 1.6, 2, 2.5, 3.2, 4, 5, 6, 8, 10, 13, 15, 20, 25, 30
     ]
+    
+    static let filterValues: [String] = ["Normal", "High Contrast", "Noise Reduction", "High Dynamic Range", "Black and White"]
+    
+    static let tintValues: [Int] = [-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8]
     
     static let exposureCompensationRange: ClosedRange<Double> = -3.0...3.0
     static let exposureCompensationStep: Double = 0.3
