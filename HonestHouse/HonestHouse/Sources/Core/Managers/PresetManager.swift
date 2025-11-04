@@ -261,8 +261,27 @@ final class StubPresetManager: PresetManagerType {
         return presets.first { $0.id == id }
     }
 
-    func fetchActivatedSelectedPresets() throws -> [Preset] {
-        return [.stub1, .stub2, .stub3]
+    func fetchActivatedPresets() throws -> [Preset] {
+        return presets.filter { activatedPresets.contains($0.id) }
+    }
+
+    func fetchSelectedPresets() throws -> [Preset] {
+        return Array(presets.prefix(3))
+    }
+
+    func toggleSelectedPresetActivation(presetId: UUID) throws {
+        if activatedPresets.contains(presetId) {
+            activatedPresets.remove(presetId)
+        } else {
+            activatedPresets.insert(presetId)
+        }
+    }
+
+    func updateSelectedPresetAtOrder(order: Int, presetId: UUID) throws {
+        guard presets.contains(where: { $0.id == presetId }) else {
+            throw PresetManagerError.presetNotFound(presetId)
+        }
+        activatedPresets.insert(presetId)
     }
 
     func createPreset(_ preset: Preset) throws {
