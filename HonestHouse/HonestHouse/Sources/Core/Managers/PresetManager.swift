@@ -23,6 +23,10 @@ protocol PresetManagerType {
 
     /// SelectedPreset의 isActivated toggle
     func toggleSelectedPresetActivation(presetId: UUID) throws
+
+    /// 특정 order의 SelectedPreset 업데이트 (프리셋 변경)
+    func updateSelectedPresetAtOrder(order: Int, presetId: UUID) throws
+
     /// 새 Preset 생성
     func createPreset(_ preset: Preset) throws
     
@@ -92,6 +96,37 @@ final class PresetManager: PresetManagerType {
         }
 
         selectedPresetEntity.isActivated.toggle()
+
+        try saveContext()
+    }
+
+    /// 특정 order의 SelectedPreset 업데이트 (프리셋 변경)
+    func updateSelectedPresetAtOrder(order: Int, presetId: UUID) throws {
+        guard order >= 0 && order < 3 else {
+            throw PresetManagerError.invalidOrder(order)
+        }
+
+        let selectedRequest = SelectedPresetEntity.fetchRequest()
+        selectedRequest.predicate = NSPredicate(format: "order == %d", Int16(order))
+        selectedRequest.fetchLimit = 1
+
+        let presetRequest = PresetEntity.fetchRequest()
+        presetRequest.predicate = NSPredicate(format: "presetId == %@", presetId as CVarArg)
+        presetRequest.fetchLimit = 1
+
+        guard let presetEntity = try viewContext.fetch(presetRequest).first else {
+            throw PresetManagerError.presetNotFound(presetId)
+        }
+
+        if let selectedPresetEntity = try viewContext.fetch(selectedRequest).first {
+            selectedPresetEntity.preset = presetEntity
+            selectedPresetEntity.isActivated = true
+        } else {
+            let newSelectedPreset = SelectedPresetEntity(context: viewContext)
+            newSelectedPreset.preset = presetEntity
+            newSelectedPreset.isActivated = true
+            newSelectedPreset.order = Int16(order)
+        }
 
         try saveContext()
     }
