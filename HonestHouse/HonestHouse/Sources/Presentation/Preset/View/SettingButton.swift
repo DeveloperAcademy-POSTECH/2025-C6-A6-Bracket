@@ -17,110 +17,117 @@ struct SettingButton: View {
     private var backgroundColor: Color {
         switch state {
         case .active:
-            return isSelected ? .white : Color.white.opacity(0.2)
+            return isSelected ? Color.g0 : Color.g11
         case .disabled:
-            return Color.black.opacity(0.3)
+            return Color.g11
         case .viewOnly:
-            return isSelected ? Color.yellow : Color.yellow.opacity(0.3)
+            return Color.yellow1
         }
     }
     
     private var foregroundColor: Color {
         switch state {
         case .active:
-            return isSelected ? .black : .white
+            return isSelected ? Color.g12 : Color.g0
         case .disabled:
-            return Color.gray.opacity(0.5)
+            return Color.g7
         case .viewOnly:
-            return .black
+            return Color.g12
         }
     }
     
     private var isInteractive: Bool {
-        state != .disabled
+        state == .active
+//        (state != .disabled) || (state != .viewOnly)
+//        state != .disabled
     }
     
     var body: some View {
-        Button(action: {
-            if isInteractive {
-                action()
+        VStack(spacing: 16) {
+            // 값 표시
+            if type != .cameraMode {
+                Text(value)
+                    .font(.num6)
+                    .foregroundColor(Color.g0)
             }
-        }) {
-            VStack(spacing: 4) {
-                // 타입 레이블 (작은 텍스트)
-                if type != .cameraMode {
-                    Text(type.rawValue)
-                        .font(.caption2)
-                        .foregroundColor(foregroundColor.opacity(0.7))
+            
+            Button {
+                if isInteractive {
+                    action()
                 }
                 
-                // 값 표시
-                Text(value)
-                    .font(type == .cameraMode ? .title2 : .system(size: 14, weight: .medium))
-                    .foregroundColor(foregroundColor)
-                    .fontWeight(type == .cameraMode ? .bold : .medium)
-            }
-            .frame(width: buttonWidth(for: type), height: buttonHeight(for: type))
-            .background(backgroundColor)
-            .clipShape(Circle())
-            .overlay(
+            } label: {
+                
                 Circle()
-                    .stroke(isSelected ? Color.white : Color.clear, lineWidth: 2)
-            )
+                    
+                    .frame(width: buttonWidth(for: type), height: buttonHeight(for: type))
+                    .foregroundStyle(backgroundColor)
+                    .overlay {
+                        Text(type.rawValue)
+                            .font(.num6)
+                            .foregroundColor(foregroundColor)
+                    }
+                    .overlay {
+                        Circle()
+                            .stroke(isSelected ? Color.white : Color.clear, lineWidth: 2)
+                    }
+                    
+                
+//                Text(type.rawValue)
+//                    .font(.num6)
+//                    .foregroundColor(foregroundColor)
+//                    .frame(width: buttonWidth(for: type), height: buttonHeight(for: type))
+//                    .background(backgroundColor)
+//                    .clipShape(Circle())
+//                    .overlay(
+//                        Circle()
+//                            .stroke(isSelected ? Color.white : Color.clear, lineWidth: 2)
+//                    )
+            }
+            
+            .disabled(!isInteractive)
+//            .scaleEffect(isSelected ? 1.05 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isSelected)
         }
-        .disabled(!isInteractive)
-        .scaleEffect(isSelected ? 1.05 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: isSelected)
     }
     
     private func buttonWidth(for type: SettingType) -> CGFloat {
         switch type {
-        case .cameraMode:
-            return 60
-        case .filter, .exposure, .colorTemp:
+        case .cameraMode, .filter, .tint, .exposure, .colorTemp:
+            return 64
+        case .aperture, .shutterSpeed, .iso:
             return 50
-        default:
-            return 45
         }
     }
     
     private func buttonHeight(for type: SettingType) -> CGFloat {
         switch type {
-        case .cameraMode:
-            return 60
-        case .filter, .exposure, .colorTemp:
+        case .cameraMode, .filter, .tint, .exposure, .colorTemp:
+            return 64
+        case .aperture, .shutterSpeed, .iso:
             return 50
-        default:
-            return 45
         }
     }
 }
 
 // MARK: - Camera Mode Selector
+// CameraModeSelector 정의
 struct CameraModeSelector: View {
     @Binding var selectedMode: CameraMode
     let isEnabled: Bool
-    let onSelect: (CameraMode) -> Void
+    // onSelect 제거 - @Binding이 이미 처리
     
     var body: some View {
         HStack(spacing: 20) {
             ForEach(CameraMode.allCases, id: \.self) { mode in
                 Button(action: {
                     if isEnabled {
-                        onSelect(mode)
+                        selectedMode = mode  // 직접 Binding 업데이트
                     }
                 }) {
                     Text(mode.rawValue)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(selectedMode == mode ? .black : .white)
-                        .frame(width: 50, height: 50)
-                        .background(
-                            Circle()
-                                .fill(selectedMode == mode ? Color.white : Color.white.opacity(0.2))
-                        )
+                    // ...
                 }
-                .disabled(!isEnabled)
             }
         }
     }

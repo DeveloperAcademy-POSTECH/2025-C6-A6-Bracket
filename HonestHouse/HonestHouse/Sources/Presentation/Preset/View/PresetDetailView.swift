@@ -177,29 +177,13 @@ struct PresetDetailView: View {
                 }
             )
             
-            Spacer()
-            
-            // Filter toggle
-            Button(action: {
-                if vm.viewMode != .view {
-                    vm.toggleFilter()
-                }
-            }) {
-                Image(systemName: vm.currentPreset.filterEnabled ? "square.grid.3x3.fill" : "square.grid.3x3")
-                    .font(.system(size: 20))
-                    .foregroundColor(
-                        vm.viewMode == .view ?
-                        (vm.currentPreset.filterEnabled ? .yellow : .gray) :
-                        (vm.currentPreset.filterEnabled ? .white : .gray)
-                    )
-                    .frame(width: 45, height: 45)
-                    .background(
-                        Circle()
-                            .fill(Color.white.opacity(0.1))
-                    )
+            SettingButton(type: .filter, state: vm.getButtonState(for: .filter), value: vm.currentPreset.filter, isSelected: vm.activeSlider == .filter) {
+                handleSettingButtonTap(.filter)
             }
-            .disabled(vm.viewMode == .view)
+            
+            
         }
+        .frame(maxWidth: .infinity)
     }
     
     // MARK: - Slider Section
@@ -280,77 +264,61 @@ struct PresetDetailView: View {
     private var secondarySettingsSection: some View {
         HStack(spacing: 30) {
             // Exposure Compensation
-            VStack(spacing: 4) {
-                Text(vm.formatExposureCompensation(vm.currentPreset.exposureCompensation))
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(buttonTextColor(for: .exposure))
-                
-                Image(systemName: "plusminus.circle")
-                    .font(.system(size: 24))
-                    .foregroundColor(buttonTextColor(for: .exposure))
-            }
-            .frame(width: 60, height: 60)
-            .background(buttonBackgroundColor(for: .exposure))
-            .clipShape(Circle())
-            .onTapGesture {
-                handleSettingButtonTap(.exposure)
-            }
             
-            // Color Temperature
-            VStack(spacing: 4) {
-                Text(vm.formatColorTemperature(vm.currentPreset.colorTemperature))
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(buttonTextColor(for: .colorTemp))
-                
-                Image(systemName: "thermometer.medium")
-                    .font(.system(size: 24))
-                    .foregroundColor(buttonTextColor(for: .colorTemp))
-            }
-            .frame(width: 60, height: 60)
-            .background(buttonBackgroundColor(for: .colorTemp))
-            .clipShape(Circle())
-            .onTapGesture {
-                handleSettingButtonTap(.colorTemp)
-            }
+            SettingButton(
+                type: .tint,
+                state: vm.getButtonState(for: .tint),
+                value: vm.formatISO(vm.currentPreset.tint),
+                isSelected: vm.activeSlider == .tint,
+                action: {
+                    handleSettingButtonTap(.tint)
+                }
+            )
             
-            // White Balance (미구현 - 플레이스홀더)
-            VStack(spacing: 4) {
-                Text("0K")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.gray.opacity(0.5))
-                
-                Image(systemName: "thermometer")
-                    .font(.system(size: 24))
-                    .foregroundColor(.gray.opacity(0.5))
-            }
-            .frame(width: 60, height: 60)
-            .background(Color.white.opacity(0.05))
-            .clipShape(Circle())
+            SettingButton(  // plusminus.circle
+                type: .exposure,
+                state: vm.getButtonState(for: .exposure),
+                value: vm.formatExposureCompensation(vm.currentPreset.exposureCompensation),
+                isSelected: vm.activeSlider == .exposure,
+                action: {
+                    handleSettingButtonTap(.exposure)
+                }
+            )
+            
+            SettingButton(  // thermometer.medium
+                type: .colorTemp,
+                state: vm.getButtonState(for: .colorTemp),
+                value: vm.formatColorTemperature(vm.currentPreset.colorTemperature),
+                isSelected: vm.activeSlider == .colorTemp,
+                action: {
+                    handleSettingButtonTap(.colorTemp)
+                }
+            )
         }
     }
     
     // MARK: - Helper Methods
-    private func buttonBackgroundColor(for type: SettingType) -> Color {
-        switch vm.getButtonState(for: type) {
-        case .active:
-            return vm.activeSlider == type ? .white : Color.white.opacity(0.2)
-        case .disabled:
-            return Color.black.opacity(0.3)
-        case .viewOnly:
-            return Color.yellow.opacity(0.3)
-        }
-    }
+//    private func buttonBackgroundColor(for type: SettingType) -> Color {
+//        switch vm.getButtonState(for: type) {
+//        case .active:
+//            return vm.activeSlider == type ? .white : Color.white.opacity(0.2)
+//        case .disabled:
+//            return Color.black.opacity(0.3)
+//        case .viewOnly:
+//            return Color.yellow.opacity(0.3)
+//        }
+//    }
     
-    private func buttonTextColor(for type: SettingType) -> Color {
-        switch vm.getButtonState(for: type) {
-        case .active:
-            return vm.activeSlider == type ? .black : .white
-        case .disabled:
-            return Color.gray.opacity(0.5)
-        case .viewOnly:
-            return .black
-        }
-    }
+//    private func buttonTextColor(for type: SettingType) -> Color {
+//        switch vm.getButtonState(for: type) {
+//        case .active:
+//            return vm.activeSlider == type ? .black : .white
+//        case .disabled:
+//            return Color.gray.opacity(0.5)
+//        case .viewOnly:
+//            return .black
+//        }
+//    }
     
     private func handleSettingButtonTap(_ type: SettingType) {
         guard vm.viewMode != .view else {
