@@ -44,7 +44,7 @@ struct CameraConnectionView: View {
             .frame(width: 300, height: 115)
     }
     
-    private func connectButtonView(type: connectionType) -> some View {
+    private func connectButtonView(type: ConnectionType) -> some View {
         NavigationLink {
             ConnectionGuideView(type: type)
         } label: {

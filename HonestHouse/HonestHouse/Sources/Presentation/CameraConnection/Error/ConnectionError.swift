@@ -31,9 +31,9 @@ extension ConnectionError {
     static func from(_ error: Error) -> ConnectionError {
         if let ccapiError = error as? CCAPIError {
             switch ccapiError {
-            case .authenticationFailed:
+            case .authenticationFailed(_):
                 return .authenticationFailed
-            case .deviceUnavailable:
+            case .deviceUnavailable(_):
                 return .cameraBusy
             default:
                 return .generic(ccapiError.localizedDescription)

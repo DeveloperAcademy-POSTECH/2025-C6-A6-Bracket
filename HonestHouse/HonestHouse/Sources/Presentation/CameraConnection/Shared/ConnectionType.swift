@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum connectionType {
+enum ConnectionType {
     case bluetooth
     case ip
     
