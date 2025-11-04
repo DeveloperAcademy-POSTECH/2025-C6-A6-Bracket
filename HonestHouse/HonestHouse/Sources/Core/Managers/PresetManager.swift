@@ -17,8 +17,9 @@ protocol PresetManagerType {
     
     /// 모든 SelectedPreset 조회 (order 기준 오름차순)
     func fetchSelectedPresets() throws -> [Preset]
+    
     /// 활성화된 SelectedPreset 조회 (order 기준 오름차순)
-    func fetchActivatedSelectedPresets() throws -> [Preset]
+    func fetchActivatedPresets() throws -> [Preset]
 
     /// 새 Preset 생성
     func createPreset(_ preset: Preset) throws
@@ -69,7 +70,7 @@ final class PresetManager: PresetManagerType {
     }
     
     /// 활성화된 SelectedPreset 조회 (order 기준 오름차순)
-    func fetchActivatedSelectedPresets() throws -> [Preset] {
+    func fetchActivatedPresets() throws -> [Preset] {
         let request = SelectedPresetEntity.fetchRequest()
         request.predicate = NSPredicate(format: "isActivated == YES")
         request.sortDescriptors = [NSSortDescriptor(keyPath: \SelectedPresetEntity.order, ascending: true)]
