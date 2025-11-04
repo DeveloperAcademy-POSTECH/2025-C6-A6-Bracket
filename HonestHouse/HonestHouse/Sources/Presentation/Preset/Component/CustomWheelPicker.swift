@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 18.0, *)
 struct CustomWheelPicker<SelectionValue, Content>: View where SelectionValue: Hashable & Sendable, Content: View {
     // MARK: Properties
     @State private var scrollPosition: ScrollPosition = .init(idType: SelectionValue.self)

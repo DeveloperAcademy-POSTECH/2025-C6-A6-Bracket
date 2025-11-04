@@ -58,5 +58,9 @@ extension Photo {
             Photo(url: "\(baseURL)/photo\(index).JPG")
         }
     }
+    
+    static func mockPhoto() -> Photo {
+        return Photo(url: "https://raw.githubusercontent.com/Rama-Moon/MockImage/main/photo1.JPG")
+    }
 }
 

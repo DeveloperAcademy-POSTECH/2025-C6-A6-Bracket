@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 18.0, *)
 struct CustomWheelPickerView: View {
     // MARK: Properties
     @State private var selectedAperture: String = ApertureData.defaultAperture
@@ -71,5 +72,7 @@ struct CustomWheelPickerView: View {
 }
 
 #Preview {
-    CustomWheelPickerView()
+    if #available(iOS 18.0, *) {
+        CustomWheelPickerView()
+    } else { }
 }
