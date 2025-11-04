@@ -21,6 +21,8 @@ protocol PresetManagerType {
     /// 활성화된 SelectedPreset 조회 (order 기준 오름차순)
     func fetchActivatedPresets() throws -> [Preset]
 
+    /// SelectedPreset의 isActivated toggle
+    func toggleSelectedPresetActivation(presetId: UUID) throws
     /// 새 Preset 생성
     func createPreset(_ preset: Preset) throws
     
@@ -78,7 +80,24 @@ final class PresetManager: PresetManagerType {
         let selectedEntities = try viewContext.fetch(request)
         return selectedEntities.compactMap { $0.preset?.toPreset() }
     }
-        
+
+    /// SelectedPreset의 isActivated toggle
+    func toggleSelectedPresetActivation(presetId: UUID) throws {
+        let request = SelectedPresetEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "preset.presetId == %@", presetId as CVarArg)
+        request.fetchLimit = 1
+
+        guard let selectedPresetEntity = try viewContext.fetch(request).first else {
+            throw PresetManagerError.selectedPresetNotFound(presetId)
+        }
+
+        selectedPresetEntity.isActivated.toggle()
+
+        try saveContext()
+    }
+    
+    // MARK: - Create
+    
     /// 새 Preset 생성
     func createPreset(_ preset: Preset) throws {
         let entity = PresetEntity(context: viewContext)
