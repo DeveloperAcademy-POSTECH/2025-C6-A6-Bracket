@@ -9,12 +9,6 @@ import Foundation
 import SwiftUI
 import CoreData
 
-enum TrishotSettingAction {
-    case goToTrishotSelection
-    case goToTrishotMode
-    case togglePreset(UUID)
-}
-
 @Observable
 final class TrishotSettingViewModel {
     enum Action {
@@ -27,7 +21,6 @@ final class TrishotSettingViewModel {
 
     var allSelectedPresets: [Preset] = []
     var activatedPresets: [Preset] = []
-    var error: TrishotError?
 
     private var presetManager: PresetManagerType
     
@@ -43,7 +36,7 @@ final class TrishotSettingViewModel {
             activatedPresets = try presetManager.fetchActivatedPresets()
             error = nil
         } catch {
-            handleError(error)
+            
         }
     }
 
@@ -52,9 +45,6 @@ final class TrishotSettingViewModel {
     }
 }
 
-extension TrishotSettingViewModel: TrishotErrorHandleable {
-    var errorMessage: String? {
-        error?.errorDescription
     }
 }
 
@@ -75,18 +65,14 @@ extension TrishotSettingViewModel {
     private func togglePresetSelection(_ presetId: UUID) {
         let isCurrentlyActivated = isPresetActivated(presetId)
 
-        if isCurrentlyActivated && activatedPresets.count <= 2 {
-            if activatedPresets.count == 1 {
-                error = .insufficientPresets
-                return
-            }
 
+        if isCurrentlyActivated && activatedPresets.count == 2 {
             let deactivatedPresets = allSelectedPresets.filter { preset in
                 !activatedPresets.contains { $0.id == preset.id }
             }
 
             guard let presetToActivate = deactivatedPresets.first else {
-                error = .noDeactivatedPresetAvailable
+
                 return
             }
 
@@ -95,14 +81,12 @@ extension TrishotSettingViewModel {
                 try presetManager.toggleSelectedPresetActivation(presetId: presetToActivate.id)
                 loadPresets()
             } catch {
-                handleError(error)
             }
         } else {
             do {
                 try presetManager.toggleSelectedPresetActivation(presetId: presetId)
                 loadPresets()
             } catch {
-                handleError(error)
             }
         }
     }
