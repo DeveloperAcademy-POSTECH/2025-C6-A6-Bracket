@@ -1,71 +1,83 @@
-//
-//  Aperturescrollpicker.swift
-//  HonestHouse
-//
-//  Created by Subeen on 11/4/25.
-//
-
-import SwiftUI
-
 import SwiftUI
 
 struct ApertureScrollPicker: View {
     // MARK: - Properties
     @State private var selectedIndex: Int = 0
+    @State private var scrollViewID: Int? = 0  // 스크롤 위치 추적용
+    var config = ApertureData()
     var apertureData = ApertureData.standardApertures
     private let hapticFeedback = UIImpactFeedbackGenerator(style: .light)
     @State private var isLoaded: Bool = false
     
     // MARK: - Body
     var body: some View {
-        GeometryReader {
-            let size = $0.size
-            let horizontalPadding = size.width / 2
-            ScrollView(.horizontal) {
-                HStack(spacing: 20) {
-                    let totalSteps = ApertureData.standardApertures.count
-                    ForEach(apertureData.indices, id: \.self) { index in
-                        Text(apertureData[index])
-                            .font(.num4)
-                            .foregroundColor(
-                                selectedIndex == index ? .yellow1 : .g0
-                            )
-                            .onTapGesture {
-                                withAnimation {
-                                    selectedIndex = index
-                                }
-                            }
-                    }
-                }
-                .frame(maxHeight: .infinity)
-                .scrollTargetLayout()
-            }
-            .scrollIndicators(.hidden)
-            .scrollTargetBehavior(.viewAligned)
-            .safeAreaPadding(.horizontal, horizontalPadding)
- 
-            .scrollPosition(id: .init(get: {
-                let position: Int? = isLoaded ? selectedIndex : nil
-                return position
-            }, set: { newValue in
-                if let newValue = newValue,
-                   newValue != selectedIndex {
-                    selectedIndex = newValue
-                    hapticFeedback.impactOccurred()
-                }
-            }))
+        GeometryReader { geometry in
+            let size = geometry.size
+            let horizontalPadding = size.width / 2 - config.itemSize.width / 2
             
+//            ScrollViewReader { proxy in
+                ScrollView(.horizontal) {
+                    HStack(spacing: config.spacing) {
+                        // 시작 패딩
+                    
+                        
+                        ForEach(ApertureData.standardApertures.indices, id: \.self) { index in
+                            Text(ApertureData.standardApertures[index])
+                                .font(.num4)
+                                .foregroundColor(
+                                    selectedIndex == index ? .yellow1 : .g0
+                                )
+                                .frame(width: config.itemSize.width)
+                                .contentShape(Rectangle())
+                                .id(index)
+                                .onTapGesture {
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        selectedIndex = index
+//                                        proxy.scrollTo(index)
+//                                        hapticFeedback.impactOccurred()
+                                    }
+                                }
+                        }
+                        
+                        
+                    }
+                    .frame(maxHeight: .infinity)
+                    .padding(.horizontal, horizontalPadding)
+                    .scrollTargetLayout()
+                    
+                }
+    
+                .scrollIndicators(.hidden)
+                .scrollTargetBehavior(
+                    CenterSnapScrollTargetBehavior2(
+                        itemWidth: config.itemSize.width,
+                        spacing: config.spacing
+                    )
+                )
+                .scrollPosition(id: .init(get: {
+                    let position: Int? = isLoaded ? selectedIndex : nil
+//                    print(position)
+                    return position
+                }, set: { newValue in
+                    if let newValue = newValue
+                    {
+                        selectedIndex = newValue
+                        hapticFeedback.impactOccurred()
+                    }
+                    
+                    print(selectedIndex)
+                }))
+                
+//            }
         }
         .frame(height: 52)
         .overlay(alignment: .center) {
+            // 중앙 세로선 인디케이터
             VStack(spacing: 36) {
                 Rectangle().frame(width: 1, height: 8)
                 Rectangle().frame(width: 1, height: 8)
             }
             .foregroundStyle(Color.g0)
-        }
-        .onAppear {
-            if !isLoaded { isLoaded = true }
         }
         .background(Color.g12)
         .overlay {
@@ -76,8 +88,14 @@ struct ApertureScrollPicker: View {
             RoundedRectangle(cornerRadius: 100)
                 .strokeBorder(Color.g0, lineWidth: 0.5)
         }
+        .onAppear {
+            if !isLoaded {
+                isLoaded = true
+                // 초기 위치 설정
+                
+            }
+        }
     }
-    
     
     // MARK: - Gradient Overlay
     private func gradientOverlay(width: CGFloat) -> some View {
@@ -85,8 +103,11 @@ struct ApertureScrollPicker: View {
             // 좌측 그라데이션
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color.g12,
-                    Color.g12.opacity(0)
+                    Color.black,
+                    Color.black.opacity(0)
+                    // 커스텀 색상이 있다면 아래 주석을 해제하고 사용
+                    // Color.g12,
+                    // Color.g12.opacity(0)
                 ]),
                 startPoint: .leading,
                 endPoint: .trailing
@@ -98,8 +119,11 @@ struct ApertureScrollPicker: View {
             // 우측 그라데이션
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color.g12.opacity(0),
-                    Color.g12
+                    Color.black.opacity(0),
+                    Color.black
+                    // 커스텀 색상이 있다면 아래 주석을 해제하고 사용
+                    // Color.g12.opacity(0),
+                    // Color.g12
                 ]),
                 startPoint: .leading,
                 endPoint: .trailing
@@ -109,8 +133,6 @@ struct ApertureScrollPicker: View {
         .allowsHitTesting(false)
     }
 }
-
-import Foundation
 
 // MARK: - Aperture Data
 struct ApertureData {
@@ -146,9 +168,14 @@ struct ApertureData {
         "f20",
         "f22"
     ]
+    
+    var numberOfDisplays: Int = standardApertures.count
+    var spacing: CGFloat = 22
+    var itemSize: CGSize = .init(width: 40, height: 24)
 }
 
 #Preview {
     ApertureScrollPicker()
-
 }
+
+
