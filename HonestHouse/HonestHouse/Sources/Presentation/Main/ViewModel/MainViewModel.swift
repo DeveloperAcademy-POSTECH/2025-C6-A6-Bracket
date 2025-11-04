@@ -53,8 +53,3 @@ final class MainViewModel {
         isPresetEditMode = false
     }
 }
-
-extension MainViewModel {
-    
-    
-}
