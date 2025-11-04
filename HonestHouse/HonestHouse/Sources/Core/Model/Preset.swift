@@ -67,10 +67,22 @@ extension Preset {
 }
 
 extension Preset {
-    var settingsDescription: String {
+    // TODO: 추후 UIAdapter 등으로 분리 요망
+    var modeDescription: String? {
         let apertureValue = aperture ?? "Auto"
+        let shutterSpeedValue = shutterSpeed ?? "Auto"
+        
+        switch shootingMode {
+        case .av: return "F:[\(apertureValue.suffix(3))]"
+        case .tv: return "S:[\(shutterSpeedValue)]"
+        case .p: return nil
+        }
+    }
+    
+    var isoDescription: String {
         let isoValue = iso ?? "Auto"
-        return "F: [\(apertureValue)] ISO: [\(isoValue)]"
+        
+        return "ISO:[\(isoValue)]"
     }
 }
 
@@ -129,3 +141,4 @@ extension Preset {
         )
     }
 }
+
