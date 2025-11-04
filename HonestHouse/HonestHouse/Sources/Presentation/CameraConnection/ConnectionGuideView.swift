@@ -13,6 +13,10 @@ struct ConnectionGuideView: View {
     @State private var ipAddress: String = ""
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
     
+    @State private var isAlertPresented = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    
     var body: some View {
         VStack(spacing: 24) {
             if type == .ip { ipAddressTextField() }
@@ -35,6 +39,14 @@ struct ConnectionGuideView: View {
                     .font(.num4)
                     .foregroundColor(.g0)
             }
+        }
+        .onChange(of: cameraConnectionManager.connectionState) { _, newState in
+            handleConnectionStateChange(newState)
+        }
+        .alert(alertTitle, isPresented: $isAlertPresented) {
+            Button("확인") {}
+        } message: {
+            Text(alertMessage)
         }
     }
     
@@ -70,6 +82,10 @@ struct ConnectionGuideView: View {
     
     private func connectButton() -> some View {
         Button {
+            if cameraConnectionManager.connectionState != .connecting {
+                cameraConnectionManager.connectionState = .disconnected
+            }
+            
             cameraConnectionManager.connectCamera(ipAddress: BaseURLConstants.cameraIP)
         } label: {
             Text("연결하기")
@@ -98,6 +114,21 @@ struct ConnectionGuideView: View {
         case .failed(let error):
             Text("Connection Failed: \(error)")
                 .foregroundColor(.red)
+        }
+    }
+    
+    private func handleConnectionStateChange(_ state: ConnectionState) {
+        switch state {
+        case .connected:
+            alertTitle = "연결 성공"
+            alertMessage = "카메라가 성공적으로 연결되었습니다."
+            isAlertPresented = true
+        case .failed(let error):
+            alertTitle = "연결 실패"
+            alertMessage = error.localizedDescription
+            isAlertPresented = true
+        case .connecting, .disconnected:
+            break
         }
     }
 }

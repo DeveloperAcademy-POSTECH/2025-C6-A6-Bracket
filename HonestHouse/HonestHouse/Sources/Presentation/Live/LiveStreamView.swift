@@ -24,9 +24,9 @@ struct LiveStreamView: View {
                     .foregroundColor(.gray)
             }
 
-            Text("상태: \(cameraConnectionManager.isConnected ? (vm.isStreaming ? "스트리밍" : "연결됨") : "연결 안 됨")")
+            Text("상태: \(cameraConnectionManager.connectionState == .connected ? (vm.isStreaming ? "스트리밍" : "연결됨") : "연결 안 됨")")
                 .font(.caption)
-                .foregroundColor(cameraConnectionManager.isConnected ? (vm.isStreaming ? .green : .orange) : .gray)
+                .foregroundColor(cameraConnectionManager.connectionState == .connected ? (vm.isStreaming ? .green : .orange) : .gray)
 
             if vm.isStreaming {
                 Text("FPS: \(String(format: "%.1f", vm.fps))")
@@ -51,7 +51,7 @@ struct LiveStreamView: View {
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
-                .disabled(!cameraConnectionManager.isConnected || vm.isStreaming)
+                .disabled(cameraConnectionManager.connectionState != .connected || vm.isStreaming)
 
                 Button {
                     Task {
@@ -73,7 +73,7 @@ struct LiveStreamView: View {
 
     @MainActor
     private func startLiveView() async {
-        guard cameraConnectionManager.isConnected else {
+        guard cameraConnectionManager.connectionState == .connected else {
             vm.errorMessage = "먼저 카메라를 연결하세요"
             return
         }

@@ -23,12 +23,14 @@ struct HonestHouseApp: App {
                 .environmentObject(cameraConnectionManager)
                 .preferredColorScheme(.dark)
                 .onAppear {
-                    if !cameraConnectionManager.isConnected {
+                    if cameraConnectionManager.connectionState != .connected {
                         showConnectionSheet = true
                     }
                 }
-                .onChange(of: cameraConnectionManager.isConnected) { _, isConnected in
-                    showConnectionSheet = !isConnected
+                .onChange(of: cameraConnectionManager.connectionState) { _, newState in
+                    if newState == .connected {
+                        showConnectionSheet = false
+                    } else { }
                 }
                 .sheet(isPresented: $showConnectionSheet) {
                     CameraConnectionView()

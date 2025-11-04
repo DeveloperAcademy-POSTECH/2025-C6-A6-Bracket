@@ -4,15 +4,12 @@
 //
 //  Created by Rama on 11/2/25.
 //
-
-import Foundation
+import SwiftUI
 
 @MainActor
 final class CameraConnectionManager: ObservableObject {
     
-    @Published var isConnected: Bool = false
     @Published var connectionState: ConnectionState = .disconnected
-    @Published var errorMessage: String?
     
     private let networkManager: NetworkManager
     
@@ -21,29 +18,29 @@ final class CameraConnectionManager: ObservableObject {
     }
     
     func connectCamera(ipAddress: String) {
+        guard !ipAddress.isEmpty else {
+            self.connectionState = .failed(.invalidIPAddress)
+            return
+        }
+        
         connectionState = .connecting
-        errorMessage = nil
         
         networkManager.configure(cameraIP: ipAddress)
         
         Task {
             do {
                 try await networkManager.initializeAuthentication()
-                self.isConnected = true
                 self.connectionState = .connected
                 print("✅ 카메라 연결 성공")
             } catch {
-                self.isConnected = false
-                self.connectionState = .failed(error.localizedDescription)
-                self.errorMessage = error.localizedDescription
-                print("❌ 카메라 연결 실패: \(error)")
+                let connectionError = ConnectionError.from(error)
+                self.connectionState = .failed(connectionError)
+                print("❌ 카메라 연결 실패: \(connectionError.localizedDescription)")
             }
         }
     }
     
     func disconnectCamera() {
-        // TODO: 필요시 구현
-        isConnected = false
         connectionState = .disconnected
     }
 }
