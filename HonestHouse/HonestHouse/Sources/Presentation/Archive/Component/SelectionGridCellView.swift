@@ -31,8 +31,8 @@ struct SelectionGridCellView: View {
                             .resizable()
                     }
                 }
-                .frame(width: 20, height: 20)
-                .padding(8)
+                .frame(width: 24, height: 24)
+                .padding(6)
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 8))
