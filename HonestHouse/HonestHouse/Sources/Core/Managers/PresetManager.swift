@@ -133,11 +133,21 @@ final class PresetManager: PresetManagerType {
     
     // MARK: - Create
     
-    /// 새 Preset 생성
+    /// ### 새 Preset 생성
+    /// 총 프리셋이 3개 미만인 경우 자동적으로 selectedPresetEntity가 된다.
     func createPreset(_ preset: Preset) throws {
         let entity = PresetEntity(context: viewContext)
         updateEntityFromPreset(entity, preset: preset)
-        
+
+        let selectedPresetCount = try fetchSelectedPresets().count
+
+        if selectedPresetCount < 3 {
+            let selectedPresetEntity = SelectedPresetEntity(context: viewContext)
+            selectedPresetEntity.preset = entity
+            selectedPresetEntity.order = Int16(selectedPresetCount)
+            selectedPresetEntity.isActivated = true
+        }
+
         try saveContext()
     }
     
