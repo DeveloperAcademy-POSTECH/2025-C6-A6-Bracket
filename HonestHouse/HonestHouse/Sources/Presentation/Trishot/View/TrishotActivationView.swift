@@ -65,7 +65,7 @@ struct TrishotActivationView: View {
     
     private func triCircleListView(_ index: Int) -> some View {
         VStack(spacing: 40) {
-            ForEach(Array(vm.selectedPresets.enumerated()), id: \.element.id) { index, preset in
+            ForEach(Array(vm.activatedPresets.enumerated()), id: \.element.id) { index, preset in
                 if vm.isCurrentPreset(index) {
                     yellowCircle(index)
                 } else {
