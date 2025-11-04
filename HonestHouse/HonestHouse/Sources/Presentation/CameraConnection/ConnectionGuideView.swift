@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ConnectionGuideView: View {
-    var type: connectionType
+    var type: ConnectionType
     
     @State private var ipAddress: String = ""
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
@@ -125,7 +125,7 @@ struct ConnectionGuideView: View {
             Text("Disconnected")
                 .foregroundColor(.gray)
         case .connecting:
-            Text("Disconnected")
+            Text("Connecting")
                 .foregroundColor(.gray)
         case .connected:
             Text("Connected")

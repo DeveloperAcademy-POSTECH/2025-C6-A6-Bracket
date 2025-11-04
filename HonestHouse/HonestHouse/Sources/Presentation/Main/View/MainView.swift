@@ -12,7 +12,6 @@ struct MainView: View {
     //TODO: App 파일에서 주입하도록 설정
     @EnvironmentObject private var container: DIContainer
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
-    @Environment(\.modelContext) private var modelContext
     
     @State var vm: MainViewModel
     @State var isPresetEditMode: Bool = false

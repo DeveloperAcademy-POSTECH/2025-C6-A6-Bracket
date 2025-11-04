@@ -13,15 +13,13 @@ struct ConnectionCompletionView: View {
     
     @Environment(\.dismiss) var dismiss
     
-    @State private var cameraName: String = "Canon R6"
-    
     var body: some View {
         VStack {
             connectImageView()
                 .padding(.top, 75)
                 .padding(.bottom, 38)
             
-            Text("\(cameraName)")
+            Text("\(cameraConnectionManager.productName)")
                 .font(.title1)
                 .foregroundStyle(Color.g0)
                 .padding(.bottom, 14)
@@ -63,12 +61,14 @@ struct ConnectionCompletionView: View {
             Text("Start Tri-shot")
                 .font(.num3)
                 .foregroundStyle(Color.g12)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color.g0)
+                .cornerRadius(62)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(Color.g0)
-        .cornerRadius(62)
+        .padding(.horizontal, 16)
     }
+    
 }
 
 #Preview {
