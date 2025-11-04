@@ -116,6 +116,10 @@ extension GroupedPhotosViewModel {
     func goToMain() {
         container.navigationRouter.popToRoot()
     }
+    
+    func goToBack() {
+        container.navigationRouter.pop()
+    }
 
     // MARK: - DetailView 유틸리티
 

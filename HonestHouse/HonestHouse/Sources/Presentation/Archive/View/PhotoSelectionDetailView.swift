@@ -11,9 +11,10 @@ import Kingfisher
 struct PhotoSelectionDetailView: View {
     let initialPhoto: Photo
     @Environment(PhotoSelectionViewModel.self) var vm
+    @Environment(\.dismiss) private var dismiss
 
     @State private var selectedURL: String
-    @State private var photos: [Photo] = []  // 스냅샷 (chunk 변경 무시)
+    @State private var photos: [Photo] = []  // 스냅샷 (chunk 변ㄱ경 무시)
     @State private var loadedImages: Set<String> = []  // 로딩 완료된 이미지 URL
 
     init(initialPhoto: Photo) {
@@ -34,6 +35,13 @@ struct PhotoSelectionDetailView: View {
             if photos.isEmpty {
                 photos = vm.allPhotos
             }
+        }
+        .navigationBarWithBack(title: "", showShadow: false) {
+            dismiss()
+        } rightView: {
+            Text("\(vm.selectedPhotos.count)장")
+                .font(.num4)
+                .foregroundStyle(Color.g0)
         }
     }
 
@@ -68,13 +76,12 @@ struct PhotoSelectionDetailView: View {
                 if vm.selectedPhotos.contains(photo) {
                     Image(.checkSelectBtnM)
                         .resizable()
-                        .shadow(color: .black.opacity(0.2), radius: 2.5, x: 0, y: 0)
                 } else {
                     Image(.checkUnselectBtnM)
                         .resizable()
                 }
             }
-            .frame(width: 24, height: 24)
+            .frame(width: 30, height: 30)
         }
     }
 }
