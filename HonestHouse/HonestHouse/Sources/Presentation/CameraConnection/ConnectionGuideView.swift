@@ -13,9 +13,10 @@ struct ConnectionGuideView: View {
     @State private var ipAddress: String = ""
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
     
-    @State private var isAlertPresented = false
-    @State private var alertTitle = ""
-    @State private var alertMessage = ""
+    @State private var showSuccessAlert = false
+    @State private var showFailureAlert = false
+    @State private var connectionError: ConnectionError?
+    @State private var navigateToCompletion = false
     
     var body: some View {
         VStack(spacing: 24) {
@@ -40,13 +41,31 @@ struct ConnectionGuideView: View {
                     .foregroundColor(.g0)
             }
         }
-        .onChange(of: cameraConnectionManager.connectionState) { _, newState in
-            handleConnectionStateChange(newState)
+        .navigationDestination(isPresented: $navigateToCompletion) {
+            ConnectionCompletionView()
         }
-        .alert(alertTitle, isPresented: $isAlertPresented) {
-            Button("확인") {}
+        .onChange(of: cameraConnectionManager.connectionState) { _, newState in
+            switch newState {
+            case .connected:
+                showSuccessAlert = true
+            case .failed(let error):
+                connectionError = error
+                showFailureAlert = true
+            default:
+                break
+            }
+        }
+        .alert("연결 성공", isPresented: $showSuccessAlert) {
+            Button("확인") {
+                navigateToCompletion = true
+            }
         } message: {
-            Text(alertMessage)
+            Text("카메라가 성공적으로 연결되었습니다.")
+        }
+        .alert("연결 실패", isPresented: $showFailureAlert, presenting: connectionError) { error in
+            Button("취소") { }
+        } message: { error in
+            Text(error.localizedDescription)
         }
     }
     
@@ -114,21 +133,6 @@ struct ConnectionGuideView: View {
         case .failed(let error):
             Text("Connection Failed: \(error)")
                 .foregroundColor(.red)
-        }
-    }
-    
-    private func handleConnectionStateChange(_ state: ConnectionState) {
-        switch state {
-        case .connected:
-            alertTitle = "연결 성공"
-            alertMessage = "카메라가 성공적으로 연결되었습니다."
-            isAlertPresented = true
-        case .failed(let error):
-            alertTitle = "연결 실패"
-            alertMessage = error.localizedDescription
-            isAlertPresented = true
-        case .connecting, .disconnected:
-            break
         }
     }
 }

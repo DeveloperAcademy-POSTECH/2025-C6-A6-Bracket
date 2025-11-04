@@ -10,6 +10,7 @@ import SwiftUI
 final class CameraConnectionManager: ObservableObject {
     
     @Published var connectionState: ConnectionState = .disconnected
+    @Published var showConnectionSheet = false
     
     private let networkManager: NetworkManager
     

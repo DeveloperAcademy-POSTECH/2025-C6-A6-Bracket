@@ -11,9 +11,9 @@ import CoreData
 @main
 struct HonestHouseApp: App {
     static let persistenceController = PersistenceController.shared
+    
     @StateObject var container: DIContainer = .init(services: Services(), managers: Managers(viewContext: persistenceController.viewContext))
     @StateObject var cameraConnectionManager = CameraConnectionManager()
-    @State private var showConnectionSheet = false
     
     var body: some Scene {
         WindowGroup {
@@ -22,21 +22,6 @@ struct HonestHouseApp: App {
                 .environment(\.managedObjectContext, Self.persistenceController.viewContext)
                 .environmentObject(cameraConnectionManager)
                 .preferredColorScheme(.dark)
-                .onAppear {
-                    if cameraConnectionManager.connectionState != .connected {
-                        showConnectionSheet = true
-                    }
-                }
-                .onChange(of: cameraConnectionManager.connectionState) { _, newState in
-                    if newState == .connected {
-                        showConnectionSheet = false
-                    } else { }
-                }
-                .sheet(isPresented: $showConnectionSheet) {
-                    CameraConnectionView()
-                        .environmentObject(container)
-                        .environmentObject(cameraConnectionManager)
-                }
         }
     }
 }
