@@ -136,11 +136,11 @@ struct TrishotSettingView: View {
     
     private func startButtonView() -> some View {
         Button {
-            
+            vm.send(action: .goToTrishotMode)
         } label: {
             Text("시작하기")
         }
-        .buttonStyle(DefaultButtonStyle())
+        .buttonStyle(DefaultButtonStyle(.activated))
     }
 }
 

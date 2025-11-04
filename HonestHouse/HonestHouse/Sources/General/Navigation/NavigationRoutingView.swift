@@ -16,9 +16,9 @@ struct NavigationRoutingView: View {
             
         // Trishot
         case .trishotSelection:
-            Text("trimode selection")
+            TrishotSelectionView(vm: .init(container: container))
         case .trimode:
-            Text("trimode")
+            TrishotModeView(vm: .init(container: container))
                 
         // Preset
         case .presetEditor(let mode, let preset):
