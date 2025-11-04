@@ -54,6 +54,18 @@ final class CameraConnectionManager: ObservableObject {
         connectionState = .disconnected
     }
     
+    @discardableResult
+    func checkConnectionStatus() async -> Bool {
+        do {
+            _ = try await getCameraInfo(with: .ver100)
+            self.connectionState = .connected
+            return true
+        } catch {
+            self.connectionState = .disconnected
+            return false
+        }
+    }
+    
     func getCameraInfo(with: VersionType) async throws -> CameraInformation.CameraFixedInformationResponse {
         let response = try await networkManager.request(CameraInformationTarget.getCameraFixedInformation)
         
