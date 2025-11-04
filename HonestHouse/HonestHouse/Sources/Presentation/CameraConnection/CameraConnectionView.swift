@@ -3,60 +3,66 @@ import SwiftUI
 struct CameraConnectionView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var container: DIContainer
-    @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
+    
     
     var body: some View {
-        VStack {
-            connectionStatusView()
-            
-            if let errorMessage = cameraConnectionManager.errorMessage {
-                Text("Error: \(errorMessage)")
-                    .foregroundColor(.red)
-                    .padding()
-            }
-            
-            cameraConnectButton()
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button("Dismiss") {
-                    dismiss()
+        NavigationStack {
+            ZStack {
+                Color.g12.ignoresSafeArea()
+                
+                VStack(spacing: 78) {
+                    connectImageView()
+                    
+                    connectButtonView(type: .ip)
+                }
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text("카메라 연결")
+                            .font(.num4)
+                            .foregroundColor(.g0)
+                    }
+                    
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            dismiss()
+                        } label: {
+                            Image("closeIcon")
+                                .resizable()
+                                .frame(width: 36, height: 36)
+                        }
+                    }
                 }
             }
         }
     }
     
-    private func connectionStatusView() -> some View {
-        switch cameraConnectionManager.connectionState {
-        case .disconnected:
-            Text("Disconnected")
-                .foregroundColor(.gray)
-        case .connecting:
-            Text("Disconnected")
-                .foregroundColor(.gray)
-        case .connected:
-            Text("Connected")
-                .foregroundColor(.green)
-        case .failed(let error):
-            Text("Connection Failed: \(error)")
-                .foregroundColor(.red)
-        }
+    private func connectImageView() -> some View {
+        Image("connectImage")
+            .resizable()
+            .scaledToFit()
+            .frame(maxWidth: .infinity)
+            .frame(width: 300, height: 115)
     }
     
-    private func cameraConnectButton() -> some View {
-        Button {
-            cameraConnectionManager.connectCamera(ipAddress: BaseURLConstants.cameraIP)
+    private func connectButtonView(type: connectionType) -> some View {
+        NavigationLink {
+            ConnectionGuideView(type: type)
         } label: {
-            Text("Connect to Camera")
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(cameraConnectionManager.connectionState == .connecting ? Color.gray : Color.blue)
-                .cornerRadius(10)
+            HStack(spacing: 4) {
+                type.buttonImage
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                
+                Text("\(type.title)")
+                    .font(.num3)
+                    .foregroundStyle(Color.g12)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 15)
+            .background(Color.g0)
+            .cornerRadius(50)
         }
-        .padding()
-        .disabled(cameraConnectionManager.connectionState == .connecting)
+        .padding(.horizontal)
     }
 }
 

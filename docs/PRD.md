@@ -25,6 +25,7 @@
 
 ### **5. 핵심 기능 (Main Features)**
 
+*   **카메라 연결 및 상태 관리:** 앱 시작 시 카메라 연결을 유도하고, 앱 전반에 걸쳐 연결 상태를 일관되게 관리합니다.
 *   **Tri-shot 촬영:** 사용자가 직접 설정한 커스텀 프리셋 또는 카메라 내장 필터를 이용하여 브라케팅 방식의 연속 촬영을 지원합니다.
 *   **지능형 사진 그룹화 및 아카이빙:** 촬영된 사진들을 시공간적 정보와 이미지 시각적 유사도를 기준으로 자동 그룹화하여, 사용자가 유사한 사진들을 한눈에 비교하고 쉽게 베스트 컷을 선택하여 아카이빙할 수 있도록 돕습니다.
 
@@ -34,66 +35,225 @@
 
 ```markdown
 - .github/
-  - ISSUE_TEMPLATE/
-  - workflows/
 - docs/
 - HonestHouse/
   - HonestHouse/
     - Resources/
-      - Color/
-        - Color.swift
-      - Font/
-        - Font.swift
-      - Image/
-        - Assets.xcassets/
+      ...
     - Sources/
       - App/
         - ContentView.swift
         - HonestHouseApp.swift
       - Core/
+        - CoreData/
+          - PersistenceController.swift
+          - PresetEntity+Extension.swift
+          - PresetModel.xcdatamodeld/
+            - PresetModel.xcdatamodel/
+              - contents
         - Managers/
           - Error/
             - PhotoError.swift
             - VisionError.swift
+          - Shared/
+            - ImagePrefetchManagerTarget.swift
+            - PhotoManagerType.swift
+            - VisionManagerType.swift
+          - CameraConnectionManager.swift
+          - ImagePrefetchManager.swift
+          - Managers.swift
           - PhotoManager.swift
-          - PhotoManagerType.swift
+          - PresetManager.swift
           - VisionManager.swift
-          - VisionManagerType.swift
         - Model/
+          - 4.13. Camera Status/
+            - 2. EventMonitor.swift
+          - 4.7. Image Operations/
+            - 1. StorageList.swift
+            - 2. DirectoryList.swift
+            - 3. ContentList.swift
           - 4.9. Shooting Settings/
+            - 10. ColorTemperature.swift
+            - 25. WBShift.swift
+            - 28. PictureStyle.swift
+            - 4. ShootingMode.swift
+            - 5. AV.swift
+            - 6. TV.swift
+            - 7. ISO.swift
+            - 8. ExposureCompensation.swift
+            - 9. WhiteBalance.swift
           - AnalyzedPhoto.swift
           - Photo.swift
+          - PictureStyleType.swift
+          - Preset.swift
+          - ShootingModeType.swift
           - SimilarPhotoGroup.swift
+          - TrishotItem.swift
         - Network/
           - CCAPI/
+            - 4.7. ImageOperations/
+              - ImageOperationsAPI.swift
+              - ImageOperationsTarget.swift
+            - 4.8. Shooting Control/
+              - ShootingControlAPI.swift
+              - ShootingControlTarget.swift
             - 4.9. Shooting Settings/
+              - ShootingSettingsAPI.swift
+              - ShootingSettingsTarget.swift
           - DigestAuth/
+            - DigestAuthManager.swift
+            - DigestAuthPlugin.swift
+            - HTTPDigestAuth.swift
+            - NetworkManager.swift
+            - SSLPinningDelegate.swift
           - DTO/
+            - API+Namespace.swift
             - Protocol/
+              - BaseRequest.swift
+              - BaseResponse.swift
+              - ResponseConvertible.swift
             - Request/
+              - 4.8. Shooting Control/
+                - 3. IgnoreShootingModeRequest.swift
+              - 4.9. Shooting Settings/
+                - 10. ColorTemperatureRequest.swift
+                - 25. WBShiftRequest.swift
+                - 28. PictureStyleRequest.swift
+                - 4. ShootingModeRequest.swift
+                - 5. AVRequest.swift
+                - 6. TVRequest.swift
+                - 7. ISORequest.swift
+                - 8. ExposureCompensationRequest.swift
+                - 9. WhiteBalanceRequest.swift
+                - IntValueRequest.swift
+                - StringValueRequest.swift
             - Response/
+              - 4.13. Camera Status/
+                - 2. EventMonitorResponse.swift
+              - 4.7. Image Operations/
+                - 1. StorageListResponse.swift
+                - 2. DirectoryListResponse.swift
+                - 3. ContentListResponse.swift
+              - 4.9. Shooting Settings/
+                - 10. ColorTemperatureResponse.swift
+                - 25. WBShiftResponse.swift
+                - 28. PictureStyleResponse.swift
+                - 4. ShootingModeResponse.swift
+                - 5. AVResponse.swift
+                - 6. TVResponse.swift
+                - 7. ISOResponse.swift
+                - 8. ExposureCompensationResponse.swift
+                - 9. WhiteBalanceResponse.swift
           - Error/
+            - CCAPIError.swift
+            - ImageLoadingError.swift
           - Foundation/
-          - Tri/
+            - APIConstants.swift
+            - BaseTargetType.swift
+            - BaseURLConstants.swift
           - ImageLoader.swift
       - Extension/
         - Font+Extension.swift
       - General/
         - DIContainer.swift
         - Navigation/
+          - NavigationDestination.swift
+          - NavigationRouter.swift
+          - NavigationRoutingView.swift
+          - ObservableObjectSettable.swift
       - Presentation/
         - Archive/
           - Component/
+            - CachedThumbnailImageView.swift
+            - GroupedPhotosGridCellView.swift
+            - ProgressiveDisplayImageView.swift
+            - SelectionGridCellView.swift
+            - ToastView.swift
           - Shared/
+            - ArchiveErrorHandleable.swift
+            - ArchiveState.swift
+            - MediaType.swift
+            - SavingState.swift
+            - SelectableItem.swift
           - View/
+            - ArchiveView.swift
+            - GroupedPhotosDetailView.swift
+            - GroupedPhotosView.swift
+            - PhotoSelectionDetailView.swift
+            - PhotoSelectionView.swift
           - ViewModel/
+            - Error/
+              - GroupingError.swift
+              - SelectionError.swift
+            - GroupedPhotosViewModel.swift
+            - PhotoSelectionViewModel.swift
+        - CameraConnection/
+          - Error/
+            - ConnectionError.swift
+          - Shared/
+            - ConnectionState.swift
+            - ConnectionType.swift
+          - View/
+            - CameraConnectionView.swift
+            - ConnectionGuideView.swift
+            - ConnectionCompletionView.swift
         - Common/
-        - Trishoot/
+          - ButtonStyle/
+            - DefaultButtonStyle.swift
+          - Common.swift
+        - Live/
+          - Shared/
+            - DataType.swift
+            - LiveViewInfo.swift
+            - ParsedFrame.swift
+            - StreamError.swift
+            - StreamType.swift
+          - ChunkedStreamParser.swift
+          - LiveStreamView.swift
+          - LiveStreamViewModel.swift
+        - Main/
           - Component/
+            - PresetGridCellView.swift
+            - PresetGridView.swift
+          - Shared/
+            - MainViewSegmentType.swift
+            - PresetDetailMode.swift
+            - PresetErrorHandleable.swift
           - View/
+            - MainView.swift
           - ViewModel/
+            - Error/
+              - PresetError.swift
+            - MainViewModel.swift
+        - Preset/
+          - View/
+            - PresetDetailView.swift
+            - PresetView.swift
+          - ViewModel/
+            - PresetDetailViewModel.swift
+            - PresetViewModel.swift
+        - Trishot/
+          - Component/
+            - RemoteControllerComponent.swift
+          - View/
+            - TrishotSelectionView.swift
+            - TrishotSettingView.swift
+          - ViewModel/
+            - TrishotSettingViewModel.swift
       - Service/
         - CCAPI/
+          - 4.7. ImageOperationsService.swift
+          - 4.8. ShootingControlService.swift
+          - 4.9. ShootingSettingsService.swift
+          - BaseService.swift
+          - BaseStreamService.swift
+          - EventMonitorService.swift
+          - Stream/
+            - StreamService.swift
+          - StreamDownload/
+            - StreamDownloadDelegate.swift
+            - StreamDownloadService.swift
+        - LiveViewService.swift
         - Services.swift
       - Type/
         - VersionType.swift
@@ -110,7 +270,29 @@
 
 이 섹션은 프로젝트의 핵심 기능들이 어떤 기술을 통해 구현되는지 명확히 정의하여, Gemini와 개발자 간의 원활한 소통과 협업을 돕기 위해 작성되었습니다.
 
-#### 7.1. Tri-shot 연속 촬영 (Remote Shooting)
+#### 7.1. 카메라 연결 및 상태 관리 (Global Connection Management)
+
+-   **설명:** 앱의 핵심 기능 사용에 앞서 카메라와의 연결을 보장하기 위한 필수적인 기능입니다. 앱 시작 시 연결 상태를 확인하여, 연결되지 않았을 경우 사용자에게 연결을 유도하는 모달 뷰를 제시합니다. 연결 결과(성공/실패)는 모달 내에서 Alert로 피드백되며, 연결 상태는 앱의 생명주기 동안 일관되게 유지됩니다.
+-   **주요 기술:**
+    -   **상태 관리 (`SwiftUI`, `@StateObject`, `@EnvironmentObject`):** 앱의 최상위(`HonestHouseApp`)에서 `@StateObject`로 `CameraConnectionManager`를 생성하여 앱 전역의 '단일 진실 공급원(Single Source of Truth)'으로 사용합니다. 이 Manager는 연결 상태뿐만 아니라, 자신이 표시될 모달 시트의 상태(`@Published var showConnectionSheet`)까지 직접 관리하여 로직을 중앙 집중화합니다.
+    -   **동시성 (`@MainActor`):** `CameraConnectionManager`를 `@MainActor`로 지정하여, 네트워크 통신 후 UI와 관련된 프로퍼티를 메인 스레드에서 안전하게 업데이트하도록 보장합니다.
+    -   **에러 핸들링:** 저수준의 `CCAPIError`를 UI에 친화적인 `ConnectionError`로 변환하는 '번역기' 패턴을 사용합니다. `ConnectionError`는 사용자에게 보여줄 메시지를 포함하며, `ConnectionGuideView`는 이 에러를 받아 Alert를 표시합니다.
+-   **핵심 파일:**
+    -   `HonestHouse/Sources/App/HonestHouseApp.swift`: `CameraConnectionManager`의 인스턴스를 생성 및 주입하고, Manager의 `showConnectionSheet` 상태에 따라 모달 시트를 띄웁니다.
+    -   `HonestHouse/Sources/Core/Managers/CameraConnectionManager.swift`: 연결 상태(`connectionState`)와 모달 표시 상태(`showConnectionSheet`)를 모두 `@Published` 프로퍼티로 관리하는 `ObservableObject`.
+    -   `HonestHouse/Sources/Presentation/CameraConnection/View/CameraConnectionView.swift`: 모달 시트의 루트 뷰. `NavigationStack`을 제공하여 연결 가이드, 완료 화면으로의 이동을 가능하게 합니다.
+    -   `HonestHouse/Sources/Presentation/CameraConnection/View/ConnectionGuideView.swift`: IP 입력 등 실제 연결을 시도하는 뷰. `CameraConnectionManager`의 상태 변화를 감지(`.onChange`)하여 성공/실패 Alert를 표시하고, 성공 시 `ConnectionCompletionView`로 이동합니다.
+    -   `HonestHouse/Sources/Presentation/CameraConnection/View/ConnectionCompletionView.swift`: 연결 완료를 알려주는 화면. 모달을 닫는 버튼을 포함합니다.
+    -   `HonestHouse/Sources/Presentation/CameraConnection/Error/ConnectionError.swift`: `CCAPIError`를 UI에 표시하기 적합한 에러 타입으로 변환하는 로직을 포함합니다.
+-   **동작 흐름:**
+    1.  **모달 표시:** `MainView`의 `.onAppear`에서 `cameraConnectionManager.showConnectionSheet`를 `true`로 설정하면, `MainView`에 바인딩된 `.sheet`이 `CameraConnectionView`를 모달로 띄웁니다.
+    2.  **연결 시도:** 사용자가 `ConnectionGuideView`에서 IP 주소를 입력하고 '연결하기' 버튼을 누르면 `cameraConnectionManager.connectCamera()` 함수가 호출됩니다.
+    3.  **상태 변경 감지:** `ConnectionGuideView`는 `.onChange`를 통해 `cameraConnectionManager.connectionState`의 변화를 감지합니다.
+    4.  **Alert 표시:** 상태가 `.connected` 또는 `.failed`로 변경되면, `ConnectionGuideView`는 결과에 맞는 Alert를 띄웁니다.
+    5.  **모달 내 화면 이동:** 성공 Alert의 '확인' 버튼을 누르면, `ConnectionGuideView`는 `NavigationLink`를 활성화하여 모달 내에서 `ConnectionCompletionView`로 이동합니다.
+    6.  **모달 닫기:** 사용자가 `ConnectionCompletionView`의 'Start Tri-shot' 버튼을 누르면, `cameraConnectionManager.showConnectionSheet`가 `false`로 변경되어 모달 시트 전체가 닫힙니다.
+
+#### 7.2. Tri-shot 연속 촬영 (Remote Shooting)
 
 -   **설명:** `MainView`의 Segmented Control을 통해 접근하는 원격 촬영 기능입니다. 사용자가 정의한 여러 촬영 설정(프리셋)을 한 번의 셔터로 연속 촬영하게 합니다.
 -   **주요 기술:**
@@ -130,7 +312,7 @@
     3.  **ViewModel:** 각 뷰에 연결된 ViewModel이 사용자의 입력을 처리합니다.
     4.  **Service:** `TrishootViewModel`을 통해 `ShootingSettingsService`에 촬영 명령을 전달합니다.
 
-#### 7.2. 지능형 사진 그룹화 (Intelligent Grouping & Archiving)
+#### 7.3. 지능형 사진 그룹화 (Intelligent Grouping & Archiving)
 
 -   **설명:** 연속 촬영으로 생성된 다수의 사진을 시공간적, 시각적 유사도를 기준으로 자동 그룹화하여 사용자의 사진 선별 작업을 돕고, 선택된 베스트 컷을 기기의 사진 앨범에 저장하는 기능입니다.
 -   **주요 기술:**

@@ -23,7 +23,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Resources/Image/Assets.xcassets,
 			);
 			target = 21C47E2D2E9AA5FC00FB6029 /* HonestHouse */;
 		};

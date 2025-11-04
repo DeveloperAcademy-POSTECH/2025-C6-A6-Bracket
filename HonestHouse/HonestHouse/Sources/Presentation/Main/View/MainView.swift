@@ -9,10 +9,14 @@ import SwiftUI
 import SwiftData
 
 struct MainView: View {
+    //TODO: App 파일에서 주입하도록 설정
     @EnvironmentObject private var container: DIContainer
+    @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
+    @Environment(\.modelContext) private var modelContext
+    
     @State var vm: MainViewModel
     @State var isPresetEditMode: Bool = false
-     
+    
     var body: some View {
         NavigationStack(path: $container.navigationRouter.destinations) {
             ZStack {
@@ -28,6 +32,14 @@ struct MainView: View {
                     NavigationRoutingView(destination: $0)
                 }
             }
+        }
+        .onAppear {
+            if cameraConnectionManager.connectionState != .connected {
+                cameraConnectionManager.showConnectionSheet = true
+            }
+        }
+        .sheet(isPresented: $cameraConnectionManager.showConnectionSheet) {
+            CameraConnectionView()
         }
     }
     

@@ -1,5 +1,5 @@
 //
-//  ConnectionStatus.swift
+//  ConnectionState.swift
 //  HonestHouse
 //
 //  Created by Rama on 11/3/25.
@@ -11,5 +11,5 @@ enum ConnectionState: Equatable {
     case disconnected
     case connecting
     case connected
-    case failed(String)
+    case failed(ConnectionError)
 }
