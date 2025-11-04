@@ -9,10 +9,13 @@ import SwiftUI
 @MainActor
 final class CameraConnectionManager: ObservableObject {
     
+    @Published var productName: String = ""
     @Published var connectionState: ConnectionState = .disconnected
     @Published var showConnectionSheet = false
     
     private let networkManager: NetworkManager
+    private let jsonDecoder = JSONDecoder()
+    
     
     init(networkManager: NetworkManager = .shared) {
         self.networkManager = networkManager
@@ -33,6 +36,12 @@ final class CameraConnectionManager: ObservableObject {
                 try await networkManager.initializeAuthentication()
                 self.connectionState = .connected
                 print("✅ 카메라 연결 성공")
+                
+                let cameraInfo = try await getCameraInfo(with: .ver100)
+                
+                if let productName = cameraInfo.productName {
+                    self.productName = productName
+                }
             } catch {
                 let connectionError = ConnectionError.from(error)
                 self.connectionState = .failed(connectionError)
@@ -43,5 +52,16 @@ final class CameraConnectionManager: ObservableObject {
     
     func disconnectCamera() {
         connectionState = .disconnected
+    }
+    
+    func getCameraInfo(with: VersionType) async throws -> CameraInformation.CameraFixedInformationResponse {
+        let response = try await networkManager.request(CameraInformationTarget.getCameraFixedInformation)
+        
+        do {
+            let decodedResponse = try jsonDecoder.decode(CameraInformation.CameraFixedInformationResponse.self, from: response.data)
+            return decodedResponse
+        } catch {
+            throw error
+        }
     }
 }

@@ -16,6 +16,15 @@ extension CameraInformation {
         let serialNumber: String?
         let macAddress: String?
         let firmwareVersion: String?
+        
+        enum CodingKeys: String, CodingKey {
+            case manufacturer
+            case productName = "productname"
+            case guid
+            case serialNumber = "serialnumber"
+            case macAddress = "macaddress"
+            case firmwareVersion = "firmwareversion"
+        }
     }
 }
 
