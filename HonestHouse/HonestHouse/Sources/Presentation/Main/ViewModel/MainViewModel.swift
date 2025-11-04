@@ -25,7 +25,7 @@ final class MainViewModel {
     var segments: [MainViewSegmentType] = [.trishot, .preset]
     var isPresetEditMode: Bool = false
     var selectedPreset: Preset?
-
+    
     var showEditButton: Bool {
         selectedSegment == .preset
     }
@@ -49,12 +49,17 @@ final class MainViewModel {
         selectedSegment = segment
         exitEditMode()
     }
-
+    
     func toggleEditMode() {
         isPresetEditMode.toggle()
     }
-
+    
     func exitEditMode() {
         isPresetEditMode = false
     }
+}
+
+extension MainViewModel {
+    
+    
 }
