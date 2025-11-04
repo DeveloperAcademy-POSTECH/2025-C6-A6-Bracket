@@ -75,7 +75,12 @@ extension TrishotSettingViewModel {
     private func togglePresetSelection(_ presetId: UUID) {
         let isCurrentlyActivated = isPresetActivated(presetId)
 
-        if isCurrentlyActivated && activatedPresets.count == 2 {
+        if isCurrentlyActivated && activatedPresets.count <= 2 {
+            if activatedPresets.count == 1 {
+                error = .insufficientPresets
+                return
+            }
+
             let deactivatedPresets = allSelectedPresets.filter { preset in
                 !activatedPresets.contains { $0.id == preset.id }
             }
