@@ -29,38 +29,9 @@ struct PresetActivationToggleView: View {
             ZStack(alignment: .leading) {
                 settingsContentView()
                     .offset(x: settingsOffset(width: width))
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isActivated)
-                    .animation(isDragging ? .none : .spring(response: 0.3, dampingFraction: 0.7), value: dragTranslation)
-                    .zIndex(0)
-                    .allowsHitTesting(false)
-
+                    
                 circleContentView()
-                    .frame(width: circleSize, height: circleSize)
                     .offset(x: circleOffset(width: width))
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isActivated)
-                    .animation(isDragging ? .none : .spring(response: 0.3, dampingFraction: 0.7), value: dragTranslation)
-                    .zIndex(1)
-                    .onTapGesture {
-                        onToggle()
-                    }
-                    .gesture(
-                        DragGesture(minimumDistance: minDragDistance)
-                            .updating($dragTranslation) { value, state, _ in
-                                let horizontalDrag = abs(value.translation.width)
-                                let verticalDrag = abs(value.translation.height)
-
-                                if horizontalDrag > verticalDrag {
-                                    state = value.translation.width
-                                    if !isDragging {
-                                        isDragging = true
-                                    }
-                                }
-                            }
-                            .onEnded { value in
-                                handleDragEnded(value.translation.width)
-                                isDragging = false
-                            }
-                    )
             }
             .frame(maxWidth: .infinity)
             .frame(height: totalHeight)
@@ -140,6 +111,31 @@ struct PresetActivationToggleView: View {
                     isActivated ? Color.yellow1 : Color.g7
                 )
         }
+        .frame(width: circleSize, height: circleSize)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isActivated)
+        .animation(isDragging ? .none : .spring(response: 0.3, dampingFraction: 0.7), value: dragTranslation)
+        .zIndex(1)
+        .onTapGesture {
+            onToggle()
+        }
+        .gesture(
+            DragGesture(minimumDistance: minDragDistance)
+                .updating($dragTranslation) { value, state, _ in
+                    let horizontalDrag = abs(value.translation.width)
+                    let verticalDrag = abs(value.translation.height)
+
+                    if horizontalDrag > verticalDrag {
+                        state = value.translation.width
+                        if !isDragging {
+                            isDragging = true
+                        }
+                    }
+                }
+                .onEnded { value in
+                    handleDragEnded(value.translation.width)
+                    isDragging = false
+                }
+        )
     }
 
     private func settingsContentView() -> some View {
@@ -191,6 +187,10 @@ struct PresetActivationToggleView: View {
             .padding(.leading, leadingPadding)
             Spacer()
         }
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isActivated)
+        .animation(isDragging ? .none : .spring(response: 0.3, dampingFraction: 0.7), value: dragTranslation)
+        .zIndex(0)
+        .allowsHitTesting(false)
     }
 
     private var pictureStyleIcon: ImageResource {
