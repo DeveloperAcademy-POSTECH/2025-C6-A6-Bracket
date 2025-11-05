@@ -95,7 +95,7 @@ struct PresetDetailView: View {
             SettingButton(
                 type: .aperture,
                 state: vm.getButtonState(for: .aperture),
-                value: vm.currentPreset.aperture ?? "Auto",
+                value: vm.currentPreset.displayAperture,
                 isSelected: vm.activePicker == .aperture,
                 action: {
                     handleSettingButtonTap(.aperture)
@@ -106,7 +106,7 @@ struct PresetDetailView: View {
             SettingButton(
                 type: .shutterSpeed,
                 state: vm.getButtonState(for: .shutterSpeed),
-                value: vm.currentPreset.shutterSpeed ?? "Auto",
+                value: vm.currentPreset.displayShutterSpeed,
                 isSelected: vm.activePicker == .shutterSpeed,
                 action: {
                     handleSettingButtonTap(.shutterSpeed)
@@ -117,7 +117,7 @@ struct PresetDetailView: View {
             SettingButton(
                 type: .iso,
                 state: vm.getButtonState(for: .iso),
-                value: vm.currentPreset.iso ?? "Auto",
+                value: vm.currentPreset.displayISO,
                 isSelected: vm.activePicker == .iso,
                 action: {
                     handleSettingButtonTap(.iso)
@@ -131,7 +131,6 @@ struct PresetDetailView: View {
                 value: vm.currentPreset.pictureStyle.rawValue,
                 isSelected: vm.activePicker == .pictureStyle,
                 action: {
-
                     handleSettingButtonTap(.pictureStyle)
                 }
             )
@@ -234,7 +233,7 @@ struct PresetDetailView: View {
             SettingButton(
                 type: .tintMagentaGreen,
                 state: vm.getButtonState(for: .tintMagentaGreen),
-                value: vm.currentPreset.tintMagentaGreen,
+                value: vm.currentPreset.displayTintMagentaGreen,
                 isSelected: vm.activePicker == .tintMagentaGreen,
                 action: {
                     handleSettingButtonTap(.tintMagentaGreen)
@@ -242,10 +241,10 @@ struct PresetDetailView: View {
             )
             
             // Exposure Compensation (노출 보정)
-            SettingButton(  // plusminus.circle
+            SettingButton(
                 type: .exposure,
                 state: vm.getButtonState(for: .exposure),
-                value: vm.currentPreset.exposureCompensation,
+                value: vm.currentPreset.displayExposureCompensation,
                 isSelected: vm.activePicker == .exposure,
                 action: {
                     handleSettingButtonTap(.exposure)
@@ -253,10 +252,10 @@ struct PresetDetailView: View {
             )
             
             // Color Temperature (색온도)
-            SettingButton(  // thermometer.medium
+            SettingButton(
                 type: .colorTemp,
                 state: vm.getButtonState(for: .colorTemp),
-                value: vm.currentPreset.colorTemperature,
+                value: vm.currentPreset.displayColorTemperature,
                 isSelected: vm.activePicker == .colorTemp,
                 action: {
                     handleSettingButtonTap(.colorTemp)
