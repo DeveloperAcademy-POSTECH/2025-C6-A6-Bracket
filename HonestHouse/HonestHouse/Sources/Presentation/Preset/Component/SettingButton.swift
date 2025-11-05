@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct SettingButton: View {
+struct SettingButton<SelectionType>: View {
     let type: SettingType
     let state: ButtonState
-    let value: String
+    let value: SelectionType
     let isSelected: Bool
     let action: () -> Void
     
@@ -56,7 +56,7 @@ struct SettingButton: View {
         VStack(spacing: 16) {
             // 값 표시
             if type != .cameraMode {
-                Text(value)
+                Text("\(value)")
                     .font(.num6)
                     .foregroundColor(Color.g0)
             }
@@ -90,7 +90,7 @@ struct SettingButton: View {
     
     private func buttonWidth(for type: SettingType) -> CGFloat {
         switch type {
-        case .cameraMode, .filter, .tint, .exposure, .colorTemp:
+        case .cameraMode, .pictureStyle, .tintMagentaGreen, .exposure, .colorTemp:
             return 64
         case .aperture, .shutterSpeed, .iso:
             return 50
@@ -99,7 +99,7 @@ struct SettingButton: View {
     
     private func buttonHeight(for type: SettingType) -> CGFloat {
         switch type {
-        case .cameraMode, .filter, .tint, .exposure, .colorTemp:
+        case .cameraMode, .pictureStyle, .tintMagentaGreen, .exposure, .colorTemp:
             return 64
         case .aperture, .shutterSpeed, .iso:
             return 50
@@ -108,12 +108,12 @@ struct SettingButton: View {
 }
 
 struct CameraModeSelector: View {
-    @Binding var selectedMode: CameraMode
+    @Binding var selectedMode: ShootingModeType
     let isEnabled: Bool
     
     var body: some View {
         HStack(spacing: 20) {
-            ForEach(CameraMode.allCases, id: \.self) { mode in
+            ForEach(ShootingModeType.allCases, id: \.self) { mode in
                 Button {
                     if isEnabled {
                         selectedMode = mode  // 직접 Binding 업데이트

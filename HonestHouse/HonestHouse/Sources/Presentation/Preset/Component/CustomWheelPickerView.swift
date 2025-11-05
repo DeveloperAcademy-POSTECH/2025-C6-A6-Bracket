@@ -7,14 +7,13 @@
 
 import SwiftUI
 
-// MARK: Configuration
 struct Config {
     var spacing: CGFloat
     var itemSize: CGSize
 }
 
 struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashable & Sendable {
-    // MARK: Properties
+
     @Binding var selectedValue: SelectionValue
     let items: [SelectionValue]
     let config: Config
@@ -72,10 +71,11 @@ struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashabl
 }
 
 #Preview("Double") {
-    CustomWheelPickerView(selectedValue: .constant(1.0), items: CameraConstants.apertureValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+    CustomWheelPickerView(selectedValue: .constant("1.0"), items: CameraConstants.apertureValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+
 }
 
 
 #Preview("Int") {
-    CustomWheelPickerView(selectedValue: .constant(1), items: [1, 2], config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+    CustomWheelPickerView(selectedValue: .constant(1), items: CameraConstants.tintMagentaGreenValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
 }
