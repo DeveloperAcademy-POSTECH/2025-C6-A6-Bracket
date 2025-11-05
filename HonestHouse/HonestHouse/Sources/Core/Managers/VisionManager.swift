@@ -5,17 +5,16 @@
 //  Created by Rama on 10/24/25.
 //
 
-import SwiftUI
 import Vision
 
-class VisionManager: VisionManagerType {
+final class VisionManager: VisionManagerType {
     private let imageLoader: ImageLoader
     
     init(imageLoader: ImageLoader = .shared) {
         self.imageLoader = imageLoader
     }
     
-    public func analyzeImages(
+    func analyzeImages(
         _ photos: [Photo],
         threshold: Float
     ) async throws -> [SimilarPhotoGroup] {
@@ -27,7 +26,7 @@ class VisionManager: VisionManagerType {
         )
     }
     
-    // 각 이미지의 특징을 Vision으로 추출
+    /// 각 이미지의 특징을 Vision으로 추출
     private func extractFeatures(from photos: [Photo]) async throws -> [AnalyzedPhoto] {
         var features: [AnalyzedPhoto] = []
         var errorInfos: [(photo: Photo, error: Error)] = []
@@ -74,7 +73,7 @@ class VisionManager: VisionManagerType {
         return features
     }
     
-    // 비슷한 이미지를 그룹핑
+    /// 비슷한 이미지를 그룹핑
     private func groupSimilarImages(
         analyzedPhotos: [AnalyzedPhoto],
         threshold: Float
@@ -109,7 +108,7 @@ class VisionManager: VisionManagerType {
         return similarGroups
     }
     
-    // 그룹핑을 위한 이미지를 찾음
+    /// 그룹핑을 위한 이미지를 찾음
     private func matchSimilarImages(
         startIndex: Int,
         photos: [AnalyzedPhoto],
@@ -150,7 +149,7 @@ class VisionManager: VisionManagerType {
         )
     }
     
-    // 그룹 내 사진과 타겟 사진의 유사도 평균을 계산
+    /// 그룹 내 사진과 타겟 사진의 유사도 평균을 계산
     private func calculateAverageDistanceToGroup(
         targetIndex: Int,
         currentGroupIndexes: [Int],
@@ -170,6 +169,7 @@ class VisionManager: VisionManagerType {
         return sumDistance / Float(currentGroupIndexes.count)
     }
     
+    /// 유사 그룹 생성
     private func makeSimilarGroup(
         photos: [Photo],
         distances: [Float],
@@ -185,7 +185,7 @@ class VisionManager: VisionManagerType {
         )
     }
     
-    // 어떤 그룹에도 속하지 못한 단독 사진들을 Extra 그룹으로 생성
+    /// 어떤 그룹에도 속하지 못한 단독 사진들을 Extra 그룹으로 생성
     private func handleExtraPhotos(
         analyzedPhotos: [AnalyzedPhoto],
         processedImageSet: Set<Int>
@@ -210,11 +210,8 @@ class VisionManager: VisionManagerType {
     }
 }
 
-// MARK: - StubVisionMananger
-
 final class StubVisionManager: VisionManagerType {
     func analyzeImages(_ photos: [Photo], threshold: Float) async throws -> [SimilarPhotoGroup] {
-        // TODO: stub 만들어서 넣기
         return [.init(photos: [], averageDistance: 0, confidence: 0)]
     }
 }

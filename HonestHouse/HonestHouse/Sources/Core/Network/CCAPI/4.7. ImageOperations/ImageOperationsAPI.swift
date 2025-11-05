@@ -5,12 +5,10 @@
 //  Created by 이현주 on 10/23/25.
 //
 
-import Foundation
-
 enum ImageOperationsAPI {
-    case storageList                      /// 저장소 리스트
-    case directoryList(String)            /// 디렉토리 리스트
-    case contentList(String, String)      /// 컨텐츠(이미지) 리스트
+    case storageList                      // 저장소 리스트
+    case directoryList(String)            // 디렉토리 리스트
+    case contentList(String, String)      // 컨텐츠(이미지) 리스트
     
     var apiDesc: String {
         switch self {

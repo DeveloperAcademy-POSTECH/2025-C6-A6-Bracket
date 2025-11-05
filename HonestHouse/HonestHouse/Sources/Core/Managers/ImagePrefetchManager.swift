@@ -7,17 +7,18 @@
 
 import Foundation
 import Kingfisher
-import UIKit
 
+/// 이미지 프리페치를 우선순위별로 관리하는 매니저
+/// - High Priority: 그룹 첫 사진 (즉시)
+/// - Medium Priority: 좌우 인접 사진 (500ms 간격)
+/// - Low Priority: 초기 30-50장 (1초 간격)
 final class ImagePrefetchManager: ImagePrefetchManagerType {
-
     private let cache = ImageCache.default
     private let downloadQueue = DispatchQueue(label: "camera.prefetch", qos: .background)
 
-    // 우선순위별 큐
-    private var highPriorityQueue: [String] = []      // 즉시 (그룹 첫 사진)
-    private var mediumPriorityQueue: [String] = []    // 500ms (좌우)
-    private var lowPriorityQueue: [String] = []       // 1s (초기 30-50장)
+    private var highPriorityQueue: [String] = []
+    private var mediumPriorityQueue: [String] = []
+    private var lowPriorityQueue: [String] = []
 
     private var isProcessing = false
     private var lastDownloadTime: Date = .distantPast
@@ -27,26 +28,9 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
         configureCache()
     }
 
-    private func configureCache() {
-        // Memory: 150MB
-        cache.memoryStorage.config.totalCostLimit = 150 * 1024 * 1024
-        cache.memoryStorage.config.countLimit = 50
-
-        // Disk: 2GB
-        cache.diskStorage.config.sizeLimit = 2000 * 1024 * 1024
-
-        // 만료: 세션 동안만
-        cache.memoryStorage.config.expiration = .never
-        cache.diskStorage.config.expiration = .never
-    }
-
-    // MARK: - 1. 초기 Prefetch (Low Priority, 취소 가능)
-
-    /// 최근 30-50장 Display prefetch (백그라운드, 1초 간격)
     func startInitialPrefetch(photos: [Photo], count: Int = 50) {
         let recentPhotos = Array(photos.prefix(count))
-
-        print("[Initial Prefetch] Starting prefetch for recent \(recentPhotos.count) photos")
+        Logger.info("Starting prefetch for recent \(recentPhotos.count) photos", category: .prefetch)
 
         isInitialPrefetchCancelled = false
 
@@ -54,13 +38,11 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
             guard let self = self else { return }
 
             for photo in recentPhotos {
-                // 취소 확인
                 guard !self.isInitialPrefetchCancelled else {
-                    print("[Initial Prefetch] Cancelled")
+                    Logger.info("[Initial Prefetch] Cancelled", category: .prefetch)
                     return
                 }
 
-                // 캐시 확인 (Memory + Disk)
                 if !self.isCached(photo.displayURL) {
                     self.lowPriorityQueue.append(photo.displayURL)
                 }
@@ -72,7 +54,6 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
         }
     }
 
-    /// 완료 버튼 시, 초기 50개 Prefetch 중단 (low) + PhotoSelectionDetailView에서 쌓였던 인접 사진들 Prefetch 중단 (mid)
     func cancelSelectionPartPrefetch() {
         downloadQueue.async { [weak self] in
             guard let self = self else { return }
@@ -81,14 +62,15 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
             self.lowPriorityQueue.removeAll()
             self.mediumPriorityQueue.removeAll()
 
-            print("[Selection Prefetch] Stopped - Low and Medium priority queues cleared")
+            Logger.info("[Selection Prefetch] Stopped - Low and Medium priority queues cleared", category: .prefetch)
         }
     }
 
-    // MARK: - 2. 좌우 Prefetch (Medium Priority)
-
-    /// PhotoSelectionDetailView / GroupedPhotosDetailView 좌우 1-2장 prefetch
-    func prefetchAdjacent(current: Photo, previous: Photo?, next: Photo?) {
+    func prefetchAdjacent(
+        current: Photo,
+        previous: Photo?,
+        next: Photo?
+    ) {
         downloadQueue.async { [weak self] in
             guard let self = self else { return }
 
@@ -108,9 +90,6 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
         }
     }
 
-    // MARK: - 3. 그룹 첫 사진 Prefetch (High Priority)
-
-    /// 각 그룹의 첫 번째 사진 prefetch (Vision과 병렬)
     func prefetchGroupFirstPhotos(groups: [SimilarPhotoGroup]) async {
         let firstPhotos = groups.compactMap { $0.photos.first }
 
@@ -135,31 +114,57 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
             }
         }
 
-        // 모든 그룹 첫 사진 다운로드 완료 대기 - vision 처리까지 완료시 GroupedPhotosView로 넘어감
+        // 모든 그룹 첫 사진 다운로드 완료 대기
         await waitForHighPriorityQueueCompletion()
+    }
+
+    func clearAllCache() {
+        downloadQueue.async { [weak self] in
+            guard let self = self else { return }
+
+            self.highPriorityQueue.removeAll()
+            self.mediumPriorityQueue.removeAll()
+            self.lowPriorityQueue.removeAll()
+
+            Logger.info("All priority queues cleared", category: .prefetch)
+        }
+
+        cache.clearMemoryCache()
+        cache.clearDiskCache {
+            Logger.info("All cache cleared (Memory + Disk)", category: .prefetch)
+        }
+    }
+
+    private func configureCache() {
+        // Memory: 150MB
+        cache.memoryStorage.config.totalCostLimit = 150 * 1024 * 1024
+        cache.memoryStorage.config.countLimit = 50
+
+        // Disk: 2GB
+        cache.diskStorage.config.sizeLimit = 2000 * 1024 * 1024
+
+        // 만료: 세션 동안만
+        cache.memoryStorage.config.expiration = .never
+        cache.diskStorage.config.expiration = .never
     }
 
     private func waitForHighPriorityQueueCompletion() async {
         while true {
-            // continuation으로 안전하게 highPriorityQueue에 접근하여 isEmpty값 가져옴
+            // continuation으로 안전하게 highPriorityQueue에 접근
             let isEmpty = await withCheckedContinuation { continuation in
-                downloadQueue.async { [weak self] in // 메인스레드가 아닌 downloadQueue에서 접근
+                downloadQueue.async { [weak self] in
                     continuation.resume(returning: self?.highPriorityQueue.isEmpty ?? true)
                 }
             }
 
-            // 완료되면 탈출
             if isEmpty {
-                print("[Group First Prefetch] All completed")
+                Logger.info("[Group First Prefetch] All completed", category: .prefetch)
                 break
             }
 
-            // 100ms마다 반복 체크
-            try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+            try? await Task.sleep(nanoseconds: 100_000_000)
         }
     }
-
-    // MARK: - Sequential Download with Priority
 
     private func processQueue() {
         downloadQueue.async { [weak self] in
@@ -172,7 +177,7 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
 
             // 우선순위별로 다음 URL 선택
             guard let (urlString, priority) = self.getNextURL() else {
-                self.isProcessing = false // 큐 비었으면 종료
+                self.isProcessing = false
                 return
             }
 
@@ -186,9 +191,9 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
             // 우선순위별 간격 적용
             let interval: TimeInterval = {
                 switch priority {
-                case .high: return 0.0      // 즉시
-                case .medium: return 0.5    // 500ms
-                case .low: return 1.0       // 1s
+                case .high: return 0.0
+                case .medium: return 0.5
+                case .low: return 1.0
                 }
             }()
 
@@ -199,10 +204,8 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
 
             self.lastDownloadTime = Date()
 
-            // 현재 큐에 있는 내용물 count 확인용
-            print("📥 [\(priority)] \(url.lastPathComponent) (H:\(self.highPriorityQueue.count) M:\(self.mediumPriorityQueue.count) L:\(self.lowPriorityQueue.count))")
+            Logger.debug("[\(priority)] \(url.lastPathComponent) (H:\(self.highPriorityQueue.count) M:\(self.mediumPriorityQueue.count) L:\(self.lowPriorityQueue.count))", category: .prefetch)
 
-            // Kingfisher로 다운로드 (Memory + Disk 캐싱)
             let modifier = AnyModifier { request in
                 var r = request
                 r.timeoutInterval = 30.0
@@ -215,7 +218,7 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
                     .requestModifier(modifier),
                     .backgroundDecode,
                     .processor(DownsamplingImageProcessor(size: CGSize(width: 1200, height: 1200))),
-                    .cacheOriginalImage,        // Disk에도 캐싱
+                    .cacheOriginalImage,
                     .retryStrategy(DelayRetryStrategy(maxRetryCount: 1, retryInterval: .seconds(2)))
                 ]
             ) { [weak self] result in
@@ -225,16 +228,17 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
                 case .success(let imageResult):
                     let source = imageResult.cacheType == .none ? "Network" :
                                  imageResult.cacheType == .memory ? "Memory" : "Disk"
-                    print("[\(priority)] Success from \(source): \(url.lastPathComponent)")
+                    
+                    Logger.info("[\(priority)] Success from \(source): \(url.lastPathComponent)", category: .prefetch)
                 case .failure(let error):
-                    print("[\(priority)] Failed: \(url.lastPathComponent) - \(error.localizedDescription)")
+                    Logger.error("[\(priority)] Failed: \(url.lastPathComponent) - \(error.localizedDescription)", category: .prefetch)
 
-                    // Display 실패 시 Original로 fallback prefetch
+                    // Display 실패 시 Original로 fallback
                     if urlString.contains("?kind=display") {
                         let originalURL = urlString.replacingOccurrences(of: "?kind=display", with: "")
-                        print("[\(priority)] Fallback to original: \(url.lastPathComponent)")
+                        
+                        Logger.warning("[\(priority)] Fallback to original: \(url.lastPathComponent)", category: .prefetch)
 
-                        // Original을 같은 우선순위 큐의 맨 앞에 추가
                         self.downloadQueue.async {
                             switch priority {
                             case .high:
@@ -248,14 +252,12 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
                     }
                 }
 
-                // 다음 다운로드
                 self.processQueue()
             }
         }
     }
 
     private func getNextURL() -> (String, Priority)? {
-        // High → Medium → Low 순서
         if !highPriorityQueue.isEmpty {
             return (highPriorityQueue.removeFirst(), .high)
         }
@@ -265,7 +267,7 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
         if !lowPriorityQueue.isEmpty && !isInitialPrefetchCancelled {
             return (lowPriorityQueue.removeFirst(), .low)
         }
-        return nil // 모든 queue가 비어있음
+        return nil
     }
 
     private enum Priority: CustomStringConvertible {
@@ -280,36 +282,12 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
         }
     }
 
-    // MARK: - Cache Check (Memory + Disk)
-
     private func isCached(_ urlString: String) -> Bool {
         return cache.isCached(forKey: urlString)
     }
-
-    // MARK: - Clear Cache
-
-    func clearAllCache() {
-        // 모든 우선순위 큐 비우기
-        downloadQueue.async { [weak self] in
-            guard let self = self else { return }
-
-            self.highPriorityQueue.removeAll()
-            self.mediumPriorityQueue.removeAll()
-            self.lowPriorityQueue.removeAll()
-
-            print("🗑️ [Queue] All priority queues cleared")
-        }
-
-        // 캐시 삭제
-        cache.clearMemoryCache()
-        cache.clearDiskCache {
-            print("🗑️ [Cache] All cache cleared (Memory + Disk)")
-        }
-    }
 }
 
-// MARK: - Stub
-
+/// 테스트용 Stub 구현체
 final class StubImagePrefetchManager: ImagePrefetchManagerType {
     func startInitialPrefetch(photos: [Photo], count: Int) {}
     func cancelSelectionPartPrefetch() {}

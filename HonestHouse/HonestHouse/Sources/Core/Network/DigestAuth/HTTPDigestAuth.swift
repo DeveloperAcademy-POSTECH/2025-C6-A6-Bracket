@@ -9,7 +9,7 @@ import Foundation
 import CryptoKit
 
 /// HTTP Digest 인증 헤더를 생성하는 클래스
-class HTTPDigestAuth {
+final class HTTPDigestAuth {
     private let username: String
     private let password: String
     private var wwwAuthHeaderMap: [String: String]?
@@ -40,7 +40,7 @@ class HTTPDigestAuth {
             headerMap = savedMap
         }
         
-        print("NonceCount: \(nonceCount) : \(url)")
+        Logger.debug("NonceCount: \(nonceCount) : \(url)", category: .network)
         
         guard let realm = headerMap["realm"],
               let nonce = headerMap["nonce"] else {
@@ -129,7 +129,7 @@ class HTTPDigestAuth {
             header += "cnonce=\"\(clientNonce)\", "
             
             if nonceCount == 0xFFFFFFFF {
-                print("Next NonceCount: FFFFFFFF -> 00000001")
+                Logger.debug("Next NonceCount: FFFFFFFF -> 00000001", category: .network)
                 nonceCount = 1
             } else {
                 nonceCount += 1
@@ -139,11 +139,9 @@ class HTTPDigestAuth {
         header += "response=\"\(response)\""
         wwwAuthHeaderMap = headerMap
         
-        print("Auth Header generated")
+        Logger.debug("Auth Header generated", category: .network)
         return header
     }
-    
-    // MARK: - Private Methods
     
     /// 서버가 401 에러와 함께 반환한 WWW-Authenticate 헤더 파싱
     private func parseAuthHeader(_ wwwAuthHeader: String) -> [String: String] {

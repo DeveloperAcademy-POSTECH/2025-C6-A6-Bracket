@@ -6,7 +6,6 @@
 //
 
 extension ShootingSettings {
-    
     /// 4.9.2. Get / Change shooting mode (models with a shooting mode dial)
     struct ShootingModeResponse: BaseResponse {
         let value: String?

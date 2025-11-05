@@ -8,10 +8,7 @@
 import Foundation
 
 /// Canon CCAPI 인증 상태 관리
-class DigestAuthManager {
-    
-    // MARK: - Properties
-    
+final class DigestAuthManager {
     private let baseURL: String
     private let digestAuth: HTTPDigestAuth
     private let sslDelegate: SSLPinningDelegate
@@ -21,8 +18,6 @@ class DigestAuthManager {
     var isReady: Bool {
         return isAuthenticated
     }
-    
-    // MARK: - Initialization
     
     init(baseURL: String,
          username: String,
@@ -34,15 +29,13 @@ class DigestAuthManager {
         self.sslDelegate = sslDelegate
     }
     
-    // MARK: - Public Methods
-    
     /// 초기 인증 - 401 응답 받아서 nonce 획득
     func authenticate() async throws {
-        print("🔐 DigestAuthManager.authenticate() called")
-        print("   baseURL: \(baseURL)")
+        Logger.debug("DigestAuthManager.authenticate() called", category: .network)
+        Logger.debug("baseURL: \(baseURL)", category: .network)
         
         guard let url = URL(string: baseURL) else {
-            print("❌ Invalid baseURL")
+            Logger.error("Invalid baseURL", category: .network)
             return
         }
         
@@ -50,17 +43,17 @@ class DigestAuthManager {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
-        print("   Sending initial GET request to obtain nonce...")
+        Logger.debug("Sending initial GET request to obtain nonce...", category: .network)
         let (_, response) = try await session.data(for: request)
         
         if let httpResponse = response as? HTTPURLResponse {
-            print("   Response status: \(httpResponse.statusCode)")
+            Logger.debug("Response status: \(httpResponse.statusCode)", category: .network)
             
             if httpResponse.statusCode == 401,
                let wwwAuthHeader = extractWWWAuthenticateHeader(from: httpResponse) {
                 
-                print("   WWW-Authenticate header found")
-                print("   Header: \(wwwAuthHeader)")
+                Logger.debug("WWW-Authenticate header found", category: .network)
+                Logger.debug("Header: \(wwwAuthHeader)", category: .network)
                 
                 // 첫 번째 nonce 저장
                 _ = digestAuth.getDigestAuthHeader(
@@ -71,14 +64,16 @@ class DigestAuthManager {
                 )
                 
                 isAuthenticated = true
-                print("✅ Authentication initialized with Digest Auth")
+                Logger.info("Authentication initialized with Digest Auth", category: .network)
             } else {
-                // 401이 아닌 경우 (405, 503 등)
-                // Canon CCAPI는 일부 엔드포인트에서 Digest Auth를 요구하지 않음
-                // 또는 라이브뷰가 시작되지 않아 503을 반환할 수 있음
-                // 이 경우에도 인증을 활성화하여 이후 요청 진행 가능하도록 함
+                /* 401이 아닌 경우 (405, 503 등)
+                Canon CCAPI는 일부 엔드포인트에서 Digest Auth를 요구하지 않음
+                또는 라이브뷰가 시작되지 않아 503을 반환할 수 있음
+                이 경우에도 인증을 활성화하여 이후 요청 진행 가능하도록 함 */
+                
                 isAuthenticated = true
-                print("✅ Authentication initialized (no Digest Auth required, status: \(httpResponse.statusCode))")
+                Logger.info("Authentication initialized (no Digest Auth required, status: \(httpResponse.statusCode))", category: .network)
+                
             }
         }
     }
@@ -86,7 +81,7 @@ class DigestAuthManager {
     /// Authorization 헤더 생성
     func getAuthorizationHeader(method: String, url: String, body: Data?) -> String? {
         guard isAuthenticated else {
-            print("⚠️ getAuthorizationHeader called but not authenticated")
+            Logger.warning("getAuthorizationHeader called but not authenticated", category: .network)
             return nil
         }
         
@@ -98,7 +93,7 @@ class DigestAuthManager {
         )
         
         if header != nil {
-            print("🔑 Auth header generated for \(method) \(url)")
+            Logger.debug("Auth header generated for \(method) \(url)", category: .network)
         }
         
         return header
@@ -106,14 +101,14 @@ class DigestAuthManager {
     
     /// 401 응답 시 nonce 갱신
     func updateNonce(from response: HTTPURLResponse, method: String, url: String, body: Data?) -> String? {
-        print("🔄 Updating nonce from 401 response")
+        Logger.debug("Updating nonce from 401 response", category: .network)
         
         guard let wwwAuthHeader = extractWWWAuthenticateHeader(from: response) else {
-            print("❌ No WWW-Authenticate header in 401 response")
+            Logger.error("No WWW-Authenticate header in 401 response", category: .network)
             return nil
         }
         
-        print("   New WWW-Authenticate: \(wwwAuthHeader)")
+        Logger.debug("New WWW-Authenticate: \(wwwAuthHeader)", category: .network)
         
         let header = digestAuth.getDigestAuthHeader(
             method: method,
@@ -123,19 +118,16 @@ class DigestAuthManager {
         )
         
         if header != nil {
-            print("✅ Nonce updated successfully")
+            Logger.info("Nonce updated successfully", category: .network)
         }
         
         return header
     }
 
-    
     /// 인증 리셋
     func reset() {
         isAuthenticated = false
     }
-    
-    // MARK: - Private Methods
     
     private func extractWWWAuthenticateHeader(from response: HTTPURLResponse) -> String? {
         for (key, value) in response.allHeaderFields {

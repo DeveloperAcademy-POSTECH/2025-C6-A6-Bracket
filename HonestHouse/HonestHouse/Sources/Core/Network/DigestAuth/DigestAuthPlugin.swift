@@ -10,18 +10,11 @@ import Moya
 
 /// Moya Plugin으로 Digest 인증 처리
 final class DigestAuthPlugin: PluginType {
-    
-    // MARK: - Properties
-    
     private let authManager: DigestAuthManager
-    
-    // MARK: - Initialization
     
     init(authManager: DigestAuthManager) {
         self.authManager = authManager
     }
-    
-    // MARK: - PluginType
     
     /// 요청 전 Authorization 헤더 추가
     func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
@@ -59,7 +52,7 @@ final class DigestAuthPlugin: PluginType {
             body: request.httpBody
         )
         
-        // nonce 갱신한 하고, 응답은 그대로 반환 (재시도는 상위에서 처리)
+        // nonce 갱신하고, 응답은 그대로 반환 (재시도는 상위에서 처리)
         return result
     }
 }

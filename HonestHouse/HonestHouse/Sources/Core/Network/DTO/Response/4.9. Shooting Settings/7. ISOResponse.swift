@@ -6,7 +6,6 @@
 //
 
 extension ShootingSettings {
-    
     /// 4.9.7 ISO
     struct ISOResponse: BaseResponse {
         let value: String?

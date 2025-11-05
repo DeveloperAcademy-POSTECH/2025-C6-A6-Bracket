@@ -5,7 +5,7 @@
 //  Created by Rama on 10/24/25.
 //
 
-import SwiftUI
+import Foundation
 
 struct SimilarPhotoGroup: Identifiable, Equatable, Hashable {
     let id: UUID = UUID()

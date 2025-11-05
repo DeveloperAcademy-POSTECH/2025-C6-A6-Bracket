@@ -8,39 +8,12 @@
 import Foundation
 import CoreData
 
-protocol PresetManagerType {
-    /// 모든 Preset 조회
-    func fetchAllPresets() throws -> [Preset]
-    
-    /// ID로 Preset 조회
-    func fetchPreset(by id: UUID) throws -> Preset?
-    
-    /// 새 Preset 생성
-    func createPreset(_ preset: Preset) throws
-    
-    /// Preset 업데이트
-    func updatePreset(_ preset: Preset) throws
-    
-    /// Preset 삭제
-    func deletePreset(_ preset: Preset) throws
-    
-    /// ID로 Preset 삭제
-    func deletePreset(by id: UUID) throws
-}
-
 final class PresetManager: PresetManagerType {
-    
-    // MARK: - Properties
-    
     private let viewContext: NSManagedObjectContext
-    
-    // MARK: - Initialization
     
     init(viewContext: NSManagedObjectContext) {
         self.viewContext = viewContext
     }
-    
-    // MARK: - Fetch
     
     /// 모든 Preset 조회 (생성일 기준 오름차순)
     func fetchAllPresets() throws -> [Preset] {
@@ -61,8 +34,6 @@ final class PresetManager: PresetManagerType {
         return entities.first?.toPreset()
     }
     
-    // MARK: - Create
-    
     /// 새 Preset 생성
     func createPreset(_ preset: Preset) throws {
         let entity = PresetEntity(context: viewContext)
@@ -70,8 +41,6 @@ final class PresetManager: PresetManagerType {
         
         try saveContext()
     }
-    
-    // MARK: - Update
     
     /// Preset 업데이트
     func updatePreset(_ preset: Preset) throws {
@@ -87,8 +56,6 @@ final class PresetManager: PresetManagerType {
         
         try saveContext()
     }
-    
-    // MARK: - Delete
     
     /// Preset 삭제
     func deletePreset(_ preset: Preset) throws {
@@ -109,8 +76,6 @@ final class PresetManager: PresetManagerType {
         
         try saveContext()
     }
-    
-    // MARK: - Private Helpers
     
     /// Preset → PresetEntity 변환 (업데이트용)
     private func updateEntityFromPreset(_ entity: PresetEntity, preset: Preset) {
@@ -140,24 +105,6 @@ final class PresetManager: PresetManagerType {
         }
     }
 }
-
-// MARK: - Error
-
-enum PresetManagerError: LocalizedError {
-    case presetNotFound(UUID)
-    case saveFailed(Error)
-    
-    var errorDescription: String? {
-        switch self {
-        case .presetNotFound(let id):
-            return "Preset not found: \(id.uuidString)"
-        case .saveFailed(let error):
-            return "Failed to save context: \(error.localizedDescription)"
-        }
-    }
-}
-
-// MARK: - StubPresetManager
 
 final class StubPresetManager: PresetManagerType {
     private var presets: [Preset] = [.stub1, .stub2, .stub3]

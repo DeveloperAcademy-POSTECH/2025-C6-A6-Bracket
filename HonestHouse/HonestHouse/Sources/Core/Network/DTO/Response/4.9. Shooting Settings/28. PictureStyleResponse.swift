@@ -6,7 +6,6 @@
 //
 
 extension ShootingSettings {
-    
     /// 4.9.28. Picture Style 픽쳐스타일
     struct PictureStyleResponse: BaseResponse {
         let value: String?

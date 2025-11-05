@@ -10,8 +10,7 @@ import Moya
 import Alamofire
 
 /// 네트워크 통신 관리
-class NetworkManager {
-    
+final class NetworkManager {
     static let shared = NetworkManager()
     
     private var authManager: DigestAuthManager?
@@ -19,7 +18,6 @@ class NetworkManager {
     private var session: Session?
     private let maxAuthRetries = 3
     
-    /// Moya Provider
     private var provider: MoyaProvider<MultiTarget>? {
         guard let session = session,
               let authPlugin = authPlugin else {
@@ -33,8 +31,6 @@ class NetworkManager {
     }
     
     private init() {}
-    
-    // MARK: - Initialization
     
     func configure(cameraIP: String,
                    username: String = "",
@@ -70,8 +66,6 @@ class NetworkManager {
         )
     }
     
-    // MARK: - Public Methods
-    
     /// 초기 인증 (401 응답 받아서 nonce 획득)
     func initializeAuthentication() async throws {
         guard let authManager else { throw CCAPIError.notConfigured }
@@ -99,12 +93,12 @@ class NetworkManager {
                     
                     // Android: if(authErrorCount < MAX_AUTH_ERROR) continue;
                     if authErrorCount < maxAuthRetries {
-                        print("⚠️ 401 received, retrying... (\(authErrorCount)/\(maxAuthRetries))")
+                        Logger.warning("401 received, retrying... (\(authErrorCount)/\(maxAuthRetries))", category: .network)
                         // DigestAuthPlugin.process()가 이미 nonce를 갱신했음
                         // Android처럼 바로 continue로 재시도
                         continue
                     } else {
-                        print("❌ Max auth retries exceeded")
+                        Logger.error("Max auth retries exceeded", category: .network)
                         throw CCAPIError.authenticationFailed(401)
                     }
                 }
@@ -115,10 +109,10 @@ class NetworkManager {
                 if case .statusCode(let response) = error, response.statusCode == 401 {
                     authErrorCount += 1
                     if authErrorCount < maxAuthRetries {
-                        print("⚠️ 401(MoyaError) received, retrying... (\(authErrorCount)/\(maxAuthRetries))")
+                        Logger.warning("401(MoyaError) received, retrying... (\(authErrorCount)/\(maxAuthRetries))", category: .network)
                         continue
                     } else {
-                        print("❌ Max auth retries exceeded")
+                        Logger.error("Max auth retries exceeded", category: .network)
                         throw CCAPIError.authenticationFailed(401)
                     }
                 }
@@ -137,8 +131,6 @@ class NetworkManager {
         return authManager?.getAuthorizationHeader(method: method, url: url, body: body)
     }
     
-    // MARK: - Private Methods
-    
     private func requestOnce<T: TargetType>(_ target: T, provider: MoyaProvider<MultiTarget>) async throws -> Response {
         return try await withCheckedThrowingContinuation { continuation in
             provider.request(MultiTarget(target)) { result in
@@ -152,7 +144,6 @@ class NetworkManager {
         }
     }
 }
-
 
 extension CCAPIError {
     static let notConfigured = CCAPIError.authenticationFailed(-1)
