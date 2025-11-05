@@ -15,7 +15,7 @@ protocol EventMonitorServiceType {
     func stopMonitoring() async throws
 }
 
-class EventMonitorService: StreamService, EventMonitorServiceType {
+final class EventMonitorService: StreamService, EventMonitorServiceType {
     override init() {
         super.init()
     }
