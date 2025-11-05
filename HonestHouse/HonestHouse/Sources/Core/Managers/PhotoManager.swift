@@ -27,7 +27,15 @@ final class PhotoManager: PhotoManagerType {
         for (index, photo) in photos.enumerated() {
             let current = index + 1
 
-            let imageData = try await imageLoader.fetchImageData(from: photo.url)
+            // displayURL 실패 시 원본 URL로 재시도
+            let imageData: Data
+            do {
+                imageData = try await imageLoader.fetchImageData(from: photo.displayURL)
+            } catch {
+                // displayURL 실패 시 원본 URL로 fallback
+                imageData = try await imageLoader.fetchImageData(from: photo.url)
+            }
+            
             try await saveImageData(imageData, to: album)
 
             // Progress 콜백 호출 (저장 완료)
