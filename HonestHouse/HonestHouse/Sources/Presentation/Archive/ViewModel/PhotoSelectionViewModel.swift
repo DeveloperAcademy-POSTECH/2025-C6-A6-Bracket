@@ -18,8 +18,6 @@ final class PhotoSelectionViewModel {
     typealias Failure = SelectionError
 
     private let container: DIContainer
-    private let imageOperationsService: ImageOperationsServiceType
-    private let imagePrefetchManager: ImagePrefetchManagerType
 
     var state: ArchiveState<Success, Failure> = .idle
     
@@ -42,8 +40,6 @@ final class PhotoSelectionViewModel {
 
     init(container: DIContainer) {
         self.container = container
-        self.imageOperationsService = container.services.imageOperationsService
-        self.imagePrefetchManager = container.managers.imagePrefetchManager
     }
     
     func send(action: PhotoSelectionAction) {
@@ -64,7 +60,7 @@ final class PhotoSelectionViewModel {
     /// storageListResponse를 받아와서 storageList로 변환
     func getStorageList() async throws {
         do {
-            let storageListResponse = try await imageOperationsService.getStorageList()
+            let storageListResponse = try await container.services.imageOperationsService.getStorageList()
             storageList = storageListResponse.toEntity()
         } catch {
             throw SelectionError.from(error)
@@ -74,7 +70,7 @@ final class PhotoSelectionViewModel {
     /// directoryListResponse를 받아와서 directoryList로 변환
     func getDirectoryList(storage: String) async throws {
         do {
-            let directoryListResponse = try await imageOperationsService.getDirectoryList(storage: storage)
+            let directoryListResponse = try await container.services.imageOperationsService.getDirectoryList(storage: storage)
             directoryList = directoryListResponse.toEntity()
         } catch {
             throw SelectionError.from(error)
@@ -89,7 +85,7 @@ final class PhotoSelectionViewModel {
         order: String
     ) async throws {
         do {
-            let response = try await imageOperationsService.getContentList(
+            let response = try await container.services.imageOperationsService.getContentList(
                 storage: storage,
                 directory: directory,
                 type: type,
@@ -111,7 +107,7 @@ final class PhotoSelectionViewModel {
                     if !self.hasStartedInitialPrefetch && self.entireContentUrls.count >= 100 {
                         self.hasStartedInitialPrefetch = true
                         let photos = self.entireContentUrls.map { Photo(url: $0) }
-                        self.imagePrefetchManager.startInitialPrefetch(photos: photos, count: 50)
+                        self.container.managers.imagePrefetchManager.startInitialPrefetch(photos: photos, count: 50)
                     }
                 }
             )
@@ -186,7 +182,7 @@ final class PhotoSelectionViewModel {
     
     func goToGroupedPhotos() {
         // 초기 prefetch 중단 (리소스 절약)
-        imagePrefetchManager.cancelSelectionPartPrefetch()
+        container.managers.imagePrefetchManager.cancelSelectionPartPrefetch()
 
         container.navigationRouter.push(to: .groupedPhotos(Array(selectedPhotos)))
     }
@@ -210,7 +206,7 @@ final class PhotoSelectionViewModel {
     /// DetailView에서 좌우 1장씩 prefetch
     func prefetchAdjacentPhotos(current: Photo) {
         let (previous, next) = getAdjacentPhotos(current: current)
-        imagePrefetchManager.prefetchAdjacent(current: current, previous: previous, next: next)
+        container.managers.imagePrefetchManager.prefetchAdjacent(current: current, previous: previous, next: next)
     }
 }
 
