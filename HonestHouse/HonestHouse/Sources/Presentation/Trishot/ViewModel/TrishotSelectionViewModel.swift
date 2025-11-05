@@ -19,8 +19,11 @@ final class TrishotSelectionViewModel {
 
     var allPresets: [Preset] = []
     var targetOrder: Int
-    var currentSelectedPresetId: UUID?
-    var otherSelectedPresetIds: Set<UUID> = []
+    var selectedPresets: [Preset] = []
+
+    var currentSelectedPreset: Preset? {
+        selectedPresets.indices.contains(targetOrder) ? selectedPresets[targetOrder] : nil
+    }
 
     init(container: DIContainer, targetOrder: Int) {
         self.container = container
@@ -39,15 +42,7 @@ final class TrishotSelectionViewModel {
 
     private func loadSelectedPresets() {
         do {
-            let selectedPresets = try container.managers.presetManager.fetchSelectedPresets()
-
-            for (index, preset) in selectedPresets.enumerated() {
-                if index == targetOrder {
-                    currentSelectedPresetId = preset.id
-                } else {
-                    otherSelectedPresetIds.insert(preset.id)
-                }
-            }
+            selectedPresets = try container.managers.presetManager.fetchSelectedPresets()
         } catch {
             print("Failed to load selected presets: \(error.localizedDescription)")
         }
@@ -56,18 +51,20 @@ final class TrishotSelectionViewModel {
     func selectPreset(_ presetId: UUID) {
         do {
             try container.managers.presetManager.updateSelectedPresetAtOrder(order: targetOrder, presetId: presetId)
-            currentSelectedPresetId = presetId
+            loadSelectedPresets()
         } catch {
             print("Failed to select preset: \(error.localizedDescription)")
         }
     }
 
     func isPresetSelected(_ presetId: UUID) -> Bool {
-        currentSelectedPresetId == presetId
+        currentSelectedPreset?.id == presetId
     }
 
     func isPresetOccupied(_ presetId: UUID) -> Bool {
-        otherSelectedPresetIds.contains(presetId)
+        selectedPresets.enumerated().contains { index, preset in
+            index != targetOrder && preset.id == presetId
+        }
     }
 }
 
