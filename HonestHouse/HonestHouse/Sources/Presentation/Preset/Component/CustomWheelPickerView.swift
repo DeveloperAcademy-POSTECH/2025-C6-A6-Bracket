@@ -77,5 +77,5 @@ struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashabl
 
 
 #Preview("Int") {
-    CustomWheelPickerView(selectedValue: .constant(1), items: CameraConstants.tintMagentaGreenValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+    CustomWheelPickerView(selectedValue: .constant(1), items: CameraConstants.tintMagentaGreenValues    , config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
 }

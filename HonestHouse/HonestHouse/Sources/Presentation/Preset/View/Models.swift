@@ -8,13 +8,6 @@
 import Foundation
 import SwiftUI
 
-// MARK: - Enums
-enum CameraMode: String, CaseIterable, Codable {
-    case P = "P"
-    case Av = "Av"
-    case Tv = "Tv"
-}
-
 enum ViewMode {
     case view
     case edit

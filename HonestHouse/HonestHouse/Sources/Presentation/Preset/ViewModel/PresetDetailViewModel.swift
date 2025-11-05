@@ -90,6 +90,7 @@ class PresetDetailViewModel {
 
     func getButtonState(for type: SettingType) -> ButtonState {
         // 조회 모드에서는 모든 버튼이 viewOnly
+        // TODO: 값에 따라 노란색 / 비활성화
         if viewMode == .view {
             return .viewOnly
         }
