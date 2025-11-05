@@ -7,14 +7,15 @@
 
 import Foundation
 
+enum TrishotActivationAction {
+    case popToTrishotSetting
+}
+
 @MainActor
 @Observable
 final class TrishotActivationViewModel {
-    enum Action {
-        case popToTrishotSetting
-    }
-    
     var container: DIContainer
+    
     var currentPresetIndex: Int = 0 /// 현재 적용된 프리셋의 인덱스 ( 0 ~ 2 )
     var activatedPresets: [Preset] = []
     var isMonitoring: Bool = false
@@ -26,7 +27,7 @@ final class TrishotActivationViewModel {
     }
 }
 
-// MARK: Trishot 기능 관련
+/// Trishot 기능 관련
 extension TrishotActivationViewModel: TrishotErrorHandleable {
     var errorMessage: String? {
         error?.errorDescription
@@ -193,7 +194,7 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
     }
 }
 
-// MARK: - Shooting Control, Shooting Settings 관련
+/// Shooting Control, Shooting Settings 관련
 extension TrishotActivationViewModel {
     private func ignoreShootingMode(action: String) async throws {
         do {
@@ -314,9 +315,9 @@ extension TrishotActivationViewModel {
     }
 }
 
-// MARK: Navigation
+/// Navigation
 extension TrishotActivationViewModel {
-    func send(_ action: Action) {
+    func send(_ action: TrishotActivationAction) {
         switch action {
         case .popToTrishotSetting:
             container.navigationRouter.pop()

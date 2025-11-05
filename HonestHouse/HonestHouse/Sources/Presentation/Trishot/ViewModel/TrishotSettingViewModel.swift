@@ -9,14 +9,14 @@ import Foundation
 import SwiftUI
 import CoreData
 
+enum TrishotSettingAction {
+    case goToTrishotSelection(order: Int)
+    case goToTrishotActivation
+    case togglePreset(UUID)
+}
+
 @Observable
 final class TrishotSettingViewModel {
-    enum Action {
-        case goToTrishotSelection(order: Int)
-        case goToTrishotActivation
-        case togglePreset(UUID)
-    }
-
     var container: DIContainer
 
     var allSelectedPresets: [Preset] = []
