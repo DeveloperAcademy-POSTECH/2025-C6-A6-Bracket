@@ -8,9 +8,9 @@
 import Foundation
 
 extension DateFormatter {
-    static let logFormatter: DateFormatter = {
+    static func logTimestamp(_ date: Date = Date()) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm:ss.SSS"
-        return formatter
-    }()
+        return formatter.string(from: date)
+    }
 }

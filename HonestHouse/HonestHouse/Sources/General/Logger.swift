@@ -51,7 +51,7 @@ struct Logger {
         function: String = #function
     ) {
         let fileName = (file as NSString).lastPathComponent
-        let timestamp = DateFormatter.logFormatter.string(from: Date())
+        let timestamp = DateFormatter.logTimestamp()
         
         var logMessage = "[\(timestamp)] \(message) [\(fileName):\(line) \(function)]"
         
