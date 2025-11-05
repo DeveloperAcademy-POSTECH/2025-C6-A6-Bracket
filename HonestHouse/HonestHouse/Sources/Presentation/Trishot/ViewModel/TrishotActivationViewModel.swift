@@ -14,7 +14,7 @@ enum TrishotActivationAction {
 @MainActor
 @Observable
 final class TrishotActivationViewModel {
-    var container: DIContainer
+    private let container: DIContainer
     
     var currentPresetIndex: Int = 0 /// 현재 적용된 프리셋의 인덱스 ( 0 ~ 2 )
     var activatedPresets: [Preset] = []
@@ -315,7 +315,6 @@ extension TrishotActivationViewModel {
     }
 }
 
-/// Navigation
 extension TrishotActivationViewModel {
     func send(_ action: TrishotActivationAction) {
         switch action {

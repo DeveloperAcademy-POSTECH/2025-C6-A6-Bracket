@@ -8,20 +8,16 @@
 import SwiftUI
 
 enum MainAction {
-    case goToTriShotSelection
-    case goToTriMode
     case goToPresetEditor(PresetDetailMode, Preset)
     case goToPhotoSelection
 }
 
 @Observable
 final class MainViewModel {
-    enum Action {
-        case goToPresetEditor(PresetDetailMode, Preset)
-        case goToPhotoSelection
-    }
+    private let container: DIContainer
     
     var selectedSegment: MainViewSegmentType = .trishot
+    
     var segments: [MainViewSegmentType] = [.trishot, .preset]
     var isPresetEditMode: Bool = false
     var selectedPreset: Preset?
@@ -58,3 +54,4 @@ final class MainViewModel {
         isPresetEditMode = false
     }
 }
+

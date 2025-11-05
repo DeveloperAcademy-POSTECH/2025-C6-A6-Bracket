@@ -17,7 +17,7 @@ enum TrishotSettingAction {
 
 @Observable
 final class TrishotSettingViewModel {
-    var container: DIContainer
+    private let container: DIContainer
 
     var allSelectedPresets: [Preset] = []
     var activatedPresets: [Preset] = []

@@ -9,18 +9,18 @@ import Foundation
 import SwiftUI
 import CoreData
 
+enum TrishotSelectionAction {
+    case popToTrishotSetting
+}
+
 @Observable
 final class TrishotSelectionViewModel {
-    var container: DIContainer
+    private let container: DIContainer
 
     var allPresets: [Preset] = []
     var targetOrder: Int
     var currentSelectedPresetId: UUID?
     var otherSelectedPresetIds: Set<UUID> = []
-
-    enum Action {
-        case popToTrishotSetting
-    }
 
     init(container: DIContainer, targetOrder: Int) {
         self.container = container
@@ -72,7 +72,7 @@ final class TrishotSelectionViewModel {
 }
 
 extension TrishotSelectionViewModel {
-    func send(_ action: TrishotSelection) {
+    func send(_ action: TrishotSelectionAction) {
         switch action {
         case .popToTrishotSetting:
             container.navigationRouter.pop()
