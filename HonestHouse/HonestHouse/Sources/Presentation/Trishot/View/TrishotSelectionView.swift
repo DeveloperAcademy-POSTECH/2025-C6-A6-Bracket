@@ -63,7 +63,6 @@ struct TrishotSelectionView: View {
             }
             .screenPadding()
         }
-//        .scrollIndicators(.hidden)
     }
 
     private func trishotItemView(_ preset: Preset) -> some View {
