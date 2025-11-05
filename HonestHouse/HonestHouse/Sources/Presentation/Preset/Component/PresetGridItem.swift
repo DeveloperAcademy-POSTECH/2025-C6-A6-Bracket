@@ -16,63 +16,35 @@ struct PresetGridItem: View {
     
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 12) {
-                // 상단: 제목과 액션 버튼
-                HStack {
-                    Text(preset.name)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                    
-                    Spacer()
-                    
-                    if !isEditMode {
-                        Button(action: onActionTap) {
-                            Image(systemName: "circle")
-                                .font(.system(size: 20))
-                                .foregroundColor(.white.opacity(0.7))
-                        }
-                    }
-                }
-                
+            VStack(spacing: 16) {
+                nameView()
                 Spacer()
-                
-                // 중앙: 모드 정보
-                if let modeDescription = preset.modeDescription {
-                    Text(modeDescription)
-                        .font(.system(size: 12))
-                        .foregroundColor(.white.opacity(0.8))
-                }
-                
-                // ISO 정보
-                Text(preset.isoDescription)
-                    .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.8))
-                
-                Spacer()
-                
-                // 하단: 아이콘들
-                HStack(spacing: 8) {
-                    ForEach(["tv", "mic", "pencil", "square.and.arrow.up"], id: \.self) { icon in
-                        Image(systemName: icon)
-                            .font(.system(size: 14))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
-                }
+                applyButtonView()
             }
-            .padding(12)
-            .frame(maxWidth: .infinity)
-            .aspectRatio(1, contentMode: .fit)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.8))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
-                    )
-            )
+            .padding(.vertical, 20)
+            .frame(maxHeight: 122)
+            .background(Color.g11)
+            .clipShape(RoundedRectangle(cornerRadius: 20))
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(NoHighlightButtonStyle())
+    }
+    
+    func nameView() -> some View {
+        Text("\(preset.name)")
+            .font(.num6)
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .foregroundStyle(Color.g0)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
+    }
+    
+    func applyButtonView() -> some View {
+        Button(action: onActionTap) {
+            Image(systemName: "circle")
+                .font(.system(size: 24))
+                .foregroundColor(.white.opacity(0.7))
+        }
     }
 }
 
