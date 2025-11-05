@@ -30,7 +30,6 @@ struct PresetView: View {
                 }
             }
             .padding(.bottom, 24)
-            .padding(.horizontal)
         }
         .navigationTitle("프리셋")
         .navigationBarTitleDisplayMode(.inline)
@@ -59,7 +58,7 @@ struct PresetView: View {
         .animation(.easeInOut(duration: 0.3), value: vm.viewMode)
     }
     
-    // MARK: - Grid View
+    // Grid View
     private var gridView: some View {
         LazyVGrid(
             columns: [
@@ -114,7 +113,7 @@ struct PresetView: View {
         .padding(.top, 16)
     }
     
-    // MARK: - View Mode Menu
+    // View Mode Menu
     private var viewModeMenu: some View {
         Menu {
             Button {
@@ -135,7 +134,7 @@ struct PresetView: View {
         }
     }
     
-    // MARK: - Buttons
+    // Buttons
     private func addButton() -> some View {
         Button {
             vm.send(action: .goToPresetDetail(.create, nil))
@@ -169,7 +168,7 @@ struct PresetView: View {
         .padding(.horizontal)
     }
     
-    // MARK: - Helper Methods
+    // Helper Methods
     private func handlePresetTap(_ preset: Preset) {
         if vm.isPresetEditMode {
             vm.toggleSelection(for: preset)

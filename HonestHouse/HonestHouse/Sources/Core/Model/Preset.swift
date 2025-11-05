@@ -176,7 +176,7 @@ extension Preset {
     static var stub2: Preset {
         .init(
             id: .init(),
-            name: "프리셋2",
+            name: "프리셋2프리셋2프리셋2프리셋2프리셋2프리셋2프리셋2프리셋2프리셋2",
             pictureStyle: .faithful,
             shootingMode: .p,
             aperture: "10",

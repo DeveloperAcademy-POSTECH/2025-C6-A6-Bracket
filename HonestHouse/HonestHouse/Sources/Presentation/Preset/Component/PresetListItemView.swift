@@ -20,7 +20,7 @@ struct PresetListItem: View {
                 Spacer()
                 VStack(alignment: .center, spacing: 12) {
                     
-                    titleView()
+                    nameView()
                     iconListView()
                     settingDescriptionView()
                     
@@ -42,15 +42,16 @@ struct PresetListItem: View {
         .buttonStyle(NoHighlightButtonStyle())
     }
     
-    func titleView() -> some View {
+    func nameView() -> some View {
         Text(preset.name)
             .font(.num6)
             .foregroundColor(.white)
+            .lineLimit(1)
+            .padding(.horizontal, 40)
     }
     
     func iconListView() -> some View {
         HStack(spacing: 4) {
-            Circle().frame(width: 32, height: 32)
             Circle().frame(width: 32, height: 32)
             Circle().frame(width: 32, height: 32)
             Circle().frame(width: 32, height: 32)
@@ -78,7 +79,6 @@ struct PresetListItem: View {
                 .font(.system(size: 24))
                 .foregroundColor(.white.opacity(0.7))
         }
-
     }
 }
 
