@@ -147,7 +147,7 @@ extension TrishotError: Equatable {
 
     static func from(ccapiError: CCAPIError) -> TrishotError {
         switch ccapiError {
-        case .deviceUnavailable:
+        case .deviceBusy, .deviceShooting:
             return .cameraBusy
         case .invalidURL, .notAuthenticated, .authenticationFailed, .maxRetriesExceeded, .noWWWAuthenticateHeader, .authHeaderGenerationFailed:
             return .cameraNotConnected
