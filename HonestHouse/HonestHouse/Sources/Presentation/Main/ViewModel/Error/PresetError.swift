@@ -60,7 +60,7 @@ extension PresetError: Equatable {
 
     static func from(ccapiError: CCAPIError) -> PresetError {
         switch ccapiError {
-        case .deviceUnavailable:
+        case .deviceBusy, .deviceShooting:
             return .cameraBusy
         case .invalidResponse, .unexpectedStatusCode, .urlNotFound, .badRequest:
             return .settingFailed
