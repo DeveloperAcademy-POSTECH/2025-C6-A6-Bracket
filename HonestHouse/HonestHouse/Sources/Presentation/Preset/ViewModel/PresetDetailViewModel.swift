@@ -61,7 +61,7 @@ class PresetDetailViewModel {
         originalPreset = nil
     }
     
-    // Camera Mode Management
+    // MARK: - Camera Mode Management
     func changeCameraMode(to mode: ShootingModeType) {
         guard currentPreset.shootingMode != mode else { return }
         
@@ -91,9 +91,9 @@ class PresetDetailViewModel {
         }
     }
 
+    // MARK: - Button State
     func getButtonState(for type: SettingType) -> ButtonState {
         // 조회 모드에서는 모든 버튼이 viewOnly
-        // TODO: 값에 따라 노란색 / 비활성화
         if viewMode == .view {
             return .viewOnly
         }
@@ -118,7 +118,7 @@ class PresetDetailViewModel {
         return getButtonState(for: type) == .active
     }
     
-    // Value Updates
+    // MARK: - Value Updates
     func updateAperture(_ value: String) {
         guard isSettingEditable(.aperture) else { return }
         currentPreset.aperture = value
@@ -142,60 +142,45 @@ class PresetDetailViewModel {
         currentPreset.colorTemperature = value
     }
     
-    // Formatting Values
-//    func formatAperture(_ value: String?) -> String {
-//        guard let value = value else { return "Auto" }
-//        // 소수점 처리
-//        if value.truncatingRemainder(dividingBy: 1) == 0 {
-//            return "f/\(Int(value))"
-//        } else {
-//            return "f/\(String(format: "%.1f", value))"
-//        }
-//    }
-    
-//    func formatShutterSpeed(_ value: Double?) -> String {
-//        guard let value = value else { return "Auto" }
-//        
-//        if value < 1 {
-//            let denominator = Int(1/value)
-//            return "1/\(denominator)"
-//        } else if value.truncatingRemainder(dividingBy: 1) == 0 {
-//            return "\(Int(value))\""
-//        } else {
-//            return "\(String(format: "%.1f", value))\""
-//        }
-//    }
-    
-//    func formatISO(_ value: Int) -> String {
-//        return "\(value)"
-//    }
-    
-//    func formatExposureCompensation(_ value: Double) -> String {
-//        if value > 0 {
-//            return "+\(String(format: "%.1f", value))"
-//        } else if value < 0 {
-//            return String(format: "%.1f", value)
-//        } else {
-//            return "+0.0"
-//        }
-//    }
-    
     func formatColorTemperature(_ value: Int) -> String {
         return "\(value)K"
     }
     
-    // Data Persistence
+    // MARK: - Data Persistence
     func savePreset() async throws {
         isLoading = true
         defer { isLoading = false }
         
-        // 실제 저장 로직 구현
+        // 1. updatedAt 갱신
         currentPreset.updatedAt = Date()
         
-        // API 호출 또는 로컬 저장 로직
-        try await Task.sleep(nanoseconds: 500_000_000) // 시뮬레이션
+        // 2. PresetManager 가져오기
+        let presetManager = container.managers.presetManager
         
-        switchToViewMode()
+        // 3. viewMode에 따라 create/update 분기
+        do {
+            switch viewMode {
+            case .create:
+                // 새 프리셋 생성
+                try presetManager.createPreset(currentPreset)
+                
+            case .edit:
+                // 기존 프리셋 업데이트
+                try presetManager.updatePreset(currentPreset)
+                
+            case .view:
+                // 조회 모드에서는 저장 불가 (도달하지 않음)
+                break
+            }
+            
+            // 4. 성공 시 View 모드로 전환
+            switchToViewMode()
+            
+        } catch {
+            // 에러 처리
+            errorMessage = "저장에 실패했습니다: \(error.localizedDescription)"
+            throw error
+        }
     }
     
     func cancelEditing() {
@@ -222,7 +207,7 @@ class PresetDetailViewModel {
         lhs.colorTemperature == rhs.colorTemperature
     }
     
-    // 임시 세팅값 가져오기
+    // MARK: - Get Setting Values
     func getISOValues() -> [String] {
         return CameraConstants.isoValues
     }
@@ -244,88 +229,10 @@ class PresetDetailViewModel {
     }
     
     func getExposureCompensationValues() -> [String] {
-        return CameraConstants.exposureCompensationRange
-            .map(\.description)
+        return CameraConstants.exposureCompensationValues
     }
     
-    func getColorTemperatureValues() -> [String] {
-        return CameraConstants.colorTemperatureRange
-            .map(\.description)
+    func getColorTemperatureValues() -> [Int] {
+        return CameraConstants.colorTemperatureValues
     }
 }
-//MARK: - Navigation
-//extension PresetDetailViewModel {
-//    func send(action: Action) {
-//        switch action {
-//        case .popToPresetView:
-//            container.navigationRouter.pop()
-//        }
-//    }
-//}
-
-// MARK: - PresetManager CRUD
-//extension PresetDetailViewModel {
-//    
-//    /// Preset 생성
-//    func createPreset() {
-//        do {
-//            // updatedAt을 현재 시간으로 설정
-//            newPreset?.updatedAt = Date()
-//            
-//            if let newPreset = newPreset {
-//                try presetManager.createPreset(newPreset)
-//            }
-//            
-//            
-//            error = nil
-//            
-//            // 생성 후 목록으로 돌아가기
-//            send(action: .popToPresetView)
-//        } catch {
-////            handleError(error)
-//        }
-//    }
-//    
-//    /// Preset 업데이트
-//    func updatePreset() {
-//        do {
-//            // updatedAt을 현재 시간으로 설정
-//            guard let selectedPreset else { return }
-//            selectedPreset.updatedAt = Date()
-//            
-//            try presetManager.updatePreset(selectedPreset)
-//            error = nil
-//            
-//            // 업데이트 후 목록으로 돌아가기
-//            send(action: .popToPresetView)
-//        } catch {
-////            handleError(error)
-//        }
-//    }
-//    
-//    /// Preset 삭제
-//    func deletePreset() {
-//        do {
-//            guard let selectedPreset else { return }
-//            try presetManager.deletePreset(selectedPreset)
-//            error = nil
-//            
-//            // 삭제 후 목록으로 돌아가기
-//            send(action: .popToPresetView)
-//        } catch {
-////            handleError(error)
-//        }
-//    }
-//    
-//    /// 특정 Preset 조회 (필요 시)
-//    func loadPreset(by id: UUID) {
-//        do {
-//            if let preset = try presetManager.fetchPreset(by: id) {
-//                selectedPreset = preset
-//                error = nil
-//            }
-//        } catch {
-////            handleError(error)
-//        }
-//    }
-//}
