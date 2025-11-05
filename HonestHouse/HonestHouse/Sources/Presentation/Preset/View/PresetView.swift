@@ -44,7 +44,7 @@ struct PresetView: View {
         }
     }
     
-    // MARK: - Main Content
+    // Main Content
     @ViewBuilder
     private var mainContent: some View {
         ScrollView {
@@ -85,7 +85,6 @@ struct PresetView: View {
                 .matchedGeometryEffect(id: preset.id, in: namespace)
             }
         }
-        .padding(.horizontal, 16)
         .padding(.top, 16)
     }
     
@@ -109,7 +108,6 @@ struct PresetView: View {
                 .matchedGeometryEffect(id: preset.id, in: namespace)
             }
         }
-        .padding(.horizontal, 16)
         .padding(.top, 16)
     }
     
