@@ -12,9 +12,9 @@ struct PhotoSelectionDetailView: View {
     @Environment(PhotoSelectionViewModel.self) var vm
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedURL: String
-    @State private var photos: [Photo] = []
-    @State private var loadedImages: Set<String> = []
+    @State private var selectedURL: String // TabView 현재 페이지
+    @State private var photos: [Photo] = [] // 스냅샷 (vm chunk append시, 무시 목적)
+    @State private var loadedImages: Set<String> = [] // 버튼 띄우기 용
     
     let initialPhoto: Photo
 

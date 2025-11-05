@@ -12,7 +12,7 @@ struct GroupedPhotosDetailView: View {
     @Environment(GroupedPhotosViewModel.self) var vm
     @Environment(\.dismiss) private var dismiss
     
-    @State private var loadedImages: Set<String> = []
+    @State private var loadedImages: Set<String> = [] // 버튼 띄우기 용
     
     let groupedPhotos: SimilarPhotoGroup
 
