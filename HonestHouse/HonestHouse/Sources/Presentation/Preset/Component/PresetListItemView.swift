@@ -16,67 +16,74 @@ struct PresetListItem: View {
     
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 16) {
-                // 좌측: 프리셋 정보
-                VStack(alignment: .leading, spacing: 8) {
-                    // 제목
-                    Text(preset.name)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
+            HStack {
+                Spacer()
+                VStack(alignment: .center, spacing: 12) {
                     
-                    // 촬영 설정 정보
-                    HStack(spacing: 12) {
-                        // 아이콘 그룹
-                        HStack(spacing: 6) {
-                            ForEach(["tv", "mic", "pencil", "square.and.arrow.up"], id: \.self) { icon in
-                                Image(systemName: icon)
-                                    .font(.system(size: 12))
-                                    .foregroundColor(.white.opacity(0.6))
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        // 모드와 ISO 정보
-                        HStack(spacing: 8) {
-                            if let modeDescription = preset.modeDescription {
-                                Text(modeDescription)
-                                    .font(.system(size: 13))
-                                    .foregroundColor(.white.opacity(0.8))
-                            }
-                            
-                            Text(preset.isoDescription)
-                                .font(.system(size: 13))
-                                .foregroundColor(.white.opacity(0.8))
-                        }
-                    }
+                    titleView()
+                    iconListView()
+                    settingDescriptionView()
+                    
                 }
+                Spacer()
+                applyButtonView()
                 
-                // 우측: 액션 버튼
-                if !isEditMode {
-                    Button(action: onActionTap) {
-                        Image(systemName: "circle")
-                            .font(.system(size: 24))
-                            .foregroundColor(.white.opacity(0.7))
-                    }
-                }
             }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.8))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
-                    )
+            
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 15)
+            .padding(.trailing, 8)
+            .background(Color.g11)
+            .clipShape(
+                RoundedRectangle(cornerRadius: 100)
+                    
             )
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(NoHighlightButtonStyle())
+    }
+    
+    func titleView() -> some View {
+        Text(preset.name)
+            .font(.num6)
+            .foregroundColor(.white)
+    }
+    
+    func iconListView() -> some View {
+        HStack(spacing: 4) {
+            Circle().frame(width: 32, height: 32)
+            Circle().frame(width: 32, height: 32)
+            Circle().frame(width: 32, height: 32)
+            Circle().frame(width: 32, height: 32)
+            Circle().frame(width: 32, height: 32)
+            Circle().frame(width: 32, height: 32)
+        }
+    }
+    
+    func settingDescriptionView() -> some View {
+        HStack(spacing: 8) {
+            if let modeDescription = preset.modeDescription {
+                Text(modeDescription)
+            }
+            
+            Text(preset.isoDescription)
+               
+        }
+        .font(.num6)
+        .foregroundStyle(Color.g0)
+    }
+    
+    func applyButtonView() -> some View {
+        Button(action: onActionTap) {
+            Image(systemName: "circle")
+                .font(.system(size: 24))
+                .foregroundColor(.white.opacity(0.7))
+        }
+
     }
 }
 
 #Preview {
-    VStack(spacing: 10) {
+    VStack(spacing: 20) {
         PresetListItem(
             preset: .stub1,
             isSelected: false,

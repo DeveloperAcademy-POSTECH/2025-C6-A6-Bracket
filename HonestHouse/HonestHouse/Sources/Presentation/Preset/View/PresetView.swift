@@ -10,44 +10,39 @@ import SwiftData
 
 struct PresetView: View {
     @EnvironmentObject private var container: DIContainer
-    
     @State var vm: PresetViewModel
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     @Namespace private var namespace
     
     var body: some View {
-//        NavigationStack {
-            ZStack(alignment: .bottom) {
-                // 메인 컨텐츠
-                mainContent
-                
-                // 하단 버튼
-                Group {
-                    if vm.isPresetEditMode {
-                        deleteButton()
-                    } else {
-                        HStack {
-                            Spacer()
-                            addButton()
-                        }
+        ZStack(alignment: .bottom) {
+            mainContent
+
+            Group {
+                if vm.isPresetEditMode {
+                    deleteButton()
+                } else {
+                    HStack {
+                        Spacer()
+                        addButton()
                     }
                 }
-                .padding(.bottom, 24)
-                .padding(.horizontal)
             }
-            .navigationTitle("프리셋")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    viewModeMenu
-                }
+            .padding(.bottom, 24)
+            .padding(.horizontal)
+        }
+        .navigationTitle("프리셋")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                viewModeMenu
             }
-            .environment(vm)
-            .onAppear {
-                vm.loadPresets()
-            }
-//        }
+        }
+        .environment(vm)
+        .onAppear {
+            vm.loadPresets()
+        }
     }
     
     // MARK: - Main Content
@@ -95,7 +90,6 @@ struct PresetView: View {
         .padding(.top, 16)
     }
     
-    // MARK: - List View
     private var listView: some View {
         LazyVStack(spacing: 10) {
             ForEach(vm.presets) { preset in
@@ -198,7 +192,7 @@ struct PresetView: View {
     }
 }
 
-// MARK: - Toast View
+// Toast View
 extension PresetView {
     @ViewBuilder
     private var toastView: some View {
