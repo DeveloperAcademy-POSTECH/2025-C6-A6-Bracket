@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 enum PresetAction {
-    case goToPresetDetail(PresetDetailMode, Preset?)
+    case goToPresetDetail(ViewMode, CameraPreset?)
 }
 
 @Observable
@@ -25,10 +25,6 @@ final class PresetViewModel {
     var presets: [Preset] = []
     var selectedPresets: Set<UUID> = []
     var error: PresetError?
-    
-    private var shootingControlService: ShootingControlServiceType
-    private var shootingSettingsService: ShootingSettingsServiceType
-    private var presetManager: PresetManagerType
 
     enum Action {
         case goToPresetDetail(ViewMode, CameraPreset?)
