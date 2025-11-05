@@ -33,7 +33,7 @@ extension ConnectionError {
             switch ccapiError {
             case .authenticationFailed(_):
                 return .authenticationFailed
-            case .deviceUnavailable(_):
+            case .deviceBusy, .deviceShooting:
                 return .cameraBusy
             default:
                 return .generic(ccapiError.localizedDescription)
