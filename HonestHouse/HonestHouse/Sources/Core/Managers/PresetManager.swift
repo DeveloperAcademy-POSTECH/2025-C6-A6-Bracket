@@ -33,12 +33,87 @@ final class PresetManager: PresetManagerType {
         let entities = try viewContext.fetch(request)
         return entities.first?.toPreset()
     }
+
+    /// 모든 SelectedPreset 조회 (order 기준 오름차순)
+    func fetchSelectedPresets() throws -> [Preset] {
+        let request = SelectedPresetEntity.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \SelectedPresetEntity.order, ascending: true)]
+
+        let selectedEntities = try viewContext.fetch(request)
+        return selectedEntities.compactMap { $0.preset?.toPreset() }
+    }
     
-    /// 새 Preset 생성
+    /// 활성화된 SelectedPreset 조회 (order 기준 오름차순)
+    func fetchActivatedPresets() throws -> [Preset] {
+        let request = SelectedPresetEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "isActivated == YES")
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \SelectedPresetEntity.order, ascending: true)]
+
+        let selectedEntities = try viewContext.fetch(request)
+        return selectedEntities.compactMap { $0.preset?.toPreset() }
+    }
+
+    /// SelectedPreset의 isActivated toggle
+    func toggleSelectedPresetActivation(presetId: UUID) throws {
+        let request = SelectedPresetEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "preset.presetId == %@", presetId as CVarArg)
+        request.fetchLimit = 1
+
+        guard let selectedPresetEntity = try viewContext.fetch(request).first else {
+            throw PresetManagerError.selectedPresetNotFound(presetId)
+        }
+
+        selectedPresetEntity.isActivated.toggle()
+
+        try saveContext()
+    }
+
+    /// 특정 order의 SelectedPreset 업데이트 (프리셋 변경)
+    func updateSelectedPresetAtOrder(order: Int, presetId: UUID) throws {
+        guard order >= 0 && order < 3 else {
+            throw PresetManagerError.invalidOrder(order)
+        }
+
+        let selectedRequest = SelectedPresetEntity.fetchRequest()
+        selectedRequest.predicate = NSPredicate(format: "order == %d", Int16(order))
+        selectedRequest.fetchLimit = 1
+
+        let presetRequest = PresetEntity.fetchRequest()
+        presetRequest.predicate = NSPredicate(format: "presetId == %@", presetId as CVarArg)
+        presetRequest.fetchLimit = 1
+
+        guard let presetEntity = try viewContext.fetch(presetRequest).first else {
+            throw PresetManagerError.presetNotFound(presetId)
+        }
+
+        if let selectedPresetEntity = try viewContext.fetch(selectedRequest).first {
+            selectedPresetEntity.preset = presetEntity
+            selectedPresetEntity.isActivated = true
+        } else {
+            let newSelectedPreset = SelectedPresetEntity(context: viewContext)
+            newSelectedPreset.preset = presetEntity
+            newSelectedPreset.isActivated = true
+            newSelectedPreset.order = Int16(order)
+        }
+
+        try saveContext()
+    }
+    
+    /// ### 새 Preset 생성
+    /// 총 프리셋이 3개 미만인 경우 자동적으로 selectedPresetEntity가 된다.
     func createPreset(_ preset: Preset) throws {
         let entity = PresetEntity(context: viewContext)
         updateEntityFromPreset(entity, preset: preset)
-        
+
+        let selectedPresetCount = try fetchSelectedPresets().count
+
+        if selectedPresetCount < 3 {
+            let selectedPresetEntity = SelectedPresetEntity(context: viewContext)
+            selectedPresetEntity.preset = entity
+            selectedPresetEntity.order = Int16(selectedPresetCount)
+            selectedPresetEntity.isActivated = true
+        }
+
         try saveContext()
     }
     
@@ -108,6 +183,7 @@ final class PresetManager: PresetManagerType {
 
 final class StubPresetManager: PresetManagerType {
     private var presets: [Preset] = [.stub1, .stub2, .stub3]
+    private var activatedPresets: Set<UUID> = [Preset.stub1.id, Preset.stub2.id, Preset.stub3.id]
     
     func fetchAllPresets() throws -> [Preset] {
         return presets
@@ -116,7 +192,30 @@ final class StubPresetManager: PresetManagerType {
     func fetchPreset(by id: UUID) throws -> Preset? {
         return presets.first { $0.id == id }
     }
-    
+
+    func fetchActivatedPresets() throws -> [Preset] {
+        return presets.filter { activatedPresets.contains($0.id) }
+    }
+
+    func fetchSelectedPresets() throws -> [Preset] {
+        return Array(presets.prefix(3))
+    }
+
+    func toggleSelectedPresetActivation(presetId: UUID) throws {
+        if activatedPresets.contains(presetId) {
+            activatedPresets.remove(presetId)
+        } else {
+            activatedPresets.insert(presetId)
+        }
+    }
+
+    func updateSelectedPresetAtOrder(order: Int, presetId: UUID) throws {
+        guard presets.contains(where: { $0.id == presetId }) else {
+            throw PresetManagerError.presetNotFound(presetId)
+        }
+        activatedPresets.insert(presetId)
+    }
+
     func createPreset(_ preset: Preset) throws {
         presets.append(preset)
     }

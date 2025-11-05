@@ -1,5 +1,5 @@
 //
-//  TrishotModeView.swift
+//  TrishotActivationView.swift
 //  HonestHouse
 //
 //  Created by Subeen on 11/3/25.
@@ -7,9 +7,8 @@
 
 import SwiftUI
 
-// TODO: 민볼이 만든 뷰 이름으로 변경하기
-struct TrishotModeView: View {
-    @State var vm: TrishotModeViewModel
+struct TrishotActivationView: View {
+    @State var vm: TrishotActivationViewModel
     
     var body: some View {
         ZStack {
@@ -21,7 +20,22 @@ struct TrishotModeView: View {
                 Spacer()
                 deactivateButtonView()
             }
+            .allowsHitTesting(!vm.isScreenLocked)
+
+            VStack {
+                Spacer()
+                HStack {
+                    lockButtonView()
+                        .padding(.leading, 16)
+                        .padding(.bottom, 86)
+                    Spacer()
+                }
+            }
         }
+        .task {
+            vm.activateTrishot()
+        }
+        .navigationBarBackButtonHidden(true)
     }
     
     private func noticeTextView() -> some View {
@@ -32,18 +46,30 @@ struct TrishotModeView: View {
             .padding(.top, 41)
     }
     
-    // TODO: 로직 추가하기 & 뷰에 추가하기
     private func lockButtonView() -> some View {
-        Circle().frame(width: 50, height: 50)
+        Button {
+            vm.toggleScreenLock()
+        } label: {
+            Circle()
+                .fill(vm.isScreenLocked ? Color.g0 : Color.clear)
+                .stroke(Color.g0, lineWidth: 1)
+                .frame(width: 50, height: 50)
+                .overlay {
+                    // TODO: Custom Asset으로 변경
+                    Image(systemName: vm.isScreenLocked ? "lock.fill" : "lock.open.fill")
+                        .foregroundStyle(vm.isScreenLocked ? Color.g12 : Color.g0)
+                        .font(.system(size: 20))
+                }
+        }
     }
     
     private func triCircleListView(_ index: Int) -> some View {
         VStack(spacing: 40) {
-            ForEach(0..<3, id: \.self) { circleIndex in
-                if circleIndex == index {
-                    yellowCircle(circleIndex)
+            ForEach(Array(vm.activatedPresets.enumerated()), id: \.element.id) { index, preset in
+                if vm.isCurrentPreset(index) {
+                    yellowCircle(index)
                 } else {
-                    darkCircle(circleIndex)
+                    darkCircle(index)
                 }
             }
         }
@@ -72,15 +98,19 @@ struct TrishotModeView: View {
     }
     
     private func deactivateButtonView() -> some View {
-        Button {
-            
-        } label: {
-            Text("중단하기")
+        VStack {
+            Button {
+                vm.deactivateTrishot()
+                vm.send(.popToTrishotSetting)
+            } label: {
+                Text("중단하기")
+            }
+            .buttonStyle(DefaultButtonStyle(.activated))
+            .padding(.horizontal, 16)
         }
-        .buttonStyle(DefaultButtonStyle(.activated))
     }
 }
 
 #Preview {
-    TrishotModeView(vm: .init(container: .stub))
+    TrishotActivationView(vm: .init(container: .stub))
 }

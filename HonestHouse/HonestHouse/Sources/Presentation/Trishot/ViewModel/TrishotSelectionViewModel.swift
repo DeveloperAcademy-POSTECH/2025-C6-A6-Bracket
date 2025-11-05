@@ -6,23 +6,75 @@
 //
 
 import Foundation
+import SwiftUI
+import CoreData
 
-enum TrishotSelection {
-    case popToPresetSetting
+enum TrishotSelectionAction {
+    case popToTrishotSetting
 }
 
+@Observable
 final class TrishotSelectionViewModel {
-    var container: DIContainer
-    
-    init(container: DIContainer) {
+    private let container: DIContainer
+
+    var allPresets: [Preset] = []
+    var targetOrder: Int
+    var currentSelectedPresetId: UUID?
+    var otherSelectedPresetIds: Set<UUID> = []
+
+    init(container: DIContainer, targetOrder: Int) {
         self.container = container
+        self.targetOrder = targetOrder
+        loadPresets()
+        loadSelectedPresets()
+    }
+
+    private func loadPresets() {
+        do {
+            allPresets = try container.managers.presetManager.fetchAllPresets()
+        } catch {
+            print("Failed to load presets: \(error.localizedDescription)")
+        }
+    }
+
+    private func loadSelectedPresets() {
+        do {
+            let selectedPresets = try container.managers.presetManager.fetchSelectedPresets()
+
+            for (index, preset) in selectedPresets.enumerated() {
+                if index == targetOrder {
+                    currentSelectedPresetId = preset.id
+                } else {
+                    otherSelectedPresetIds.insert(preset.id)
+                }
+            }
+        } catch {
+            print("Failed to load selected presets: \(error.localizedDescription)")
+        }
+    }
+
+    func selectPreset(_ presetId: UUID) {
+        do {
+            try container.managers.presetManager.updateSelectedPresetAtOrder(order: targetOrder, presetId: presetId)
+            currentSelectedPresetId = presetId
+        } catch {
+            print("Failed to select preset: \(error.localizedDescription)")
+        }
+    }
+
+    func isPresetSelected(_ presetId: UUID) -> Bool {
+        currentSelectedPresetId == presetId
+    }
+
+    func isPresetOccupied(_ presetId: UUID) -> Bool {
+        otherSelectedPresetIds.contains(presetId)
     }
 }
 
 extension TrishotSelectionViewModel {
-    func send(_ action: TrishotSelection) {
+    func send(_ action: TrishotSelectionAction) {
         switch action {
-        case .popToPresetSetting:
+        case .popToTrishotSetting:
             container.navigationRouter.pop()
         }
     }

@@ -13,6 +13,7 @@ protocol ServiceType {
     var shootingSettingsService: ShootingSettingsServiceType { get set }
     var imageOperationsService: ImageOperationsServiceType { get set }
     var liveViewService: LiveViewServiceType { get }
+    var eventMonitorService: EventMonitorServiceType { get }
 }
 
 class Services: ServiceType {
@@ -20,12 +21,14 @@ class Services: ServiceType {
     var shootingSettingsService: ShootingSettingsServiceType
     var imageOperationsService: ImageOperationsServiceType
     var liveViewService: LiveViewServiceType
-    
+    var eventMonitorService: EventMonitorServiceType
+
     init() {
         self.shootingControlService = ShootingControlService()
         self.shootingSettingsService = ShootingSettingsService()
         self.imageOperationsService = ImageOperationsService()
         self.liveViewService = LiveViewService()
+        self.eventMonitorService = EventMonitorService()
     }
 }
 
@@ -36,4 +39,5 @@ class StubServices: ServiceType {
     var shootingSettingsService: ShootingSettingsServiceType = StubShootingSettingsService()
     var imageOperationsService: ImageOperationsServiceType = StubImageOperationsService()
     var liveViewService: LiveViewServiceType = StubLiveViewService()
+    var eventMonitorService: EventMonitorServiceType = StubEventMonitorService()
 }

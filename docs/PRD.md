@@ -21,7 +21,7 @@
 ### **4. 솔루션 (Solution): "Tri-shot" 기능**
 
 *   카메라의 '브라케팅(Bracketing)' 기능에서 아이디어를 얻었습니다. 브라케팅은 노출처럼 하나의 값을 다르게 조절하여 3장을 연속 촬영하는 방식입니다.
-*   `Bracket` 앱은 이를 확장하여, 사용자가 조리개, 셔터 속도, ISO 등 여러 값을 조합한 **프리셋**을 미리 만들어두고, 셔터 한 번에 이 프리셋들이 적용된 사진 3장을 연속으로 촬영하는 **"Tri-shot"** 기능을 제공합니다. 이를 통해 사용자는 수동 조작 없이 한 번의 촬영으로 다양한 결과물을 얻을 수 있습니다.
+*   `Bracket` 앱은 이를 확장하여, 사용자가 조리개, 셔터 속도, ISO 등 여러 값을 조합한 **프리셋**을 미리 만들어두고, 미리 설정한 2~3개의 프리셋으로 사진 3장을 반복적으로 촬영하는 **"Tri-shot"** 기능을 제공합니다. 이를 통해 사용자는 수동 조작 없이 다양한 결과물을 얻을 수 있습니다.
 
 ### **5. 핵심 기능 (Main Features)**
 
@@ -294,23 +294,22 @@
 
 #### 7.2. Tri-shot 연속 촬영 (Remote Shooting)
 
--   **설명:** `MainView`의 Segmented Control을 통해 접근하는 원격 촬영 기능입니다. 사용자가 정의한 여러 촬영 설정(프리셋)을 한 번의 셔터로 연속 촬영하게 합니다.
+-   **설명:** `MainView`의 Segmented Control을 통해 접근하는 원격 촬영 기능입니다. 사용자가 정의한 여러 촬영 설정(프리셋)을 반복적으로 촬영하게 됩니다.
 -   **주요 기술:**
     -   **네트워킹 (`URLSession`, `Digest Authentication`):** Canon 카메라와의 실시간 통신(CCAPI)을 담당합니다.
     -   **UI (`SwiftUI`):** `MainView` 내에서 촬영 프리셋 설정 및 원격 촬영을 위한 사용자 인터페이스를 제공합니다.
     -   **상태 관리 (`MVVM`):** 사용자의 인터랙션과 촬영 프로세스의 상태를 관리합니다.
 -   **핵심 파일:**
     -   `Presentation/Main/View/MainView.swift`: Segmented Control을 통해 "Tri-shot" 뷰와 "프리셋 설정" 뷰를 전환하는 컨테이너 뷰.
-    -   `Presentation/Trishoot/View/TrishootView.swift`: `MainView`에 포함되어 실제 Tri-shot 프리셋 선택 및 촬영을 담당하는 화면.
-    -   `Presentation/Trishoot/View/PresetSetupView.swift`: `MainView`에 포함되어 Tri-shot 프리셋을 생성 및 관리하는 화면.
-    -   `Presentation/Trishoot/ViewModel/TrishootViewModel.swift`: `TrishootView`의 상태를 관리하고, Service를 통해 카메라 제어 명령을 전달.
+    -   `Presentation/TriShot/View/TriShotView.swift`: `MainView`에 포함되어 실제 Tri-shot 프리셋 선택 및 촬영을 담당하는 화면.
+    -   `Presentation/TriShot/ViewModel/TriShotViewModel.swift`: `TriShotView`의 상태를 관리하고, Service를 통해 카메라 제어 명령을 전달.
     -   `Service/CCAPI/ShootingSettingsService.swift`: 실제 카메라 촬영 및 설정을 제어하는 비즈니스 로직.
     -   `Core/Network/CCAPI/`: 카메라 제어를 위한 API 엔드포인트 및 요청/응답 정의.
 -   **동작 흐름:**
-    1.  **View:** 사용자가 `MainView`에서 "Tri-shot" 또는 "프리셋 설정" 세그먼트를 선택합니다.
-    2.  **View:** 선택에 따라 `TrishootView` 또는 `PresetSetupView`가 화면에 표시됩니다.
+    1.  **View:** 사용자가 `MainView`에서 "TriShot" 또는 "Preset" 세그먼트를 선택합니다.
+    2.  **View:** 선택에 따라 `TriShotView` 또는 `PresetView`가 화면에 표시됩니다.
     3.  **ViewModel:** 각 뷰에 연결된 ViewModel이 사용자의 입력을 처리합니다.
-    4.  **Service:** `TrishootViewModel`을 통해 `ShootingSettingsService`에 촬영 명령을 전달합니다.
+    4.  **Service:** `TriShotViewModel`을 통해 `ShootingSettingsService`에 값 설정  명령을 전달합니다.
 
 #### 7.3. 지능형 사진 그룹화 (Intelligent Grouping & Archiving)
 

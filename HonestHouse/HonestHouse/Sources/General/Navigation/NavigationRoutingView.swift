@@ -15,10 +15,10 @@ struct NavigationRoutingView: View {
         switch destination {
             
         // Trishot
-        case .trishotSelection:
-            TrishotSelectionView(vm: .init(container: container))
-        case .trimode:
-            TrishotModeView(vm: .init(container: container))
+        case .trishotSelection(let order):
+            TrishotSelectionView(vm: .init(container: container, targetOrder: order))
+        case .trishotActivation:
+            TrishotActivationView(vm: .init(container: container))
                 
         // Preset
         case .presetEditor(let mode, let preset):
