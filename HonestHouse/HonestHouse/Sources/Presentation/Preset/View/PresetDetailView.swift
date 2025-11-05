@@ -97,7 +97,7 @@ struct PresetDetailView: View {
             SettingButton(
                 type: .aperture,
                 state: vm.getButtonState(for: .aperture),
-                value: vm.currentPreset.aperture ?? "none",
+                value: vm.currentPreset.aperture ?? "Auto",
                 isSelected: vm.activeSlider == .aperture,
                 action: {
                     handleSettingButtonTap(.aperture)
@@ -108,7 +108,7 @@ struct PresetDetailView: View {
             SettingButton(
                 type: .shutterSpeed,
                 state: vm.getButtonState(for: .shutterSpeed),
-                value: vm.currentPreset.shutterSpeed ?? "none",
+                value: vm.currentPreset.shutterSpeed ?? "Auto",
                 isSelected: vm.activeSlider == .shutterSpeed,
                 action: {
                     handleSettingButtonTap(.shutterSpeed)
@@ -119,7 +119,7 @@ struct PresetDetailView: View {
             SettingButton(
                 type: .iso,
                 state: vm.getButtonState(for: .iso),
-                value: vm.currentPreset.iso ?? "none",
+                value: vm.currentPreset.iso ?? "Auto",
                 isSelected: vm.activeSlider == .iso,
                 action: {
                     handleSettingButtonTap(.iso)

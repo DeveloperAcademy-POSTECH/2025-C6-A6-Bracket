@@ -63,28 +63,30 @@ class PresetDetailViewModel {
     
     // Camera Mode Management
     func changeCameraMode(to mode: ShootingModeType) {
-        
         guard currentPreset.shootingMode != mode else { return }
         
         currentPreset.shootingMode = mode
         
-        // Auto 값 처리 // TODO: - 카메라의 기본 세팅 값 가져오기
+        // Auto 처리를 위해 적절한 nil 설정
         switch mode {
+        case .p:
+            // P모드: 조리개와 셔터스피드 Auto (nil)
+            currentPreset.aperture = nil
+            currentPreset.shutterSpeed = nil
             
         case .av:
-            // Av모드: 셔터스피드 Auto
-            currentPreset.shutterSpeed = "30"
-            currentPreset.aperture = "1.0"
-            
-        case .p:
-            // P모드: ISO 제외 Auto
-            currentPreset.aperture = "1.0"
-            currentPreset.shutterSpeed = "30"
+            // Av모드: 셔터스피드 Auto (nil)
+            currentPreset.shutterSpeed = nil
+            if currentPreset.aperture == nil {
+                currentPreset.aperture = CameraConstants.apertureValues.first ?? "f4.5"
+            }
             
         case .tv:
-            // Tv모드: 조리개 Auto
-            currentPreset.aperture = "1.0"
-            currentPreset.shutterSpeed = "30"
+            // Tv모드: 조리개 Auto (nil)
+            currentPreset.aperture = nil
+            if currentPreset.shutterSpeed == nil {
+                currentPreset.shutterSpeed = CameraConstants.shutterSpeedValues.first ?? "1/125"
+            }
         }
     }
 
