@@ -82,6 +82,7 @@ struct PhotoSelectionView: View {
             }
             .screenPadding()
         }
+        .contentMargins(.bottom, 50, for: .scrollContent)
     }
     
     private func selectionCompleteButtonView() -> some View {
