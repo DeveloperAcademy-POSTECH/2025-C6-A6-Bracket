@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class Preset: Hashable, Identifiable {
+struct Preset: Hashable, Identifiable {
     
     var id: UUID
     var name: String
