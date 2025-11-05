@@ -29,7 +29,7 @@ struct GroupedPhotosSkeletonView: View {
     private func skeletonCell() -> some View {
         RoundedRectangle(cornerRadius: 8)
             .fill(Color.g10)
-            .frame(height: 118)
+            .aspectRatio(3/2, contentMode: .fit)
     }
 }
 
