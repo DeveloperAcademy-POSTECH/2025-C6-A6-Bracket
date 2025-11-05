@@ -23,6 +23,7 @@ struct CachedThumbnailImageView: View {
             .cacheMemoryOnly() // Thumbnail은 메모리만
             .fade(duration: 0.2)
             .resizable()
-            .aspectRatio(contentMode: .fill)
+            .aspectRatio(3/2, contentMode: .fit)
+            .scaleEffect(1.12)
     }
 }

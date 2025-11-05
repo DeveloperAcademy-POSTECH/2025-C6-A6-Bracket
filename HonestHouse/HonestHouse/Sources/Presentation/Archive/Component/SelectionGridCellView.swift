@@ -19,7 +19,6 @@ struct SelectionGridCellView: View {
         ZStack(alignment: .bottomTrailing) {
             NavigationLink(destination: PhotoSelectionDetailView(initialPhoto: photo).environment(vm)) {
                 CachedThumbnailImageView(url: photo.thumbnailURL)
-                    .frame(height: 78)
             }
             
             Button(action: onTapSelectionGridCell) {
@@ -38,11 +37,4 @@ struct SelectionGridCellView: View {
         }
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
-}
-
-#Preview {
-    SelectionGridCellView(photo: Photo.mockPhoto(), isSelected: true, onTapSelectionGridCell: {
-        print("Tapped")
-    })
-    .environment(PhotoSelectionViewModel(container: DIContainer.stub))
 }
