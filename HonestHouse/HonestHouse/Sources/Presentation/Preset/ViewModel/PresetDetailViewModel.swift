@@ -15,30 +15,34 @@ enum PresetDetailAction {
 
 @Observable
 class PresetDetailViewModel {
-    // MARK: - Published Properties
-    var currentPreset: CameraPreset
+
+    var container: DIContainer
+    var currentPreset: Preset
     var viewMode: ViewMode
     var isLoading: Bool = false
     var errorMessage: String?
     var showCameraModeSelector: Bool = false
     var activeSlider: SettingType?
     
-    // MARK: - Private Properties
-    private var originalPreset: CameraPreset?
+    private var originalPreset: Preset?
     
-    // MARK: - Initialization
-    init(preset: CameraPreset? = nil, mode: ViewMode = .view) {
+    init(
+        container: DIContainer,
+        mode: ViewMode,
+        preset: Preset?
+    ) {
+        self.container = container
+        
         if let preset = preset {
             self.currentPreset = preset
             self.viewMode = mode
         } else {
             // Create mode with default preset
-            self.currentPreset = CameraPreset(name: "새 프리셋")
+            self.currentPreset = .init(name: "새 프리셋", pictureStyle: .auto, shootingMode: .av)
             self.viewMode = .create
         }
     }
     
-    // MARK: - View Mode Management
     func switchToEditMode() {
         guard viewMode == .view else { return }
         originalPreset = currentPreset.copy()
@@ -52,42 +56,38 @@ class PresetDetailViewModel {
     }
     
     func initializeForCreate() {
-        currentPreset = CameraPreset(name: "새 프리셋")
+        currentPreset = .init(name: "새 프리셋", pictureStyle: .auto, shootingMode: .av)
         viewMode = .create
         originalPreset = nil
     }
     
-    // MARK: - Camera Mode Management
-    func changeCameraMode(to mode: CameraMode) {
+    // Camera Mode Management
+    func changeCameraMode(to mode: ShootingModeType) {
         
+        guard currentPreset.shootingMode != mode else { return }
         
+        currentPreset.shootingMode = mode
         
-        guard currentPreset.cameraMode != mode else { return }
-        
-        currentPreset.cameraMode = mode
-        
-        // Auto 값 처리
+        // Auto 값 처리 // TODO: - 카메라의 기본 세팅 값 가져오기
         switch mode {
-        case .P:
-            // P모드: 조리개와 셔터스피드 Auto
-            currentPreset.aperture = 1.0
-            currentPreset.shutterSpeed = 30
             
-        case .Av:
+        case .av:
             // Av모드: 셔터스피드 Auto
-            currentPreset.shutterSpeed = 30
+            currentPreset.shutterSpeed = "30"
+            currentPreset.aperture = "1.0"
             
-            currentPreset.aperture = 1.0 // 기본값
+        case .p:
+            // P모드: ISO 제외 Auto
+            currentPreset.aperture = "1.0"
+            currentPreset.shutterSpeed = "30"
             
-            
-        case .Tv:
+        case .tv:
             // Tv모드: 조리개 Auto
-            currentPreset.aperture = 1.0
-            currentPreset.shutterSpeed = 30 // 기본값
+            currentPreset.aperture = "1.0"
+            currentPreset.shutterSpeed = "30"
         }
     }
-    
-    // MARK: - Button State Management
+
     func getButtonState(for type: SettingType) -> ButtonState {
         // 조회 모드에서는 모든 버튼이 viewOnly
         if viewMode == .view {
@@ -100,12 +100,12 @@ class PresetDetailViewModel {
             return .active
             
         case .aperture:
-            return currentPreset.cameraMode == .Av ? .active : .disabled
+            return currentPreset.shootingMode == .av ? .active : .disabled
             
         case .shutterSpeed:
-            return currentPreset.cameraMode == .Tv ? .active : .disabled
+            return currentPreset.shootingMode == .tv ? .active : .disabled
             
-        case .iso, .filter, .tint, .exposure, .colorTemp:
+        case .iso, .pictureStyle, .tintMagentaGreen, .exposure, .colorTemp:
             return .active
         }
     }
@@ -114,23 +114,23 @@ class PresetDetailViewModel {
         return getButtonState(for: type) == .active
     }
     
-    // MARK: - Value Updates
-    func updateAperture(_ value: Double) {
+    // Value Updates
+    func updateAperture(_ value: String) {
         guard isSettingEditable(.aperture) else { return }
         currentPreset.aperture = value
     }
     
-    func updateShutterSpeed(_ value: Double) {
+    func updateShutterSpeed(_ value: String) {
         guard isSettingEditable(.shutterSpeed) else { return }
         currentPreset.shutterSpeed = value
     }
     
-    func updateISO(_ value: Int) {
+    func updateISO(_ value: String) {
         guard isSettingEditable(.iso) else { return }
         currentPreset.iso = value
     }
     
-    func updateExposureCompensation(_ value: Double) {
+    func updateExposureCompensation(_ value: String) {
         currentPreset.exposureCompensation = value
     }
     
@@ -138,54 +138,49 @@ class PresetDetailViewModel {
         currentPreset.colorTemperature = value
     }
     
-//    func toggleFilter() {
-//        guard isSettingEditable(.filter) else { return }
-//        currentPreset.filterEnabled.toggle()
+    // Formatting Values
+//    func formatAperture(_ value: String?) -> String {
+//        guard let value = value else { return "Auto" }
+//        // 소수점 처리
+//        if value.truncatingRemainder(dividingBy: 1) == 0 {
+//            return "f/\(Int(value))"
+//        } else {
+//            return "f/\(String(format: "%.1f", value))"
+//        }
 //    }
     
-    // MARK: - Value Formatting
-    func formatAperture(_ value: Double?) -> String {
-        guard let value = value else { return "Auto" }
-        // 소수점 처리
-        if value.truncatingRemainder(dividingBy: 1) == 0 {
-            return "f/\(Int(value))"
-        } else {
-            return "f/\(String(format: "%.1f", value))"
-        }
-    }
+//    func formatShutterSpeed(_ value: Double?) -> String {
+//        guard let value = value else { return "Auto" }
+//        
+//        if value < 1 {
+//            let denominator = Int(1/value)
+//            return "1/\(denominator)"
+//        } else if value.truncatingRemainder(dividingBy: 1) == 0 {
+//            return "\(Int(value))\""
+//        } else {
+//            return "\(String(format: "%.1f", value))\""
+//        }
+//    }
     
-    func formatShutterSpeed(_ value: Double?) -> String {
-        guard let value = value else { return "Auto" }
-        
-        if value < 1 {
-            let denominator = Int(1/value)
-            return "1/\(denominator)"
-        } else if value.truncatingRemainder(dividingBy: 1) == 0 {
-            return "\(Int(value))\""
-        } else {
-            return "\(String(format: "%.1f", value))\""
-        }
-    }
+//    func formatISO(_ value: Int) -> String {
+//        return "\(value)"
+//    }
     
-    func formatISO(_ value: Int) -> String {
-        return "\(value)"
-    }
-    
-    func formatExposureCompensation(_ value: Double) -> String {
-        if value > 0 {
-            return "+\(String(format: "%.1f", value))"
-        } else if value < 0 {
-            return String(format: "%.1f", value)
-        } else {
-            return "+0.0"
-        }
-    }
+//    func formatExposureCompensation(_ value: Double) -> String {
+//        if value > 0 {
+//            return "+\(String(format: "%.1f", value))"
+//        } else if value < 0 {
+//            return String(format: "%.1f", value)
+//        } else {
+//            return "+0.0"
+//        }
+//    }
     
     func formatColorTemperature(_ value: Int) -> String {
         return "\(value)K"
     }
     
-    // MARK: - Data Persistence
+    // Data Persistence
     func savePreset() async throws {
         isLoading = true
         defer { isLoading = false }
@@ -211,61 +206,47 @@ class PresetDetailViewModel {
         return !arePresetsEqual(original, currentPreset)
     }
     
-    private func arePresetsEqual(_ lhs: CameraPreset, _ rhs: CameraPreset) -> Bool {
-        return lhs.cameraMode == rhs.cameraMode &&
-               lhs.aperture == rhs.aperture &&
-               lhs.shutterSpeed == rhs.shutterSpeed &&
-               lhs.iso == rhs.iso &&
-               lhs.tint == rhs.tint &&
-               lhs.exposureCompensation == rhs.exposureCompensation &&
-               lhs.colorTemperature == rhs.colorTemperature
+    private func arePresetsEqual(_ lhs: Preset, _ rhs: Preset) -> Bool {
+        return lhs.name == rhs.name &&
+        lhs.pictureStyle == rhs.pictureStyle &&
+        lhs.shootingMode == rhs.shootingMode &&
+        lhs.aperture == rhs.aperture &&
+        lhs.shutterSpeed == rhs.shutterSpeed &&
+        lhs.iso == rhs.iso &&
+        lhs.tintMagentaGreen == rhs.tintMagentaGreen &&
+        lhs.exposureCompensation == rhs.exposureCompensation &&
+        lhs.colorTemperature == rhs.colorTemperature
     }
     
-    // MARK: - Slider Ranges
-    func getISOValues() -> [Int] {
+    // 임시 세팅값 가져오기
+    func getISOValues() -> [String] {
         return CameraConstants.isoValues
     }
     
-    func getApertureValues() -> [Double] {
+    func getApertureValues() -> [String] {
         return CameraConstants.apertureValues
     }
     
-    func getShutterSpeedValues() -> [Double] {
+    func getShutterSpeedValues() -> [String] {
         return CameraConstants.shutterSpeedValues
     }
     
-    func getClosestIndex(for value: Double, in array: [Double]) -> Int {
-        guard !array.isEmpty else { return 0 }
-        
-        var closestIndex = 0
-        var minDifference = abs(array[0] - value)
-        
-        for (index, element) in array.enumerated() {
-            let difference = abs(element - value)
-            if difference < minDifference {
-                minDifference = difference
-                closestIndex = index
-            }
-        }
-        
-        return closestIndex
+    func getPictureStyleValues() -> [String] {
+        return CameraConstants.pictureStyleValues
     }
     
-    func getClosestIndex(for value: Int, in array: [Int]) -> Int {
-        guard !array.isEmpty else { return 0 }
-        
-        var closestIndex = 0
-        var minDifference = abs(array[0] - value)
-        
-        for (index, element) in array.enumerated() {
-            let difference = abs(element - value)
-            if difference < minDifference {
-                minDifference = difference
-                closestIndex = index
-            }
-        }
-        
-        return closestIndex
+    func getTintMagentGreenValues() -> [Int] {
+        return CameraConstants.tintMagentaGreenValues
+    }
+    
+    func getExposureCompensationValues() -> [String] {
+        return CameraConstants.exposureCompensationRange
+            .map(\.description)
+    }
+    
+    func getColorTemperatureValues() -> [String] {
+        return CameraConstants.colorTemperatureRange
+            .map(\.description)
     }
 }
 //MARK: - Navigation

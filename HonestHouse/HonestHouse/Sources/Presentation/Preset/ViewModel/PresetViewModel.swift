@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 enum PresetAction {
-    case goToPresetDetail(ViewMode, CameraPreset?)
+    case goToPresetDetail(ViewMode, Preset?)
 }
 
 @Observable
@@ -27,7 +27,7 @@ final class PresetViewModel {
     var error: PresetError?
 
     enum Action {
-        case goToPresetDetail(ViewMode, CameraPreset?)
+        case goToPresetDetail(ViewMode, Preset?)
     }
     
     init(

@@ -5,9 +5,8 @@
 //  Created by BoMin Lee on 10/28/25.
 //
 
-import Foundation
-
-enum PictureStyleType: String {
+enum PictureStyleType: String, Codable, CaseIterable {
+    
     case auto = "자동"
     case standard = "표준"
     case portrait = "인물"

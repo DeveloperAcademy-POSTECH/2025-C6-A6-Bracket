@@ -22,7 +22,7 @@ struct NavigationRoutingView: View {
                 
         // Preset
         case .presetEditor(let mode, let preset):
-            PresetDetailView(preset: .init(name: "preset1"), mode: mode)
+            PresetDetailView(vm: .init(container: container, mode: mode, preset: preset))
 
         // Photos
         case .photoSelection:

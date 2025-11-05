@@ -5,9 +5,7 @@
 //  Created by BoMin Lee on 10/28/25.
 //
 
-import Foundation
-
-enum ShootingModeType: String {
+enum ShootingModeType: String, Codable, CaseIterable {
     case av = "Av"
     case tv = "Tv"
     case p = "P"

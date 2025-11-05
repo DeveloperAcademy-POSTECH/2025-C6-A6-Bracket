@@ -9,14 +9,10 @@ import SwiftUI
 import SwiftData
 
 struct PresetDetailView: View {
-    @State private var vm: PresetDetailViewModel
+    @State var vm: PresetDetailViewModel
     @State private var showDeleteAlert = false
     @State private var showUnsavedChangesAlert = false
     @Environment(\.dismiss) private var dismiss
-    
-    init(preset: CameraPreset?, mode: ViewMode = .view) {
-        self._vm = State(initialValue: PresetDetailViewModel(preset: preset, mode: mode))
-    }
     
     var body: some View {
         ZStack {
@@ -80,42 +76,6 @@ struct PresetDetailView: View {
                         endPoint: .bottom
                     )
                 )
-            
-            // Preset Name & Indicator
-            VStack {
-                HStack {
-                    // Recording indicator
-                    HStack(spacing: 5) {
-                        Circle()
-                            .fill(Color.red)
-                            .frame(width: 6, height: 6)
-                        Circle()
-                            .fill(Color.red)
-                            .frame(width: 6, height: 6)
-                        Circle()
-                            .fill(Color.red)
-                            .frame(width: 6, height: 6)
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(Color.black.opacity(0.5))
-                    .cornerRadius(10)
-                    
-                    Spacer()
-                    
-                    // Time indicator
-                    Text("120장")
-                        .font(.caption)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(Color.black.opacity(0.5))
-                        .cornerRadius(10)
-                }
-                .padding()
-                
-                Spacer()
-            }
         }
     }
     
@@ -123,7 +83,7 @@ struct PresetDetailView: View {
     private var cameraModeSection: some View {
         CameraModeSelector(
             selectedMode: Binding(
-                get: { vm.currentPreset.cameraMode },
+                get: { vm.currentPreset.shootingMode },
                 set: { vm.changeCameraMode(to: $0) }
             ),
             isEnabled: vm.viewMode != .view
@@ -137,7 +97,7 @@ struct PresetDetailView: View {
             SettingButton(
                 type: .aperture,
                 state: vm.getButtonState(for: .aperture),
-                value: vm.formatAperture(vm.currentPreset.aperture),
+                value: vm.currentPreset.aperture ?? "none",
                 isSelected: vm.activeSlider == .aperture,
                 action: {
                     handleSettingButtonTap(.aperture)
@@ -148,7 +108,7 @@ struct PresetDetailView: View {
             SettingButton(
                 type: .shutterSpeed,
                 state: vm.getButtonState(for: .shutterSpeed),
-                value: vm.formatShutterSpeed(vm.currentPreset.shutterSpeed),
+                value: vm.currentPreset.shutterSpeed ?? "none",
                 isSelected: vm.activeSlider == .shutterSpeed,
                 action: {
                     handleSettingButtonTap(.shutterSpeed)
@@ -159,17 +119,23 @@ struct PresetDetailView: View {
             SettingButton(
                 type: .iso,
                 state: vm.getButtonState(for: .iso),
-                value: vm.formatISO(vm.currentPreset.iso),
+                value: vm.currentPreset.iso ?? "none",
                 isSelected: vm.activeSlider == .iso,
                 action: {
                     handleSettingButtonTap(.iso)
                 }
             )
             
-            SettingButton(type: .filter, state: vm.getButtonState(for: .filter), value: vm.currentPreset.filter, isSelected: vm.activeSlider == .filter) {
-                handleSettingButtonTap(.filter)
-            }
-            
+            SettingButton(
+                type: .pictureStyle,
+                state: vm.getButtonState(for: .pictureStyle),
+                value: vm.currentPreset.pictureStyle.rawValue,
+                isSelected: vm.activeSlider == .pictureStyle,
+                action: {
+
+                    handleSettingButtonTap(.pictureStyle)
+                }
+            )
             
         }
         .frame(maxWidth: .infinity)
@@ -180,26 +146,78 @@ struct PresetDetailView: View {
         Group {
             switch type {
             case .aperture:
-                if vm.currentPreset.aperture != nil {
-                    CustomWheelPickerView(selectedValue: $vm.currentPreset.aperture, items: CameraConstants.apertureValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+                
+                CustomWheelPickerView(
+                    selectedValue: $vm.currentPreset.aperture,
+                    items: vm.getApertureValues(),
+                    config: .init(
+                        spacing: 22,
+                        itemSize: .init(width: 50, height: 24)
+                    )
+                )
 
-                }
+                
                 
             case .shutterSpeed:
-                
-                    CustomWheelPickerView(selectedValue: $vm.currentPreset.shutterSpeed, items: CameraConstants.shutterSpeedValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+                CustomWheelPickerView(
+                    selectedValue: $vm.currentPreset.shutterSpeed,
+                    items: vm.getShutterSpeedValues(),
+                    config: .init(
+                        spacing: 22,
+                        itemSize: .init(width: 50, height: 24)
+                    )
+                )
                 
                 
             case .iso:
-//                if vm.currentPreset.iso != 0 {
-                    CustomWheelPickerView(selectedValue: $vm.currentPreset.iso, items: CameraConstants.isoValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
-                    
-//                }
-            case .filter:
+                CustomWheelPickerView(
+                    selectedValue: $vm.currentPreset.iso,
+                    items: vm.getISOValues(),
+                    config: .init(
+                        spacing: 22,
+                        itemSize: .init(width: 50, height: 24)
+                    )
+                )
+
+//            case .pictureStyle:
+//                CustomWheelPickerView(
+//                    selectedValue: $vm.currentPreset.pictureStyle,
+//                    items: vm.getPictureStyleValues(),
+//                    config: .init(
+//                        spacing: 22,
+//                        itemSize: .init(width: 50, height: 24)
+//                    )
+//                )
                 
+            case .tintMagentaGreen:
+                CustomWheelPickerView(
+                    selectedValue: $vm.currentPreset.tintMagentaGreen,
+                    items: vm.getTintMagentGreenValues(),
+                    config: .init(
+                        spacing: 22,
+                        itemSize: .init(width: 50, height: 24)
+                    )
+                )
                 
-                    CustomWheelPickerView(selectedValue: $vm.currentPreset.filter, items: CameraConstants.filterValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+            case .exposure:
+                CustomWheelPickerView(
+                    selectedValue: $vm.currentPreset.exposureCompensation,
+                    items: vm.getExposureCompensationValues(),
+                    config: .init(
+                        spacing: 22,
+                        itemSize: .init(width: 50, height: 24)
+                    )
+                )
                 
+//            case .colorTemp:
+//                CustomWheelPickerView(
+//                    selectedValue: $vm.currentPreset.colorTemperature,
+//                    items: vm.getColorTemperatureValues(),
+//                    config: .init(
+//                        spacing: 22,
+//                        itemSize: .init(width: 50, height: 24)
+//                    )
+//                )
                 
             default:
                 EmptyView()
@@ -207,7 +225,6 @@ struct PresetDetailView: View {
         }
         .frame(height: 80)
         .transition(.opacity)
-        .animation(.easeInOut(duration: 0.2), value: vm.activeSlider)
     }
     
     // MARK: - Secondary Settings Section
@@ -216,19 +233,19 @@ struct PresetDetailView: View {
             // Exposure Compensation
             
             SettingButton(
-                type: .tint,
-                state: vm.getButtonState(for: .tint),
-                value: vm.formatISO(vm.currentPreset.tint),
-                isSelected: vm.activeSlider == .tint,
+                type: .tintMagentaGreen,
+                state: vm.getButtonState(for: .tintMagentaGreen),
+                value: vm.currentPreset.tintMagentaGreen,
+                isSelected: vm.activeSlider == .tintMagentaGreen,
                 action: {
-                    handleSettingButtonTap(.tint)
+                    handleSettingButtonTap(.tintMagentaGreen)
                 }
             )
             
             SettingButton(  // plusminus.circle
                 type: .exposure,
                 state: vm.getButtonState(for: .exposure),
-                value: vm.formatExposureCompensation(vm.currentPreset.exposureCompensation),
+                value: vm.currentPreset.exposureCompensation,
                 isSelected: vm.activeSlider == .exposure,
                 action: {
                     handleSettingButtonTap(.exposure)
@@ -238,7 +255,7 @@ struct PresetDetailView: View {
             SettingButton(  // thermometer.medium
                 type: .colorTemp,
                 state: vm.getButtonState(for: .colorTemp),
-                value: vm.formatColorTemperature(vm.currentPreset.colorTemperature),
+                value: vm.currentPreset.colorTemperature,
                 isSelected: vm.activeSlider == .colorTemp,
                 action: {
                     handleSettingButtonTap(.colorTemp)
@@ -287,7 +304,7 @@ struct PresetDetailView: View {
         }
     }
     
-    // MARK: - Toolbar
+    // Toolbar
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
@@ -331,28 +348,13 @@ struct PresetDetailView: View {
 
 // MARK: - Preview
 #Preview("View Mode") {
-    PresetDetailView(
-        preset: CameraPreset(
-            name: "푸른_하늘_화사함",
-            cameraMode: .P,
-            iso: 400
-        ),
-        mode: .view
-    )
+    PresetDetailView(vm: .init(container: .stub, mode: .view, preset: .stub1))
 }
 
 #Preview("Edit Mode") {
-    PresetDetailView(
-        preset: CameraPreset(
-            name: "푸른_하늘_화사함",
-            cameraMode: .Av,
-            aperture: 2.8,
-            iso: 200
-        ),
-        mode: .edit
-    )
+    PresetDetailView(vm: .init(container: .stub, mode: .edit, preset: .stub2))
 }
 
 #Preview("Create Mode") {
-    PresetDetailView(preset: nil, mode: .create)
+    PresetDetailView(vm: .init(container: .stub, mode: .create, preset: .stub3))
 }
