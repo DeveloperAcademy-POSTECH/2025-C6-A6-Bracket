@@ -30,7 +30,7 @@ struct TrishotSettingView: View {
     private func presetListView() -> some View {
         VStack(spacing: 32) {
             ForEach(0..<3, id: \.self) { index in
-                if index < $vm.allSelectedPresets.count {
+                if index < vm.allSelectedPresets.count {
                     presetView(vm.allSelectedPresets[index], index)
                 } else {
                     emptySlotView(index)
