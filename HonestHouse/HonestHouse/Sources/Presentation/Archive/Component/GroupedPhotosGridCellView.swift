@@ -17,7 +17,7 @@ struct GroupedPhotosGridCellView: View {
         if let firstPhoto = group.photos.first {
             ZStack(alignment: .bottomLeading) {
                 NavigationLink(destination: GroupedPhotosDetailView(groupedPhotos: group).environment(vm)) {
-                    CachedGridCellImageView(url: firstPhoto.displayURL)
+                    CachedGridCellImageView(url: firstPhoto.displayURL, originalURL: firstPhoto.url)
                 }
                 
                 selectNumBadge()

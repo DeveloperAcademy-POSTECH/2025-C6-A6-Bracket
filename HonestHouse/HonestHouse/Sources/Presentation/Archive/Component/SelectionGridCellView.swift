@@ -18,7 +18,7 @@ struct SelectionGridCellView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             NavigationLink(destination: PhotoSelectionDetailView(initialPhoto: photo).environment(vm)) {
-                CachedGridCellImageView(url: photo.thumbnailURL)
+                CachedGridCellImageView(url: photo.thumbnailURL, originalURL: photo.url)
             }
             
             Button(action: onTapSelectionGridCell) {
