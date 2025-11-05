@@ -22,7 +22,7 @@ struct PresetDetailView: View {
             VStack(spacing: 0) {
                 // Preview Area
                 previewSection
-                    .frame(height: UIScreen.main.bounds.height * 0.35)
+                    .frame(height: 200)
                 
                 // Control Panel
                 VStack(spacing: 25) {
