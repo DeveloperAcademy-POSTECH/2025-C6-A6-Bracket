@@ -11,7 +11,7 @@ extension View {
     /*
      <사용법>
      VStack {
-         Text("Content")
+     Text("Content")
      }
      .screenPadding()
      */
@@ -22,9 +22,9 @@ extension View {
     /*
      <사용법>
      .navigationBarWithBack(title: "", showShadow: false) {
-         dismiss()
+     dismiss()
      } rightView: {
-         EmptyView()
+     EmptyView()
      }
      */
     func navigationBarWithBack<RightContent: View>(
