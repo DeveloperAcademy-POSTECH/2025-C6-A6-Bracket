@@ -7,28 +7,30 @@
 
 import SwiftUI
 
-@available(iOS 18.0, *)
-struct CustomWheelPickerView: View {
-    @State private var selectedAperture: String = ApertureData.defaultAperture
-    
-    private let apertureData = ApertureData()
+struct Config {
+    var spacing: CGFloat
+    var itemSize: CGSize
+}
+
+struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashable & Sendable {
+
+    @Binding var selectedValue: SelectionValue
+    let items: [SelectionValue]
+    let config: Config
     
     var body: some View {
         VStack(spacing: 0) {
             CustomWheelPicker(
-                items: ApertureData.standardApertures,
-                selection: $selectedAperture,
-                config: .init(
-                    spacing: apertureData.spacing,
-                    itemSize: apertureData.itemSize
-                )
-            ) { aperture in
-                Text(aperture)
+                items: items,
+                selection: $selectedValue,
+                config: config
+            ) { value in
+                Text("\(value)")
                     .font(.num4)
-                    .foregroundStyle(aperture == selectedAperture ? Color.yellow1 : Color.g0)
-                    .animation(.easeInOut(duration: 0.2), value: selectedAperture)
-                    .frame(width: apertureData.itemSize.width,
-                           height: apertureData.itemSize.height)
+                    .foregroundStyle(value == selectedValue ? Color.yellow1 : Color.g0)
+                    .animation(.easeInOut(duration: 0.2), value: selectedValue)
+                    .frame(width: config.itemSize.width,
+                           height: config.itemSize.height)
             }
             .frame(height: 52)
             .overlay {
@@ -68,8 +70,12 @@ struct CustomWheelPickerView: View {
     }
 }
 
-#Preview {
-    if #available(iOS 18.0, *) {
-        CustomWheelPickerView()
-    } else { }
+#Preview("Double") {
+    CustomWheelPickerView(selectedValue: .constant("1.0"), items: CameraConstants.apertureValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+
+}
+
+
+#Preview("Int") {
+    CustomWheelPickerView(selectedValue: .constant(1), items: CameraConstants.tintMagentaGreenValues    , config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
 }

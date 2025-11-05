@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 enum PresetAction {
-    case goToPresetDetail(PresetDetailMode, Preset?)
+    case goToPresetDetail(ViewMode, Preset?)
 }
 
 @Observable
@@ -25,6 +25,10 @@ final class PresetViewModel {
     var presets: [Preset] = []
     var selectedPresets: Set<UUID> = []
     var error: PresetError?
+
+    enum Action {
+        case goToPresetDetail(ViewMode, Preset?)
+    }
     
     init(
         container: DIContainer,

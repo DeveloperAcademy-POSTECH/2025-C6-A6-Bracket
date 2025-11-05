@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class Preset: Hashable, Identifiable {
+struct Preset: Hashable, Identifiable {
     
     var id: UUID
     var name: String
@@ -53,6 +53,24 @@ final class Preset: Hashable, Identifiable {
         self.tintMagentaGreen = tintMagentaGreen
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+    }
+    
+    func copy() -> Preset {
+        Preset(
+            id: self.id,
+            name: self.name,
+            pictureStyle: self.pictureStyle,
+            shootingMode: self.shootingMode,
+            aperture: self.aperture,
+            shutterSpeed: self.shutterSpeed,
+            iso: self.iso,
+            exposureCompensation: self.exposureCompensation,
+            colorTemperature: self.colorTemperature,
+            tintBlueAmber: self.tintBlueAmber,
+            tintMagentaGreen: self.tintMagentaGreen,
+            createdAt: self.createdAt,
+            updatedAt: self.updatedAt
+        )
     }
 }
 
