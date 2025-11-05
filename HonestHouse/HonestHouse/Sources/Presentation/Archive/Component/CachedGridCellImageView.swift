@@ -8,26 +8,54 @@
 import SwiftUI
 import Kingfisher
 
-/// Thumbnail 이미지만 표시 (그리드, 그룹 대표 이미지 등)
+/// 그리드, 그룹 대표 이미지 (GridCell)
 struct CachedGridCellImageView: View {
     let url: String
+    let originalURL: String
+    
+    @State private var shouldUseFallback = false
     
     var body: some View {
         Color.g10
             .frame(maxWidth: .infinity)
             .aspectRatio(3/2, contentMode: .fit)
             .overlay(
-                KFImage(URL(string: url))
-                    .placeholder {
-                        Color.clear
+                Group {
+                    if shouldUseFallback {
+                        fallbackImageView()
+                    } else {
+                        displayImageView()
                     }
-                    .retry(maxCount: 2, interval: .seconds(1))
-                    .cacheMemoryOnly()
-                    .fade(duration: 0.2)
-                    .resizable()
-                    .scaledToFit()  // 컨테이너 안에 맞추기
-                    .scaleEffect(1.12)
+                }
             )
             .clipped()
+    }
+    
+    private func displayImageView() -> some View {
+        KFImage(URL(string: url))
+            .placeholder {
+                Color.clear
+            }
+            .retry(maxCount: 2, interval: .seconds(1))
+            .onFailure { _ in
+                shouldUseFallback = true
+            }
+            .cacheOriginalImage()  // 디스크+메모리 캐싱
+            .fade(duration: 0.2)
+            .resizable()
+            .scaledToFit()
+            .scaleEffect(1.12)
+    }
+    
+    private func fallbackImageView() -> some View {
+        KFImage(URL(string: originalURL))
+            .placeholder {
+                Color.clear
+            }
+            .retry(maxCount: 2, interval: .seconds(1))
+            .cacheOriginalImage()
+            .fade(duration: 0.2)
+            .resizable()
+            .scaledToFit()
     }
 }
