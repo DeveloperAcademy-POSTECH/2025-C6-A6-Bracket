@@ -154,6 +154,17 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
 
         do {
             try await ignoreShootingMode(action: "on")
+            
+            defer {
+                Task {
+                    do {
+                        try await ignoreShootingMode(action: "off")
+                    } catch {
+                        handleError(error)
+                    }
+                }
+            }
+
             try await setShootingMode(value: shootingMode.apiValue)
             try await setPictureStyle(value: pictureStyle.apiValue)
             
@@ -185,9 +196,6 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
             if let tintBlueAmber = preset.tintBlueAmber, let tintMagentaGreen = preset.tintMagentaGreen {
                 try await setWbShift(blueAmber: tintBlueAmber, magentaGreen: tintMagentaGreen)
             }
-            
-            try await ignoreShootingMode(action: "off")
-
         } catch {
             handleError(error)
         }
