@@ -22,7 +22,7 @@ struct CustomWheelPicker<SelectionValue, Content>: View where SelectionValue: Ha
     init(
         items: [SelectionValue],
         selection: Binding<SelectionValue>,
-        config: Config = Config(),
+        config: Config,
         @ViewBuilder content: @escaping (SelectionValue) -> Content
     ) {
         self.items = items
@@ -31,11 +31,7 @@ struct CustomWheelPicker<SelectionValue, Content>: View where SelectionValue: Ha
         _selection = selection
     }
     
-    /// 휠 피커 설정
-    struct Config {
-        var spacing: CGFloat = 22
-        var itemSize: CGSize = .init(width: 40, height: 24)
-    }
+
     
     var body: some View {
         GeometryReader { proxy in

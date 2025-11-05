@@ -36,6 +36,18 @@ struct SettingButton: View {
         }
     }
     
+    private var strokeColor: Color {
+        switch state {
+        case .active:
+            return Color.g0
+        case .disabled:
+            return Color.g7
+        case .viewOnly:
+            return Color.clear
+        }
+    }
+    
+    
     private var isInteractive: Bool {
         state == .active
 //        (state != .disabled) || (state != .viewOnly)
@@ -69,7 +81,7 @@ struct SettingButton: View {
                     }
                     .overlay {
                         Circle()
-                            .stroke(isSelected ? Color.white : Color.clear, lineWidth: 2)
+                            .stroke(strokeColor)
                     }
                     
                 

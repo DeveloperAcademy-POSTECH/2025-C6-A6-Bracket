@@ -44,8 +44,8 @@ struct CameraPreset: Identifiable, Codable {
     let id: UUID
     var name: String
     var cameraMode: CameraMode
-    var aperture: Double?        // nil when Auto
-    var shutterSpeed: Double?    // nil when Auto
+    var aperture: Double        // nil when Auto
+    var shutterSpeed: Double    // nil when Auto
     var iso: Int
     var filter: String
     
@@ -59,8 +59,8 @@ struct CameraPreset: Identifiable, Codable {
         id: UUID = UUID(),
         name: String,
         cameraMode: CameraMode = .P,
-        aperture: Double? = nil,
-        shutterSpeed: Double? = nil,
+        aperture: Double = 1.0,
+        shutterSpeed: Double = 30,
         iso: Int = 400,
         filter: String = "",
         

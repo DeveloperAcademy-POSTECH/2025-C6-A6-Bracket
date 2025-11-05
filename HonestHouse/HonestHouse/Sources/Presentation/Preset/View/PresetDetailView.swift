@@ -21,7 +21,7 @@ struct PresetDetailView: View {
     var body: some View {
         ZStack {
             // Background
-            Color.black.ignoresSafeArea()
+            Color.g12.ignoresSafeArea(.all)
             
             VStack(spacing: 0) {
                 // Preview Area
@@ -121,29 +121,18 @@ struct PresetDetailView: View {
     
     // MARK: - Camera Mode Section
     private var cameraModeSection: some View {
-        HStack(spacing: 12) {
-            Text("촬영 모드")
-                .font(.caption)
-                .foregroundColor(.gray)
-            
-            CameraModeSelector(
-                selectedMode: .init(
-                    get: { vm.currentPreset.cameraMode },
-                    set: { vm.changeCameraMode(to: $0) }
-                ),
-                isEnabled: vm.viewMode != .view,
-                onSelect: { mode in
-                    vm.changeCameraMode(to: mode)
-                }
-            )
-            
-            Spacer()
-        }
+        CameraModeSelector(
+            selectedMode: Binding(
+                get: { vm.currentPreset.cameraMode },
+                set: { vm.changeCameraMode(to: $0) }
+            ),
+            isEnabled: vm.viewMode != .view
+        )
     }
     
     // MARK: - Primary Settings Section
     private var primarySettingsSection: some View {
-        HStack(spacing: 25) {
+        HStack {
             // Aperture
             SettingButton(
                 type: .aperture,
@@ -192,64 +181,25 @@ struct PresetDetailView: View {
             switch type {
             case .aperture:
                 if vm.currentPreset.aperture != nil {
-                    ValueSlider(
-                        title: "조리개",
-                        selectedIndex: .init(
-                            get: {
-                                vm.getClosestIndex(
-                                    for: vm.currentPreset.aperture ?? 2.8,
-                                    in: CameraConstants.apertureValues
-                                )
-                            },
-                            set: { _ in }
-                        ),
-                        values: CameraConstants.apertureValues.map { vm.formatAperture($0) },
-                        isEnabled: vm.isSettingEditable(.aperture),
-                        onValueChange: { index in
-                            vm.updateAperture(CameraConstants.apertureValues[index])
-                        }
-                    )
+                    CustomWheelPickerView(selectedValue: $vm.currentPreset.aperture, items: CameraConstants.apertureValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+
                 }
                 
             case .shutterSpeed:
-                if vm.currentPreset.shutterSpeed != nil {
-                    ValueSlider(
-                        title: "셔터 스피드",
-                        selectedIndex: .init(
-                            get: {
-                                vm.getClosestIndex(
-                                    for: vm.currentPreset.shutterSpeed ?? 1/125,
-                                    in: CameraConstants.shutterSpeedValues
-                                )
-                            },
-                            set: { _ in }
-                        ),
-                        values: CameraConstants.shutterSpeedValues.map { vm.formatShutterSpeed($0) },
-                        isEnabled: vm.isSettingEditable(.shutterSpeed),
-                        onValueChange: { index in
-                            vm.updateShutterSpeed(CameraConstants.shutterSpeedValues[index])
-                        }
-                    )
-                }
+                
+                    CustomWheelPickerView(selectedValue: $vm.currentPreset.shutterSpeed, items: CameraConstants.shutterSpeedValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+                
                 
             case .iso:
-                ValueSlider(
-                    title: "ISO",
-                    selectedIndex: .init(
-                        get: {
-                            vm.getClosestIndex(
-                                for: vm.currentPreset.iso,
-                                in: CameraConstants.isoValues
-                            )
-                        },
-                        set: { _ in }
-                    ),
-                    values: CameraConstants.isoValues.map { vm.formatISO($0) },
-                    isEnabled: vm.isSettingEditable(.iso),
-                    onValueChange: { index in
-                        vm.updateISO(CameraConstants.isoValues[index])
-                    }
-                )
+//                if vm.currentPreset.iso != 0 {
+                    CustomWheelPickerView(selectedValue: $vm.currentPreset.iso, items: CameraConstants.isoValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+                    
+//                }
+            case .filter:
+                
+                
+                    CustomWheelPickerView(selectedValue: $vm.currentPreset.filter, items: CameraConstants.filterValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+                
                 
             default:
                 EmptyView()

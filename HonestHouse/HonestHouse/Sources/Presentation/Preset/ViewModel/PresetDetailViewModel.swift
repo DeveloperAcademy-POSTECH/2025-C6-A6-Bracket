@@ -70,22 +70,20 @@ class PresetDetailViewModel {
         switch mode {
         case .P:
             // P모드: 조리개와 셔터스피드 Auto
-            currentPreset.aperture = nil
-            currentPreset.shutterSpeed = nil
+            currentPreset.aperture = 1.0
+            currentPreset.shutterSpeed = 30
             
         case .Av:
             // Av모드: 셔터스피드 Auto
-            currentPreset.shutterSpeed = nil
-            if currentPreset.aperture == nil {
-                currentPreset.aperture = 2.8 // 기본값
-            }
+            currentPreset.shutterSpeed = 30
+            
+            currentPreset.aperture = 1.0 // 기본값
+            
             
         case .Tv:
             // Tv모드: 조리개 Auto
-            currentPreset.aperture = nil
-            if currentPreset.shutterSpeed == nil {
-                currentPreset.shutterSpeed = 1/125 // 기본값
-            }
+            currentPreset.aperture = 1.0
+            currentPreset.shutterSpeed = 30 // 기본값
         }
     }
     
