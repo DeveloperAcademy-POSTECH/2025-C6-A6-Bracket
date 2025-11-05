@@ -13,25 +13,13 @@ struct TrishotSelectionView: View {
     var body: some View {
         ZStack {
             Color.g12.ignoresSafeArea(.all)
-
-            VStack(spacing: 0) {
-                headerView()
-
-                if vm.allPresets.isEmpty {
-                    emptyStateView()
-                } else {
-                    ScrollView {
-                        trishotItemListView()
-                    }
-                    .scrollIndicators(.hidden)
-                }
-
-                Spacer()
-
-                doneButton()
-            }
+            trishotItemListView()
         }
-        .navigationBarBackButtonHidden(true)
+        .navigationBarWithBack(title: "프리셋 \(vm.targetOrder + 1)", showShadow: true) {
+            vm.send(.popToTrishotSetting)
+        } rightView: {
+            EmptyView()
+        }
     }
 
     private func headerView() -> some View {
@@ -67,12 +55,15 @@ struct TrishotSelectionView: View {
     }
 
     private func trishotItemListView() -> some View {
-        VStack(spacing: 12) {
-            ForEach(vm.allPresets) { preset in
-                trishotItemView(preset)
+        ScrollView {
+            LazyVStack(spacing: 20) {
+                ForEach(vm.allPresets) { preset in
+                    trishotItemView(preset)
+                }
             }
+            .screenPadding()
         }
-        .padding()
+//        .scrollIndicators(.hidden)
     }
 
     private func trishotItemView(_ preset: Preset) -> some View {
@@ -84,49 +75,86 @@ struct TrishotSelectionView: View {
                 vm.selectPreset(preset.id)
             }
         } label: {
-            HStack(alignment: .bottom, spacing: 16) {
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 24))
-                    .foregroundColor(isSelected ? .yellow1 : .g7)
-
-                VStack(alignment: .leading, spacing: 14) {
-                    nameView(preset.name, isSelected: isSelected)
-                    iconListView()
-                    shootingDescriptionView(preset, isSelected: isSelected)
+            ZStack {
+                Capsule()
+                    .fill(isSelected ? Color.yellow1.opacity(0.08) : Color.clear)
+                HStack {
+                    Spacer()
+                    VStack(alignment: .center, spacing: 12) {
+                        nameView(preset.name, isSelected: isSelected)
+                        iconListView(for: preset)
+                        shootingDescriptionView(preset, isSelected: isSelected)
+                    }
+                    Spacer()
                 }
-
-                Spacer()
+                .padding(.horizontal, 31)
+                .padding(.vertical, 15)
+                HStack {
+                    Spacer()
+                    Image(.chevronRight)
+                        .renderingMode(isOccupied ? .template : .original)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .foregroundColor(isSelected ? Color.g0 : Color.g7)
+                }
+                .padding(.trailing, 8)
             }
-            .padding(.leading, 14)
-            .padding(.trailing, 16)
-            .padding(.vertical, 14)
+            
+            .frame(height: 122)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.yellow1.opacity(0.1) : Color.g11)
+                Capsule()
+                    .fill(Color.g11)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.yellow1 : Color.clear, lineWidth: 2)
+                CapsuleRoundStroke()
+                    .stroke(isSelected ? Color.yellow1 : Color.clear, lineWidth: 1)
             )
         }
         .disabled(isOccupied)
-        .opacity(isOccupied ? 0.3 : 1.0)
     }
 
     private func nameView(_ name: String, isSelected: Bool) -> some View {
         Text(name)
-            .font(.labelL)
-            .foregroundStyle(isSelected ? Color.g0 : Color.g5)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .font(.num6)
+            .foregroundStyle(isSelected ? Color.g0 : Color.g7)
+            .frame(alignment: .center)
     }
 
-    private func iconListView() -> some View {
-        HStack {
-            Circle().frame(width: 32, height: 32).foregroundStyle(Color.yellow1)
-            Circle().frame(width: 32, height: 32).foregroundStyle(Color.g0)
-            Circle().frame(width: 32, height: 32).foregroundStyle(Color.g0)
-            Circle().frame(width: 32, height: 32).foregroundStyle(Color.g0)
-            Circle().frame(width: 32, height: 32).foregroundStyle(Color.g0)
+    private func iconListView(for preset: Preset) -> some View {
+        HStack(spacing: 4) {
+            Image(vm.isPresetOccupied(preset.id) ? .picturestyleCircleIconGray : .picturestyleCircleIconWhite)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
+
+            Image(shootingModeIcon(for: preset))
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
+
+            Image(vm.isPresetOccupied(preset.id) ? .colortemperatureCircleIconGray : .colortemperatureCircleIconWhite)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
+
+            Image(vm.isPresetOccupied(preset.id) ? .exposureCircleIconGray : .exposureCircleIconWhite)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
+
+            Image(vm.isPresetOccupied(preset.id) ? .wbshiftCircleIconGray : .wbshiftCircleIconWhite)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
+        }
+    }
+
+    private func shootingModeIcon(for preset: Preset) -> ImageResource {
+        switch preset.shootingMode {
+        case .av: return vm.isPresetOccupied(preset.id) ? .shootingmodeAVCircleIconGray : .shootingmodeAVCircleIconWhite
+        case .tv: return vm.isPresetOccupied(preset.id) ? .shootingmodeTVCircleIconGray : .shootingmodeTVCircleIconWhite
+        case .p: return vm.isPresetOccupied(preset.id) ? .shootingmodePCircleIconGray : .shootingmodePCircleIconWhite
         }
     }
 
@@ -135,35 +163,17 @@ struct TrishotSelectionView: View {
             if let modeDescription = preset.modeDescription {
                 Text(modeDescription)
                     .font(.num6)
-                    .foregroundColor(Color.g0)
+                    .foregroundColor(isSelected ? Color.g0 : Color.g7)
                     .frame(alignment: .center)
             }
             Text(preset.isoDescription)
                 .font(.num6)
-                .foregroundColor(Color.g0)
+                .foregroundColor(isSelected ? Color.g0 : Color.g7)
                 .frame(alignment: .center)
 
         }
     }
 
-    private func doneButton() -> some View {
-        Button {
-            vm.send(.popToTrishotSetting)
-        } label: {
-            HStack {
-                Spacer()
-                Text("완료")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                Spacer()
-            }
-            .frame(height: 50)
-            .background(vm.currentSelectedPresetId != nil ? Color.yellow1 : Color.gray)
-            .cornerRadius(12)
-        }
-        .disabled(vm.currentSelectedPresetId == nil)
-        .padding()
-    }
 }
 
 #Preview {
