@@ -26,6 +26,14 @@ final class PresetViewModel {
     var selectedPresets: Set<UUID> = []
     var error: PresetError?
     
+    private var shootingControlService: ShootingControlServiceType
+    private var shootingSettingsService: ShootingSettingsServiceType
+    private var presetManager: PresetManagerType
+
+    enum Action {
+        case goToPresetDetail(ViewMode, CameraPreset?)
+    }
+    
     init(
         container: DIContainer,
         isPresetEditMode: Bool,

@@ -14,7 +14,7 @@ struct PresetDetailView: View {
     @State private var showUnsavedChangesAlert = false
     @Environment(\.dismiss) private var dismiss
     
-    init(preset: CameraPreset? = nil, mode: ViewMode = .view) {
+    init(preset: CameraPreset?, mode: ViewMode = .view) {
         self._vm = State(initialValue: PresetDetailViewModel(preset: preset, mode: mode))
     }
     

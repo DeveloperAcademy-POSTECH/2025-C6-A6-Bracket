@@ -22,8 +22,8 @@ struct NavigationRoutingView: View {
                 
         // Preset
         case .presetEditor(let mode, let preset):
-            Text("PresetEditor")
-//            PresetDetailView(vm: PresetDetailViewModel(container: container, presetDetailMode: mode, selectedPreset: preset))
+            PresetDetailView(preset: .init(name: "preset1"), mode: mode)
+
         // Photos
         case .photoSelection:
             PhotoSelectionView(vm: PhotoSelectionViewModel(container: container))
