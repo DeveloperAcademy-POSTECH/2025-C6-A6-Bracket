@@ -18,15 +18,12 @@ final class TrishotSelectionViewModel {
     var currentSelectedPresetId: UUID?
     var otherSelectedPresetIds: Set<UUID> = []
 
-    private var presetManager: PresetManagerType
-
     enum Action {
         case popToTrishotSetting
     }
 
     init(container: DIContainer, targetOrder: Int) {
         self.container = container
-        self.presetManager = container.managers.presetManager
         self.targetOrder = targetOrder
         loadPresets()
         loadSelectedPresets()
@@ -34,7 +31,7 @@ final class TrishotSelectionViewModel {
 
     private func loadPresets() {
         do {
-            allPresets = try presetManager.fetchAllPresets()
+            allPresets = try container.managers.presetManager.fetchAllPresets()
         } catch {
             print("Failed to load presets: \(error.localizedDescription)")
         }
@@ -42,7 +39,7 @@ final class TrishotSelectionViewModel {
 
     private func loadSelectedPresets() {
         do {
-            let selectedPresets = try presetManager.fetchSelectedPresets()
+            let selectedPresets = try container.managers.presetManager.fetchSelectedPresets()
 
             for (index, preset) in selectedPresets.enumerated() {
                 if index == targetOrder {
@@ -58,7 +55,7 @@ final class TrishotSelectionViewModel {
 
     func selectPreset(_ presetId: UUID) {
         do {
-            try presetManager.updateSelectedPresetAtOrder(order: targetOrder, presetId: presetId)
+            try container.managers.presetManager.updateSelectedPresetAtOrder(order: targetOrder, presetId: presetId)
             currentSelectedPresetId = presetId
         } catch {
             print("Failed to select preset: \(error.localizedDescription)")

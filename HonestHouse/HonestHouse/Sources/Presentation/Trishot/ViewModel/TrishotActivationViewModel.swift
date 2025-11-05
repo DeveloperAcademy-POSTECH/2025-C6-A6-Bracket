@@ -21,17 +21,8 @@ final class TrishotActivationViewModel {
     var error: TrishotError?
     var isScreenLocked: Bool = false
     
-    private var eventMonitorService: EventMonitorServiceType
-    private var shootingSettingsService: ShootingSettingsServiceType
-    private var shootingControlService: ShootingControlServiceType
-    private var presetManager: PresetManagerType
-    
     init(container: DIContainer) {
         self.container = container
-        self.eventMonitorService = container.services.eventMonitorService
-        self.shootingSettingsService = container.services.shootingSettingsService
-        self.shootingControlService = container.services.shootingControlService
-        self.presetManager = container.managers.presetManager
     }
 }
 
@@ -81,7 +72,7 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
     
     private func loadActivatedPresets() {
         do {
-            activatedPresets = try presetManager.fetchActivatedPresets()
+            activatedPresets = try container.managers.presetManager.fetchActivatedPresets()
             // 프리셋 이름 확인용 출력
             for preset in activatedPresets {
                 print(preset.name)
@@ -97,7 +88,7 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
             return
         }
 
-        let success = await eventMonitorService.startMonitoring(
+        let success = await container.services.eventMonitorService.startMonitoring(
             onEvent: { [weak self] event in
                 self?.handleEvent(event)
             },
@@ -118,7 +109,7 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
         guard isMonitoring else { return }
 
         do {
-            try await eventMonitorService.stopMonitoring()
+            try await container.services.eventMonitorService.stopMonitoring()
             isMonitoring = false
             error = nil
         } catch {
@@ -207,7 +198,7 @@ extension TrishotActivationViewModel {
     private func ignoreShootingMode(action: String) async throws {
         do {
             let request = ShootingControl.IgnoreShootingModeRequest(action: action)
-            try await shootingControlService.ignoreShootingMode(with: .ver100, request: request)
+            try await container.services.shootingControlService.ignoreShootingMode(with: .ver100, request: request)
         } catch let ccapiError as CCAPIError {
             throw TrishotError.from(ccapiError: ccapiError)
         } catch {
@@ -219,7 +210,7 @@ extension TrishotActivationViewModel {
         do {
             let request = ShootingSettings.ShootingModeRequest(value: value)
             // MARK: R50V 기준 ver110 사용.
-            _ = try await shootingSettingsService.putShootingMode(with: .ver110, request: request)
+            _ = try await container.services.shootingSettingsService.putShootingMode(with: .ver110, request: request)
         } catch let ccapiError as CCAPIError {
             throw TrishotError.from(ccapiError: ccapiError)
         } catch {
@@ -230,7 +221,7 @@ extension TrishotActivationViewModel {
     private func setPictureStyle(value: String) async throws {
         do {
             let request = ShootingSettings.PictureStyleRequest(value: value)
-            _ = try await shootingSettingsService.putPictureStyle(with: .ver100, request: request)
+            _ = try await container.services.shootingSettingsService.putPictureStyle(with: .ver100, request: request)
         } catch let ccapiError as CCAPIError {
             throw TrishotError.from(ccapiError: ccapiError)
         } catch {
@@ -241,7 +232,7 @@ extension TrishotActivationViewModel {
     private func setAperture(value: String) async throws {
         do {
             let request = ShootingSettings.AVRequest(value: value)
-            _ = try await shootingSettingsService.putAV(with: .ver100, request: request)
+            _ = try await container.services.shootingSettingsService.putAV(with: .ver100, request: request)
         } catch let ccapiError as CCAPIError {
             throw TrishotError.from(ccapiError: ccapiError)
         } catch {
@@ -252,7 +243,7 @@ extension TrishotActivationViewModel {
     private func setShutterSpeed(value: String) async throws {
         do {
             let request = ShootingSettings.TVRequest(value: value)
-            _ = try await shootingSettingsService.putTV(with: .ver100, request: request)
+            _ = try await container.services.shootingSettingsService.putTV(with: .ver100, request: request)
         } catch let ccapiError as CCAPIError {
             throw TrishotError.from(ccapiError: ccapiError)
         } catch {
@@ -263,7 +254,7 @@ extension TrishotActivationViewModel {
     private func setISO(value: String) async throws {
         do {
             let request = ShootingSettings.ISORequest(value: value)
-            _ = try await shootingSettingsService.putISO(with: .ver100, request: request)
+            _ = try await container.services.shootingSettingsService.putISO(with: .ver100, request: request)
         } catch let ccapiError as CCAPIError {
             throw TrishotError.from(ccapiError: ccapiError)
         } catch {
@@ -274,7 +265,7 @@ extension TrishotActivationViewModel {
     private func setExposureCompensation(value: String) async throws {
         do {
             let request = ShootingSettings.ExposureCompensationRequest(value: value)
-            _ = try await shootingSettingsService.putExposureCompensation(with: .ver100, request: request)
+            _ = try await container.services.shootingSettingsService.putExposureCompensation(with: .ver100, request: request)
         } catch let ccapiError as CCAPIError {
             throw TrishotError.from(ccapiError: ccapiError)
         } catch {
@@ -285,7 +276,7 @@ extension TrishotActivationViewModel {
     private func setColorTemperature(value: Int) async throws {
         do {
             let request = ShootingSettings.ColorTemperatureRequest(value: value)
-            _ = try await shootingSettingsService.putColorTemperature(with: .ver100, request: request)
+            _ = try await container.services.shootingSettingsService.putColorTemperature(with: .ver100, request: request)
         } catch let ccapiError as CCAPIError {
             throw TrishotError.from(ccapiError: ccapiError)
         } catch {
@@ -297,7 +288,7 @@ extension TrishotActivationViewModel {
         do {
             let wbShift = ShootingSettings.WBShiftRequest.WBShift(blueAmber: blueAmber, magentaGreen: magentaGreen)
             let request = ShootingSettings.WBShiftRequest(value: wbShift)
-            _ = try await shootingSettingsService.putWbShift(with: .ver100, request: request)
+            _ = try await container.services.shootingSettingsService.putWbShift(with: .ver100, request: request)
         } catch let ccapiError as CCAPIError {
             throw TrishotError.from(ccapiError: ccapiError)
         } catch {
@@ -307,12 +298,12 @@ extension TrishotActivationViewModel {
     
     /// Ability Information 가져오기, 확인용
     private func getAbilityInformation() async throws {
-        let r1 = try await shootingSettingsService.getAV(with: .ver100)
-        let r2 = try await shootingSettingsService.getTV(with: .ver100)
-        let r3 = try await shootingSettingsService.getISO(with: .ver100)
-        let r4 = try await shootingSettingsService.getExposureCompensation(with: .ver100)
-        let r5 = try await shootingSettingsService.getColorTemperature(with: .ver100)
-        let r6 = try await shootingSettingsService.getWbShift(with: .ver100)
+        let r1 = try await container.services.shootingSettingsService.getAV(with: .ver100)
+        let r2 = try await container.services.shootingSettingsService.getTV(with: .ver100)
+        let r3 = try await container.services.shootingSettingsService.getISO(with: .ver100)
+        let r4 = try await container.services.shootingSettingsService.getExposureCompensation(with: .ver100)
+        let r5 = try await container.services.shootingSettingsService.getColorTemperature(with: .ver100)
+        let r6 = try await container.services.shootingSettingsService.getWbShift(with: .ver100)
         
         print(r1)
         print(r2)

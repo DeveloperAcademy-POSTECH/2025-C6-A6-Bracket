@@ -22,19 +22,16 @@ final class TrishotSettingViewModel {
     var allSelectedPresets: [Preset] = []
     var activatedPresets: [Preset] = []
     var error: TrishotError?
-
-    private var presetManager: PresetManagerType
     
     init(container: DIContainer) {
         self.container = container
-        self.presetManager = container.managers.presetManager
         loadPresets()
     }
 
     func loadPresets() {
         do {
-            allSelectedPresets = try presetManager.fetchSelectedPresets()
-            activatedPresets = try presetManager.fetchActivatedPresets()
+            allSelectedPresets = try container.managers.presetManager.fetchSelectedPresets()
+            activatedPresets = try container.managers.presetManager.fetchActivatedPresets()
             error = nil
         } catch {
             handleError(error)
@@ -85,15 +82,15 @@ extension TrishotSettingViewModel {
             }
 
             do {
-                try presetManager.toggleSelectedPresetActivation(presetId: presetId)
-                try presetManager.toggleSelectedPresetActivation(presetId: presetToActivate.id)
+                try container.managers.presetManager.toggleSelectedPresetActivation(presetId: presetId)
+                try container.managers.presetManager.toggleSelectedPresetActivation(presetId: presetToActivate.id)
                 loadPresets()
             } catch {
                 handleError(error)
             }
         } else {
             do {
-                try presetManager.toggleSelectedPresetActivation(presetId: presetId)
+                try container.managers.presetManager.toggleSelectedPresetActivation(presetId: presetId)
                 loadPresets()
             } catch {
                 handleError(error)
