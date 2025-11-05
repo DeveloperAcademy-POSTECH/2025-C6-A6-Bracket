@@ -66,6 +66,7 @@ class PresetDetailViewModel {
         guard currentPreset.shootingMode != mode else { return }
         
         currentPreset.shootingMode = mode
+        activeSlider = nil
         
         // Auto 처리를 위해 적절한 nil 설정
         switch mode {

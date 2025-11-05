@@ -146,29 +146,30 @@ struct PresetDetailView: View {
         Group {
             switch type {
             case .aperture:
-                
-                CustomWheelPickerView(
-                    selectedValue: $vm.currentPreset.aperture,
-                    items: vm.getApertureValues(),
-                    config: .init(
-                        spacing: 22,
-                        itemSize: .init(width: 50, height: 24)
+                if vm.currentPreset.shootingMode == .av {
+                    CustomWheelPickerView(
+                        selectedValue: $vm.currentPreset.aperture,
+                        items: vm.getApertureValues(),
+                        config: .init(
+                            spacing: 22,
+                            itemSize: .init(width: 50, height: 24)
+                        )
                     )
-                )
-
+                }
                 
                 
             case .shutterSpeed:
-                CustomWheelPickerView(
-                    selectedValue: $vm.currentPreset.shutterSpeed,
-                    items: vm.getShutterSpeedValues(),
-                    config: .init(
-                        spacing: 22,
-                        itemSize: .init(width: 50, height: 24)
+                if vm.currentPreset.shootingMode == .tv {
+                    CustomWheelPickerView(
+                        selectedValue: $vm.currentPreset.shutterSpeed,
+                        items: vm.getShutterSpeedValues(),
+                        config: .init(
+                            spacing: 22,
+                            itemSize: .init(width: 50, height: 24)
+                        )
                     )
-                )
-                
-                
+                    
+                }
             case .iso:
                 CustomWheelPickerView(
                     selectedValue: $vm.currentPreset.iso,
@@ -289,14 +290,15 @@ struct PresetDetailView: View {
     
     private func handleSettingButtonTap(_ type: SettingType) {
         guard vm.viewMode != .view else {
-            // 조회 모드에서는 편집 모드로 전환
             vm.switchToEditMode()
             return
         }
         
-        guard vm.isSettingEditable(type) else { return }
+        // 편집 불가능한 설정은 무시
+        guard vm.isSettingEditable(type) else {
+            return
+        }
         
-        // Toggle slider visibility
         if vm.activeSlider == type {
             vm.activeSlider = nil
         } else {
