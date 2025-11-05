@@ -150,27 +150,27 @@ struct PresetActivationToggleView: View {
         return HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .center) {
                 HStack(spacing: iconSpacing) {
-                    Image(pictureStyleIconName)
+                    Image(pictureStyleIcon)
                         .resizable()
                         .scaledToFit()
                         .frame(width: iconSize, height: iconSize)
 
-                    Image(shootingModeIconName)
+                    Image(shootingModeIcon)
                         .resizable()
                         .scaledToFit()
                         .frame(width: iconSize, height: iconSize)
 
-                    Image(colorTemperatureIconName)
+                    Image(colorTemperatureIcon)
                         .resizable()
                         .scaledToFit()
                         .frame(width: iconSize, height: iconSize)
 
-                    Image(exposureIconName)
+                    Image(exposureIcon)
                         .resizable()
                         .scaledToFit()
                         .frame(width: iconSize, height: iconSize)
 
-                    Image(wbShiftIconName)
+                    Image(wbShiftIcon)
                         .resizable()
                         .scaledToFit()
                         .frame(width: iconSize, height: iconSize)
@@ -193,49 +193,49 @@ struct PresetActivationToggleView: View {
         }
     }
 
-    private var pictureStyleIconName: String {
-        guard isActivated else { return "picturestyleCircleIconGray" }
+    private var pictureStyleIcon: ImageResource {
+        guard isActivated else { return .picturestyleCircleIconGray }
         let isAuto = preset.pictureStyle == .auto
-        return isAuto ? "picturestyleCircleIconGray" : "picturestyleCircleIconYellow"
+        return isAuto ? .picturestyleCircleIconGray : .picturestyleCircleIconYellow
     }
 
-    private var shootingModeIconName: String {
+    private var shootingModeIcon: ImageResource {
         guard isActivated else {
             switch preset.shootingMode {
-            case .av: return "shootingmodeAVCircleIconGray"
-            case .tv: return "shootingmodeTVCircleIconGray"
-            case .p: return "shootingmodePCircleIconGray"
+            case .av: return .shootingmodeAVCircleIconGray
+            case .tv: return .shootingmodeTVCircleIconGray
+            case .p: return .shootingmodePCircleIconGray
             }
         }
 
         switch preset.shootingMode {
         case .av:
-            return "shootingmodeAVCircleIconYellow"
+            return .shootingmodeAVCircleIconYellow
         case .tv:
-            return "shootingmodeTVCircleIconYellow"
+            return .shootingmodeTVCircleIconYellow
         case .p:
-            return "shootingmodePCircleIconYellow"
+            return .shootingmodePCircleIconYellow
         }
     }
 
-    private var colorTemperatureIconName: String {
-        guard isActivated else { return "colortemperatureCircleIconGray" }
+    private var colorTemperatureIcon: ImageResource {
+        guard isActivated else { return .colortemperatureCircleIconGray }
         let isDefault = preset.colorTemperature == nil || preset.colorTemperature == 5000
-        return isDefault ? "colortemperatureCircleIconGray" : "colortemperatureCircleIconYellow"
+        return isDefault ? .colortemperatureCircleIconGray : .colortemperatureCircleIconYellow
     }
 
-    private var exposureIconName: String {
-        guard isActivated else { return "exposureCircleIconGray" }
+    private var exposureIcon: ImageResource {
+        guard isActivated else { return .exposureCircleIconGray }
         let isDefault = preset.exposureCompensation == nil || preset.exposureCompensation == "+0.0"
-        return isDefault ? "exposureCircleIconGray" : "exposureCircleIconYellow"
+        return isDefault ? .exposureCircleIconGray : .exposureCircleIconYellow
     }
 
-    private var wbShiftIconName: String {
-        guard isActivated else { return "wbshiftCircleIconGray" }
+    private var wbShiftIcon: ImageResource {
+        guard isActivated else { return .wbshiftCircleIconGray }
         let ba = preset.tintBlueAmber ?? 0
         let mg = preset.tintMagentaGreen ?? 0
         let isDefault = ba == 0 && mg == 0
-        return isDefault ? "wbshiftCircleIconGray" : "wbshiftCircleIconYellow"
+        return isDefault ? .wbshiftCircleIconGray : .wbshiftCircleIconYellow
     }
 }
 
