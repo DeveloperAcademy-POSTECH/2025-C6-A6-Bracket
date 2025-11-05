@@ -14,8 +14,9 @@ struct CustomWheelPicker<SelectionValue, Content>: View where SelectionValue: Ha
     
     @Binding private var selection: SelectionValue
     
-    private let items: [SelectionValue]
-    private let content: (SelectionValue) -> Content
+    private var items: [SelectionValue]
+    private var content: (SelectionValue) -> Content
+    
     private let config: Config
     private let hapticFeedback = UIImpactFeedbackGenerator(style: .light)
     

@@ -50,8 +50,6 @@ struct SettingButton: View {
     
     private var isInteractive: Bool {
         state == .active
-//        (state != .disabled) || (state != .viewOnly)
-//        state != .disabled
     }
     
     var body: some View {
@@ -83,22 +81,9 @@ struct SettingButton: View {
                         Circle()
                             .stroke(strokeColor)
                     }
-                    
-                
-//                Text(type.rawValue)
-//                    .font(.num6)
-//                    .foregroundColor(foregroundColor)
-//                    .frame(width: buttonWidth(for: type), height: buttonHeight(for: type))
-//                    .background(backgroundColor)
-//                    .clipShape(Circle())
-//                    .overlay(
-//                        Circle()
-//                            .stroke(isSelected ? Color.white : Color.clear, lineWidth: 2)
-//                    )
             }
             
             .disabled(!isInteractive)
-//            .scaleEffect(isSelected ? 1.05 : 1.0)
             .animation(.easeInOut(duration: 0.15), value: isSelected)
         }
     }
@@ -122,30 +107,26 @@ struct SettingButton: View {
     }
 }
 
-// MARK: - Camera Mode Selector
-// CameraModeSelector 정의
 struct CameraModeSelector: View {
     @Binding var selectedMode: CameraMode
     let isEnabled: Bool
-    // onSelect 제거 - @Binding이 이미 처리
     
     var body: some View {
         HStack(spacing: 20) {
             ForEach(CameraMode.allCases, id: \.self) { mode in
-                Button(action: {
+                Button {
                     if isEnabled {
                         selectedMode = mode  // 직접 Binding 업데이트
                     }
-                }) {
+                } label: {
                     Text(mode.rawValue)
-                    // ...
                 }
             }
         }
     }
 }
 
-// MARK: - Value Slider Component
+// TODO : 삭제 예정
 struct ValueSlider: View {
     let title: String
     @Binding var selectedIndex: Int
