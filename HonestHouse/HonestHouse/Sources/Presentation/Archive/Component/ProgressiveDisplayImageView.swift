@@ -12,9 +12,7 @@ import Kingfisher
 struct ProgressiveDisplayImageView: View {
     @State private var shouldUseFallback = false
     
-    let thumbnailURL: String
-    let displayURL: String
-    let originalURL: String  // Display 실패 시 fallback
+    let photo: Photo
     let onImageLoaded: (() -> Void)?  // 이미지 로딩 완료 콜백
     
     
@@ -22,10 +20,10 @@ struct ProgressiveDisplayImageView: View {
         Group {
             if shouldUseFallback {
                 // Display 실패 시 원본 사용
-                originalImageView(url: originalURL)
+                originalImageView(url: photo.url)
             } else {
                 // Display 먼저 시도
-                displayImageView(url: displayURL)
+                displayImageView(url: photo.displayURL)
             }
         }
     }
@@ -33,14 +31,14 @@ struct ProgressiveDisplayImageView: View {
     private func displayImageView(url: String) -> some View {
         KFImage(URL(string: url))
             .placeholder {
-                thumbnailImageView(url: thumbnailURL)
+                thumbnailImageView(url: photo.thumbnailURL)
             }
             .onSuccess { _ in
                 onImageLoaded?()
             }
             .onFailure { error in
-                print("[Display] Failed: \(displayURL) - \(error.localizedDescription)")
-                print("[Fallback] Using original: \(originalURL)")
+                print("[Display] Failed: \(photo.displayURL) - \(error.localizedDescription)")
+                print("[Fallback] Using original: \(photo.url)")
                 shouldUseFallback = true
             }
             .retry(maxCount: 2, interval: .seconds(2))
@@ -53,7 +51,7 @@ struct ProgressiveDisplayImageView: View {
     private func originalImageView(url: String) -> some View {
         KFImage(URL(string: url))
             .placeholder {
-                thumbnailImageView(url: thumbnailURL)
+                thumbnailImageView(url: photo.thumbnailURL)
             }
             .onSuccess { _ in
                 onImageLoaded?()

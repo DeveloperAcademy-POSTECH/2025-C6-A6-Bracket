@@ -49,9 +49,7 @@ struct PhotoSelectionDetailView: View {
     private func photoDetailView(photo: Photo) -> some View {
         ZStack(alignment: .bottomTrailing) {
             ProgressiveDisplayImageView(
-                thumbnailURL: photo.thumbnailURL,
-                displayURL: photo.displayURL,
-                originalURL: photo.url,
+                photo: photo,
                 onImageLoaded: {
                     loadedImages.insert(photo.url)
                 }

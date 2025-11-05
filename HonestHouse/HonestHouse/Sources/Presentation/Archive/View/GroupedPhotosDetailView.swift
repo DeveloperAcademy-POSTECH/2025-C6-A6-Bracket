@@ -35,9 +35,7 @@ struct GroupedPhotosDetailView: View {
         ZStack(alignment: .bottomTrailing) {
             // Progressive Display Image (Thumbnail → Display → Display 실패 시 원본)
             ProgressiveDisplayImageView(
-                thumbnailURL: photo.thumbnailURL,
-                displayURL: photo.displayURL,
-                originalURL: photo.url,
+                photo: photo,
                 onImageLoaded: {
                     loadedImages.insert(photo.url)
                 }
