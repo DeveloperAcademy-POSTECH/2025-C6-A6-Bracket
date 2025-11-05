@@ -17,7 +17,8 @@ enum CCAPIError: Error {
     case notAuthenticated
     case maxRetriesExceeded
     case decodingFailed(String)
-    case deviceUnavailable(String)
+    case deviceBusy(String)
+    case deviceShooting(String)
     case urlNotFound
     case badRequest(String)
     case httpError(Int)
@@ -42,8 +43,10 @@ enum CCAPIError: Error {
             return "Maximum authentication retries exceeded"
         case .decodingFailed(let message):
             return "JSON decoding failed: \(message)"
-        case .deviceUnavailable(let message):
-            return "Device unavailable: \(message)"
+        case .deviceBusy(let message):
+            return "Device busy: \(message)"
+        case .deviceShooting(let message):
+            return "Device is shooting or recording: \(message)"
         case .urlNotFound:
             return "URL not found"
         case .badRequest(let message):
