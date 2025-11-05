@@ -6,7 +6,6 @@
 //
 
 extension ImageOperations {
-    
     /// 콘텐츠 리스트
     struct ContentListResponse: BaseResponse {
         let url: [String]?

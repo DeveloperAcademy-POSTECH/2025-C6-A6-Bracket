@@ -9,10 +9,11 @@ import SwiftUI
 import Kingfisher
 
 struct SelectionGridCellView: View {
+    @Environment(PhotoSelectionViewModel.self) var vm
+    
     let photo: Photo
     let isSelected: Bool
     let onTapSelectionGridCell: () -> Void
-    @Environment(PhotoSelectionViewModel.self) var vm
     
     var body: some View {
         ZStack(alignment: .bottomTrailing) {

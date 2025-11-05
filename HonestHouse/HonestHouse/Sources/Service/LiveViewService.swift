@@ -9,13 +9,17 @@ import Foundation
 import UIKit
 
 protocol LiveViewServiceType {
-    func startLiveView(onFrame: @escaping (ParsedFrame) -> Void, onError: @escaping (Error) -> Void, size: String, display: String) async -> Bool
-    func stopLiveView() async throws
+    func startLiveView(
+        onFrame: @escaping (ParsedFrame) -> Void,
+        onError: @escaping (Error) -> Void,
+        size: String,
+        display: String
+    ) async -> Bool
     
+    func stopLiveView() async throws
 }
 
-class LiveViewService: StreamService, LiveViewServiceType {
-    // MARK: - Properties
+final class LiveViewService: StreamService, LiveViewServiceType {
 
     private lazy var parser: ChunkedStreamParser = {
         return ChunkedStreamParser(streamType: .scroll)
@@ -25,8 +29,6 @@ class LiveViewService: StreamService, LiveViewServiceType {
         super.init()
     }
 
-    // MARK: - Configuration Override
-
     override var endpoint: String {
         return "ver100/shooting/liveview/scroll"
     }
@@ -35,7 +37,6 @@ class LiveViewService: StreamService, LiveViewServiceType {
         return "GET"
     }
 
-    // MARK: - Public Methods
     func startLiveView(
         onFrame: @escaping (ParsedFrame) -> Void,
         onError: @escaping (Error) -> Void,
@@ -56,7 +57,7 @@ class LiveViewService: StreamService, LiveViewServiceType {
                         await self.parser.appendChunk(data)
                         let frames = await self.parser.extractFrames()
                         if !frames.isEmpty {
-                            print("✅ Parsed \(frames.count) frame(s)")
+                            Logger.debug("Parsed \(frames.count) frame(s)", category: .network)
                             await MainActor.run {
                                 for frame in frames {
                                     onFrame(frame)
@@ -68,7 +69,7 @@ class LiveViewService: StreamService, LiveViewServiceType {
                 onError: onError
             )
         } catch {
-            print("❌ Failed to enable LiveView: \(error)")
+            Logger.error("Failed to enable LiveView: \(error)", category: .network)
             onError(error)
             return false
         }
@@ -79,8 +80,6 @@ class LiveViewService: StreamService, LiveViewServiceType {
         await parser.reset()
         try await disableLiveView()
     }
-
-    // MARK: - Private Methods - LiveView Control
 
     private func enableLiveView(size: String, display: String) async throws {
         let url = URL(string: "\(BaseURLConstants.baseURL)ver100/shooting/liveview")!
@@ -101,21 +100,21 @@ class LiveViewService: StreamService, LiveViewServiceType {
             body: bodyData
         ) {
             request.setValue(authHeader, forHTTPHeaderField: "Authorization")
-            print("🔑 Auth header added to enableLiveView")
+            Logger.debug("Auth header added to enableLiveView", category: .network)
         }
 
         let session = createSSLTrustingSession()
         let (data, response) = try await session.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse {
-            print("📡 EnableLiveView response: \(httpResponse.statusCode)")
+            Logger.debug("EnableLiveView response: \(httpResponse.statusCode)", category: .network)
 
             if httpResponse.statusCode == 200 {
-                print("✅ LiveView enabled successfully")
+                Logger.info("LiveView enabled successfully", category: .network)
                 return
             } else {
                 if let responseString = String(data: data, encoding: .utf8) {
-                    print("   Error response: \(responseString)")
+                    Logger.error("Error response: \(responseString)", category: .network)
                 }
                 throw CCAPIError.httpError(httpResponse.statusCode)
             }
@@ -147,7 +146,7 @@ class LiveViewService: StreamService, LiveViewServiceType {
 
         let session = createSSLTrustingSession()
         _ = try? await session.data(for: request)
-        print("✅ LiveView disabled")
+        Logger.info("LiveView disabled", category: .network)
     }
 
     private func createSSLTrustingSession() -> URLSession {
@@ -155,91 +154,90 @@ class LiveViewService: StreamService, LiveViewServiceType {
         return URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
     }
 
-    // MARK: - Private Methods - Data Processing
-
     private func handleReceivedData(_ data: Data, onFrame: @escaping (ParsedFrame) -> Void) {
         var buffer = data
 
-        print("🔄 handleReceivedData called with \(data.count) bytes")
+        Logger.debug("handleReceivedData called with \(data.count) bytes", category: .network)
 
         var frameCount = 0
         while let frame = parseFrame(&buffer) {
             frameCount += 1
-            print("✅ Frame #\(frameCount) parsed successfully (type: \(frame.type))")
+            Logger.debug("Frame #\(frameCount) parsed successfully (type: \(frame.type))", category: .network)
             onFrame(frame)
         }
 
         if frameCount == 0 {
-            print("⚠️ No complete frames found in buffer")
-            print("   Buffer size: \(buffer.count) bytes")
+            Logger.warning("No complete frames found in buffer", category: .network)
+            Logger.debug("Buffer size: \(buffer.count) bytes", category: .network)
             if buffer.count > 0 {
-                print("   Buffer content (hex): \(buffer.prefix(50).map { String(format: "%02X", $0) }.joined(separator: " "))")
+                Logger.debug("Buffer content (hex): \(buffer.prefix(50).map { String(format: "%02X", $0) }.joined(separator: " "))", category: .network)
             }
         } else {
-            print("📊 Parsed \(frameCount) frame(s), \(buffer.count) bytes remaining")
+            Logger.debug("Parsed \(frameCount) frame(s), \(buffer.count) bytes remaining", category: .network)
         }
     }
 
     private func parseFrame(_ buffer: inout Data) -> ParsedFrame? {
-        print("🔍 parseFrame: buffer size = \(buffer.count) bytes")
+        Logger.debug("parseFrame: buffer size = \(buffer.count) bytes", category: .network)
 
         guard buffer.count >= 9 else {
-            print("   ⏸️  Buffer too small (< 9 bytes), waiting for more data")
+            Logger.debug("Buffer too small (< 9 bytes), waiting for more data", category: .network)
             return nil
         }
 
-        print("   Checking Start Byte: [0]=0x\(String(format: "%02X", buffer[0])) [1]=0x\(String(format: "%02X", buffer[1]))")
+        Logger.debug("Checking Start Byte: [0]=0x\(String(format: "%02X", buffer[0])) [1]=0x\(String(format: "%02X", buffer[1]))", category: .network)
         guard buffer[0] == 0xFF && buffer[1] == 0x00 else {
-            print("   ❌ Invalid Start Byte!")
+            Logger.warning("Invalid Start Byte", category: .network)
             if let startIndex = buffer.firstIndex(where: { $0 == 0xFF }) {
-                print("   🔎 Found 0xFF at index \(startIndex), skipping \(startIndex) bytes")
+                Logger.debug("Found 0xFF at index \(startIndex), skipping \(startIndex) bytes", category: .network)
                 buffer = buffer.suffix(from: startIndex)
             } else {
-                print("   🗑️  No 0xFF found, clearing entire buffer")
+                Logger.debug("No 0xFF found, clearing entire buffer", category: .network)
                 buffer.removeAll()
             }
             return nil
         }
-        print("   ✓ Start Byte OK")
+        Logger.debug("Start Byte OK", category: .network)
 
-        print("   Checking Data Type: [2]=0x\(String(format: "%02X", buffer[2]))")
+        Logger.debug("Checking Data Type: [2]=0x\(String(format: "%02X", buffer[2]))", category: .network)
         guard let dataType = DataType(rawValue: buffer[2]) else {
-            print("   ❌ Invalid Data Type! (0x\(String(format: "%02X", buffer[2])))")
+            Logger.warning("Invalid Data Type (0x\(String(format: "%02X", buffer[2])))", category: .network)
             buffer.removeFirst(3)
             return nil
         }
-        print("   ✓ Data Type OK (\(dataType))")
+        Logger.debug("Data Type OK (\(dataType))", category: .network)
 
         let dataSize = UInt32(buffer[3]) << 24 |
                       UInt32(buffer[4]) << 16 |
                       UInt32(buffer[5]) << 8 |
                       UInt32(buffer[6])
 
-        print("   Data Size bytes: [3]=0x\(String(format: "%02X", buffer[3])) [4]=0x\(String(format: "%02X", buffer[4])) [5]=0x\(String(format: "%02X", buffer[5])) [6]=0x\(String(format: "%02X", buffer[6]))")
-        print("   ➡️  Data Size = \(dataSize) bytes")
+        Logger.debug("Data Size bytes: [3]=0x\(String(format: "%02X", buffer[3])) [4]=0x\(String(format: "%02X", buffer[4])) [5]=0x\(String(format: "%02X", buffer[5])) [6]=0x\(String(format: "%02X", buffer[6]))", category: .network)
+        Logger.debug("Data Size = \(dataSize) bytes", category: .network)
 
         let totalSize = 7 + Int(dataSize) + 2
-        print("   Total frame size = \(totalSize) bytes (header:7 + data:\(dataSize) + end:2)")
+        Logger.debug("Total frame size = \(totalSize) bytes (header:7 + data:\(dataSize) + end:2)", category: .network)
 
         guard buffer.count >= totalSize else {
-            print("   ⏸️  Buffer too small (need \(totalSize), have \(buffer.count)), waiting for more data")
+            Logger.debug("Buffer too small (need \(totalSize), have \(buffer.count)), waiting for more data", category: .network)
             return nil
         }
 
         let endByteIndex = 7 + Int(dataSize)
-        print("   Checking End Byte at index \(endByteIndex): [0x\(String(format: "%02X", buffer[endByteIndex]))] [0x\(String(format: "%02X", buffer[endByteIndex + 1]))]")
+        Logger.debug("Checking End Byte at index \(endByteIndex): [0x\(String(format: "%02X", buffer[endByteIndex]))] [0x\(String(format: "%02X", buffer[endByteIndex + 1]))]", category: .network)
+        
         guard buffer[endByteIndex] == 0xFF && buffer[endByteIndex + 1] == 0xFF else {
-            print("   ❌ Invalid End Byte! (expected 0xFF 0xFF)")
+            Logger.warning("Invalid End Byte (expected 0xFF 0xFF)", category: .network)
             buffer.removeFirst(7)
             return nil
         }
-        print("   ✓ End Byte OK")
+        Logger.debug("End Byte OK", category: .network)
 
         let frameData = buffer[7..<(7 + Int(dataSize))]
-        print("   📄 Extracting frame data: \(frameData.count) bytes")
+        Logger.debug("Extracting frame data: \(frameData.count) bytes", category: .network)
 
         buffer.removeFirst(totalSize)
-        print("   🗑️  Removed \(totalSize) bytes from buffer, remaining: \(buffer.count) bytes")
+        Logger.debug("Removed \(totalSize) bytes from buffer, remaining: \(buffer.count) bytes", category: .network)
 
         let frame = ParsedFrame(
             type: dataType,
@@ -250,27 +248,25 @@ class LiveViewService: StreamService, LiveViewServiceType {
         switch dataType {
         case .image:
             if let image = frame.image {
-                print("   ✅ JPEG decoded successfully: \(image.size.width)x\(image.size.height)")
+                Logger.debug("JPEG decoded successfully: \(image.size.width)x\(image.size.height)", category: .network)
             } else {
-                print("   ⚠️ JPEG decoding failed")
+                Logger.warning("JPEG decoding failed", category: .network)
             }
         case .info:
             if let info = frame.info {
-                print("   ✅ Info decoded successfully: \(info.afFrame?.count ?? 0) AF frames")
+                Logger.debug("Info decoded successfully: \(info.afFrame?.count ?? 0) AF frames", category: .network)
             } else {
-                print("   ⚠️ Info decoding failed")
+                Logger.warning("Info decoding failed", category: .network)
             }
         case .event:
-            print("   📢 Event frame received")
+            Logger.debug("Event frame received", category: .network)
         }
 
         return frame
     }
 }
 
-// MARK: - SSL Trust Delegate
-
-private class SSLTrustDelegate: NSObject, URLSessionDelegate {
+private final class SSLTrustDelegate: NSObject, URLSessionDelegate {
     func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
@@ -299,5 +295,4 @@ final class StubLiveViewService: LiveViewServiceType {
     func stopLiveView() async throws {
         return
     }
-
 }

@@ -5,8 +5,6 @@
 //  Created by BoMin Lee on 10/29/25.
 //
 
-import Foundation
-
 enum ShootingControlAPI {
     case ignoreShootingMode
     

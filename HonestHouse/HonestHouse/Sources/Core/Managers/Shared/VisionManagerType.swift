@@ -5,7 +5,6 @@
 //  Created by Rama on 10/26/25.
 //
 
-import Foundation
 import Vision
 
 protocol VisionManagerType {

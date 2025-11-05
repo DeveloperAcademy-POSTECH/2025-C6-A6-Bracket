@@ -4,7 +4,6 @@ struct CameraConnectionView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var container: DIContainer
     
-    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -12,7 +11,6 @@ struct CameraConnectionView: View {
                 
                 VStack(spacing: 78) {
                     connectImageView()
-                    
                     connectButtonView(type: .ip)
                 }
                 .toolbar {

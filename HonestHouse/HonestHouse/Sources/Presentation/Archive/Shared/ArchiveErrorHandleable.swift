@@ -13,6 +13,7 @@ protocol ArchiveErrorHandleable: AnyObject {
     associatedtype Failure: Error & Equatable
 
     var state: ArchiveState<Success, Failure> { get set }
+    
     func handleError(_ error: Error)
 }
 

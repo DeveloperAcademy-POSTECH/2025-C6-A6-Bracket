@@ -5,8 +5,6 @@
 //  Created by Subeen on 10/22/25.
 //
 
-import Foundation
-
 struct ColorTemperature {
     let value: Int?
     let ability: Ability?

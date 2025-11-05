@@ -6,7 +6,6 @@
 //
 
 extension ShootingSettings {
-    
     /// 4.9.5. AV 조리개
     struct AVResponse: BaseResponse {
         let value: String?

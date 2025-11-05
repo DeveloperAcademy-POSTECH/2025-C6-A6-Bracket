@@ -6,7 +6,6 @@
 //
 
 extension ImageOperations {
-    
     /// 디렉토리 리스트
     struct DirectoryListResponse: BaseResponse {
         let url: [String]?

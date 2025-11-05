@@ -5,9 +5,10 @@
 //  Created by Rama on 10/23/25.
 //
 
-import SwiftUI
+import Foundation
 
 struct Photo: Identifiable, SelectableItem {
+    
     let id = UUID()
     var url: String
     var mediaType: MediaType
@@ -36,14 +37,13 @@ struct Photo: Identifiable, SelectableItem {
     }
 }
 
-// MARK: - Equatable & Hashable Conformance
 extension Photo: Equatable, Hashable {
-    /// URL을 기준으로 동일성 비교 (UUID는 무시)
+    // URL을 기준으로 동일성 비교 (UUID는 무시)
     static func == (lhs: Photo, rhs: Photo) -> Bool {
         lhs.url == rhs.url && lhs.mediaType == rhs.mediaType
     }
     
-    /// URL을 기반으로 hash 생성 (UUID는 무시)
+    // URL을 기반으로 hash 생성 (UUID는 무시)
     func hash(into hasher: inout Hasher) {
         hasher.combine(url)
         hasher.combine(mediaType)

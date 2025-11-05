@@ -14,9 +14,9 @@ struct GroupedPhotosView: View {
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     
-    let columnCount: Int = 2
+    private let columnCount: Int = 2
     
-    var columns: [GridItem] {
+    private var columns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: 9), count: columnCount)
     }
     
@@ -69,7 +69,6 @@ struct GroupedPhotosView: View {
         .onChange(of: vm.savingState) { _, newState in
             switch newState {
             case .success:
-                // 성공 후 메인으로 이동
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                     vm.goToMain()
                 }
@@ -121,7 +120,6 @@ struct GroupedPhotosView: View {
     
     private func savingProgressView(current: Int, total: Int) -> some View {
         ZStack {
-            // 반투명 배경
             Color.black.opacity(0.8)
                 .ignoresSafeArea()
 
@@ -130,7 +128,6 @@ struct GroupedPhotosView: View {
                     .font(.num2)
                     .foregroundColor(.white)
 
-                // 프로그레스 바
                 ProgressView(value: Double(current), total: Double(total))
                     .progressViewStyle(LinearProgressViewStyle(tint: Color.yellow1))
                     .frame(maxWidth: .infinity)
@@ -141,7 +138,6 @@ struct GroupedPhotosView: View {
     
     private func SuccessSavingView() -> some View {
         ZStack {
-            // 반투명 배경
             Color.black.opacity(0.8)
                 .ignoresSafeArea()
 

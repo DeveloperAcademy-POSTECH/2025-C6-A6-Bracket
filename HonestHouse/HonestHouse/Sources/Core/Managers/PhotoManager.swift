@@ -16,7 +16,10 @@ final class PhotoManager: PhotoManagerType {
         self.imageLoader = imageLoader
     }
     
-    func savePhotos(photos: [Photo], onProgress: ((Int, Int) -> Void)? = nil) async throws {
+    func savePhotos(
+        photos: [Photo],
+        onProgress: ((Int, Int) -> Void)? = nil
+    ) async throws {
         try await requestAuthorization()
         let album = try await getOrCreateAlbum(albumName: albumName)
 
@@ -93,8 +96,6 @@ final class PhotoManager: PhotoManagerType {
         }
     }
 }
-
-// MARK: - StubPhotoManager
 
 final class StubPhotoManager: PhotoManagerType {
     func savePhotos(photos: [Photo], onProgress: ((Int, Int) -> Void)? = nil) async throws {

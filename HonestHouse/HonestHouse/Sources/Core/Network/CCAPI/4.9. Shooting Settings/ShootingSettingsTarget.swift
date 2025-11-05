@@ -15,20 +15,20 @@ enum ShootingSettingsTarget {
     case putShootingModeDial(ShootingSettings.ShootingModeRequest)               /// 사진촬영 모드(다이얼 있는)
     case getAv                                                                   /// 조리개
     case putAv(ShootingSettings.AVRequest)                                       /// 조리개
-    case getTv                                          /// 셔터스피드
-    case putTv(ShootingSettings.TVRequest)                      /// 셔터스피드
-    case getIso                                         /// ISO
-    case putIso(ShootingSettings.ISORequest)                     /// ISO
-    case getExposureCompensation                        /// 노출보정
-    case putExposureCompensation(ShootingSettings.ExposureCompensationRequest)    /// 노출보정
-    case getWhiteBalance                                /// 화이트밸런스
-    case putWhiteBalance(ShootingSettings.WhiteBalanceRequest)            /// 화이트밸런스
-    case getColorTemperature                             /// 색온도
-    case putColorTemperature(ShootingSettings.ColorTemperatureRequest)            /// 색온도
+    case getTv                                                                   /// 셔터스피드
+    case putTv(ShootingSettings.TVRequest)                                       /// 셔터스피드
+    case getIso                                                                  /// ISO
+    case putIso(ShootingSettings.ISORequest)                                     /// ISO
+    case getExposureCompensation                                                 /// 노출보정
+    case putExposureCompensation(ShootingSettings.ExposureCompensationRequest)   /// 노출보정
+    case getWhiteBalance                                                         /// 화이트밸런스
+    case putWhiteBalance(ShootingSettings.WhiteBalanceRequest)                   /// 화이트밸런스
+    case getColorTemperature                                                     /// 색온도
+    case putColorTemperature(ShootingSettings.ColorTemperatureRequest)           /// 색온도
     case getWbShift                                     /// 화이트밸런스 보정 (Blue/Amber, Green/Magenta)
     case putWbShift(ShootingSettings.WBShiftRequest)    /// 화이트밸런스 보정 (Blue/Amber, Green/Magenta)
-    case getPictureStyle                                /// 픽쳐스타일
-    case putPictureStyle(ShootingSettings.PictureStyleRequest)            /// 픽쳐스타일
+    case getPictureStyle                                                         /// 픽쳐스타일
+    case putPictureStyle(ShootingSettings.PictureStyleRequest)                   /// 픽쳐스타일
 }
 
 extension ShootingSettingsTarget: BaseTargetType {

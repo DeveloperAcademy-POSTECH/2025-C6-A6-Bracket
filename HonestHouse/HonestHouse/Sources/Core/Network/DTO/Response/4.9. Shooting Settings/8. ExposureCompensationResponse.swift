@@ -6,7 +6,6 @@
 //
 
 extension ShootingSettings {
-    
     /// 4.9.8. 노출 보정
     struct ExposureCompensationResponse: BaseResponse {
         let value: String?

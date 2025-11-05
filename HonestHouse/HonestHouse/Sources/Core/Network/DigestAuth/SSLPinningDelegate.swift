@@ -8,40 +8,31 @@
 import Foundation
 
 /// URLSession의 SSL 인증서 처리를 위한 Delegate
-class SSLPinningDelegate: NSObject, URLSessionDelegate {
-    
-    // MARK: - Properties
-    
+final class SSLPinningDelegate: NSObject, URLSessionDelegate {
     private var allowedHosts = Set<String>()
     
-    // MARK: - Public Methods
-    
-    /// 신뢰할 호스트 추가
     func addTrustedHost(_ host: String) {
         allowedHosts.insert(host)
     }
     
-    /// 신뢰할 호스트 제거
     func removeTrustedHost(_ host: String) {
         allowedHosts.remove(host)
     }
-    
-    // MARK: - URLSessionDelegate
     
     func urlSession(_ session: URLSession,
                    didReceive challenge: URLAuthenticationChallenge,
                    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         
-        print("Received authentication challenge")
-        print("  Protection space: \(challenge.protectionSpace.authenticationMethod)")
-        print("  Host: \(challenge.protectionSpace.host)")
+        Logger.debug("Received authentication challenge", category: .network)
+        Logger.debug("Protection space: \(challenge.protectionSpace.authenticationMethod)", category: .network)
+        Logger.debug("Host: \(challenge.protectionSpace.host)", category: .network)
         
         // 서버 신뢰 인증 (SSL/TLS)
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
             // 허용된 호스트인지 확인
             if allowedHosts.contains(challenge.protectionSpace.host),
                let serverTrust = challenge.protectionSpace.serverTrust {
-                print("Accepting self-signed certificate for host: \(challenge.protectionSpace.host)")
+                Logger.info("Accepting self-signed certificate for host: \(challenge.protectionSpace.host)", category: .network)
                 let credential = URLCredential(trust: serverTrust)
                 completionHandler(.useCredential, credential)
                 return

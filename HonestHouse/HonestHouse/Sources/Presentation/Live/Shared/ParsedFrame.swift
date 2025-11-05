@@ -5,7 +5,7 @@
 //  Created by Rama on 10/28/25.
 //
 
-import SwiftUI
+import UIKit
 
 struct ParsedFrame {
     let type: DataType

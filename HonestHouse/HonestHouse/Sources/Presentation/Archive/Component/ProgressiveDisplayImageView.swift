@@ -10,13 +10,14 @@ import Kingfisher
 
 /// DetailView용 이미지 (Thumbnail 먼저 표시 → Display 로딩 → Display 실패 시 원본)
 struct ProgressiveDisplayImageView: View {
+    @State private var shouldUseFallback = false
+    
     let thumbnailURL: String
     let displayURL: String
     let originalURL: String  // Display 실패 시 fallback
     let onImageLoaded: (() -> Void)?  // 이미지 로딩 완료 콜백
-
-    @State private var shouldUseFallback = false
-
+    
+    
     var body: some View {
         Group {
             if shouldUseFallback {
@@ -48,7 +49,7 @@ struct ProgressiveDisplayImageView: View {
             .fade(duration: 0.3)
             .aspectRatio(contentMode: .fit)
     }
-
+    
     private func originalImageView(url: String) -> some View {
         KFImage(URL(string: url))
             .placeholder {

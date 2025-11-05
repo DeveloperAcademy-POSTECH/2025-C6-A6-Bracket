@@ -8,23 +8,23 @@
 import Foundation
 
 enum PresetError: Error, LocalizedError {
-    // MARK: - SwiftData Errors
+    // SwiftData Errors
     case fetchFailed
     case createFailed
     case updateFailed
     case deleteFailed
     case presetNotFound
 
-    // MARK: - Data Integrity Errors
+    // Data Integrity Errors
     case invalidPictureStyle(String)
     case invalidShootingMode(String)
 
-    // MARK: - CCAPI Errors
+    // CCAPI Errors
     case cameraBusy
     case cameraUnavailable
     case settingFailed
 
-    // MARK: - General
+    // General
     case unknown
 
     var errorDescription: String? {

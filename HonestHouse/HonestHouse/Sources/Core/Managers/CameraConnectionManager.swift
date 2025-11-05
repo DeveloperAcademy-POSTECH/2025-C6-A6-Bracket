@@ -8,14 +8,11 @@ import SwiftUI
 
 @MainActor
 final class CameraConnectionManager: BaseService, ObservableObject {
-    
     @Published var productName: String = ""
     @Published var connectionState: ConnectionState = .disconnected
     @Published var showConnectionSheet = false
     
     private let networkManager: NetworkManager
-    private let jsonDecoder = JSONDecoder()
-    
     
     init(networkManager: NetworkManager = .shared) {
         self.networkManager = networkManager
@@ -35,7 +32,7 @@ final class CameraConnectionManager: BaseService, ObservableObject {
             do {
                 try await networkManager.initializeAuthentication()
                 self.connectionState = .connected
-                print("✅ 카메라 연결 성공")
+                Logger.info("카메라 연결 성공", category: .connection)
                 
                 let cameraInfo = try await getCameraInfo()
                 
@@ -45,7 +42,7 @@ final class CameraConnectionManager: BaseService, ObservableObject {
             } catch {
                 let connectionError = ConnectionError.from(error)
                 self.connectionState = .failed(connectionError)
-                print("❌ 카메라 연결 실패: \(connectionError.localizedDescription)")
+                Logger.error(error.localizedDescription, category: .connection)
             }
         }
     }
@@ -54,7 +51,6 @@ final class CameraConnectionManager: BaseService, ObservableObject {
         connectionState = .disconnected
     }
     
-    @discardableResult
     func checkConnectionStatus() async -> Bool {
         do {
             _ = try await getCameraInfo()

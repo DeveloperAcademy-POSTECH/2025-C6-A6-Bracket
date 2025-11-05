@@ -8,6 +8,12 @@
 import Foundation
 import SwiftUI
 
+enum TrishotSettingAction {
+    case goToTrishotSelection
+    case goToTrishotMode
+    case togglePreset(UUID)
+}
+
 @Observable
 final class TrishotSettingViewModel {
     var container: DIContainer
@@ -18,19 +24,13 @@ final class TrishotSettingViewModel {
         .init(preset: .stub3, isSelected: false)
     ]
     
-    enum Action {
-        case goToTrishotSelection
-        case goToTrishotMode
-        case togglePreset(UUID)
-    }
-    
     init(container: DIContainer) {
         self.container = container
     }
 }
 
 extension TrishotSettingViewModel {
-    func send(action: Action) {
+    func send(action: TrishotSettingAction) {
         switch action {
         case .goToTrishotSelection:
             container.navigationRouter.push(to: .trishotSelection)

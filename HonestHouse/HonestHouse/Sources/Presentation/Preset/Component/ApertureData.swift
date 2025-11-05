@@ -8,9 +8,7 @@
 import Foundation
 import SwiftUI
 
-// MARK: - Aperture Data Model
-// 커스텀 휠 피커를 만들기 위해 임의로 작성한 파일입니다.
-// 카메라로부터 조정가능값 배열을 받으면 해당 파일은 삭제할 예정.
+// 커스텀 휠 피커를 만들기 위해 임의로 작성한 파일입니다. 카메라로부터 조정가능값 배열을 받으면 해당 파일은 삭제할 예정.
 struct ApertureData {
     // 표준 조리개 값 배열 (f/1.0 ~ f/22)
     static let standardApertures: [String] = [

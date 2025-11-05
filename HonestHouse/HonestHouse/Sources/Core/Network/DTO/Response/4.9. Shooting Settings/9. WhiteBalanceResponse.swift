@@ -6,7 +6,6 @@
 //
 
 extension ShootingSettings {
-    
     /// 4.9.9. 화이트밸런스
     struct WhiteBalanceResponse: BaseResponse {
         let value: String?

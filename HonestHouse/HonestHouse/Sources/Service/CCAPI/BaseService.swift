@@ -10,13 +10,8 @@ import Moya
 
 /// 모든 CCAPI Service의 공통 기능을 제공하는 Base 클래스
 class BaseService {
-    
-    // MARK: - Properties
-    
     private let networkManager: NetworkManager = NetworkManager.shared
     private let jsonDecoder = JSONDecoder()
-    
-    // MARK: - Request Methods
     
     /// 응답이 있는 API 요청 (GET, PUT 등)
     /// NetworkManager가 401 재시도를 처리하므로 여기서는 디코딩만

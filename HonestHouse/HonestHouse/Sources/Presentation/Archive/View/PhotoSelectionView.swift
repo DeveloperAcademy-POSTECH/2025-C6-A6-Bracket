@@ -16,9 +16,9 @@ struct PhotoSelectionView: View {
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     
-    let columnCount: Int = 3
+    private let columnCount: Int = 3
     
-    var columns: [GridItem] {
+    private var columns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: 5), count: columnCount)
     }
     

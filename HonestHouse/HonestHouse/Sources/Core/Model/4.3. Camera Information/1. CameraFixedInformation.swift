@@ -5,8 +5,6 @@
 //  Created by Rama on 11/4/25.
 //
 
-import Foundation
-
 struct CameraFixedInformation {
     let manufacturer: String?
     let productName: String?

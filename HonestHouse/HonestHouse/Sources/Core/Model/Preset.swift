@@ -8,6 +8,7 @@
 import Foundation
 
 final class Preset: Hashable, Identifiable {
+    
     var id: UUID
     var name: String
     var createdAt: Date
@@ -55,7 +56,6 @@ final class Preset: Hashable, Identifiable {
     }
 }
 
-// MARK: - Hashable Conformance
 extension Preset {
     static func == (lhs: Preset, rhs: Preset) -> Bool {
         lhs.id == rhs.id

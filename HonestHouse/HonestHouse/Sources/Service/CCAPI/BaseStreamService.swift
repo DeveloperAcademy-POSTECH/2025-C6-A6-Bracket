@@ -9,12 +9,7 @@ import Foundation
 
 /// 스트리밍 서비스의 공통 기능을 제공하는 Base 클래스
 class BaseStreamService {
-    
-    // MARK: - Properties
-    
     private let networkManager: NetworkManager = NetworkManager.shared
-    
-    // MARK: - Protected Methods (서브클래스에서 사용)
     
     /// URLSession 설정 생성
     func createSessionConfiguration() -> URLSessionConfiguration {
@@ -46,9 +41,9 @@ class BaseStreamService {
         // 인증 헤더
         if let authHeader = await getAuthorizationHeader(for: url, method: method) {
             request.setValue(authHeader, forHTTPHeaderField: "Authorization")
-            print("🔑 Authorization header added")
+            Logger.debug("Authorization header added", category: .network)
         } else {
-            print("⚠️ No Authorization header")
+            Logger.warning("No Authorization header", category: .network)
         }
         
         // 추가 헤더

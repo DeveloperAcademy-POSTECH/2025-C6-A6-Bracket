@@ -10,8 +10,8 @@ import SwiftUI
 @Observable
 final class LiveStreamViewModel {
 
-    // MARK: - Properties
-
+    private let container: DIContainer
+    
     var isStreaming = false
     var currentImage: UIImage?
     var afFrames: [LiveViewInfo.AFFrame] = []
@@ -22,22 +22,13 @@ final class LiveStreamViewModel {
     private var fpsStartTime = Date()
     private let fpsUpdateInterval: TimeInterval = 1.0
     
-    private var container: DIContainer
-
-    // MARK: - Initialization
-    
     init(container: DIContainer) {
         self.container = container
     }
-}
-
-// MARK: - Public Methods
-
-extension LiveStreamViewModel {
 
     func startLiveView() {
         guard !isStreaming else {
-            print("Already streaming")
+            Logger.warning("Already streaming", category: .viewModel)
             return
         }
 
@@ -65,7 +56,7 @@ extension LiveStreamViewModel {
 
     func stopLiveView() {
         guard isStreaming else {
-            print("Not streaming")
+            Logger.warning("Not streaming", category: .viewModel)
             return
         }
 
@@ -80,11 +71,6 @@ extension LiveStreamViewModel {
             }
         }
     }
-}
-
-// MARK: - Private Methods
-
-extension LiveStreamViewModel {
 
     private func handleFrame(_ frame: ParsedFrame) {
         switch frame.type {
@@ -92,26 +78,26 @@ extension LiveStreamViewModel {
             if let image = frame.image {
                 currentImage = image
                 updateFPS()
-                print("🖼️ Image frame processed: \(image.size.width)x\(image.size.height)")
+                Logger.debug("Image frame processed: \(image.size.width)x\(image.size.height)", category: .viewModel)
             } else {
-                print("⚠️ Image frame received but UIImage(data:) returned nil")
+                Logger.warning("Image frame received but UIImage(data:) returned nil", category: .viewModel)
             }
 
         case .info:
             if let info = frame.info {
                 afFrames = info.afFrame ?? []
-                print("ℹ️ Info frame processed: \(afFrames.count) AF frames")
+                Logger.debug("Info frame processed: \(afFrames.count) AF frames", category: .viewModel)
             }
 
         case .event:
-            print("📢 Event frame received")
+            Logger.debug("Event frame received", category: .viewModel)
         }
     }
 
     private func handleError(_ error: Error) {
         isStreaming = false
         errorMessage = "Connection error: \(error.localizedDescription)"
-        print("❌ LiveView error: \(error)")
+        Logger.error("LiveView error: \(error)", category: .viewModel)
     }
 
     private func updateFPS() {

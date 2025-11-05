@@ -6,7 +6,6 @@
 //
 
 extension ShootingSettings {
-    
     /// 4.9.25 화이트 밸런스 보정
     struct WBShiftResponse: BaseResponse {
         let value: Value?

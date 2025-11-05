@@ -9,9 +9,10 @@ import SwiftUI
 import Kingfisher
 
 struct GroupedPhotosGridCellView: View {
-    let group: SimilarPhotoGroup
     @Environment(GroupedPhotosViewModel.self) var vm
-
+    
+    let group: SimilarPhotoGroup
+    
     var body: some View {
         if let firstPhoto = group.photos.first {
             ZStack(alignment: .bottomLeading) {
@@ -19,7 +20,7 @@ struct GroupedPhotosGridCellView: View {
                     CachedThumbnailImageView(url: firstPhoto.thumbnailURL)
                         .frame(height: 118)
                 }
-
+                
                 selectNumBadge()
                     .padding(8)
             }

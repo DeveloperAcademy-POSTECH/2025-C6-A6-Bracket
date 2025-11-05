@@ -7,7 +7,6 @@
 
 import Foundation
 
-/// CCAPI 통신 중 발생할 수 있는 에러 타입
 enum CCAPIError: Error {
     case invalidURL
     case invalidResponse

@@ -6,7 +6,6 @@
 //
 
 extension ShootingSettings {
-    
     /// 4.9.6. TV 셔터스피드
     struct TVResponse: BaseResponse {
         let value: String?

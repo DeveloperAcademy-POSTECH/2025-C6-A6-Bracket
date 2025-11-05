@@ -29,8 +29,6 @@ final class Managers: ManagersType {
     }
 }
 
-// MARK: - StubManagers
-
 final class StubManagers: ManagersType {
     var visionManager: VisionManagerType = StubVisionManager()
     var photoManager: PhotoManagerType = StubPhotoManager()

@@ -10,7 +10,6 @@ import SwiftUI
 struct TrishotSettingView: View {
     @EnvironmentObject var container: DIContainer
     
-    
     @State var vm: TrishotSettingViewModel
     
     var body: some View {
@@ -24,10 +23,10 @@ struct TrishotSettingView: View {
         }
     }
     
-    // 프리셋 3개 목록 (트라이샷)
+    /// 프리셋 3개 목록 (트라이샷)
     private func presetListView() -> some View {
         VStack(spacing: 32) {
-            ForEach(vm.trishotItems.indices) { index in
+            ForEach(vm.trishotItems.indices, id: \.self) { index in
                 presetView(vm.trishotItems[index], index)
                     .onTapGesture {
                         vm.send(action: .togglePreset(vm.trishotItems[index].id))
@@ -36,7 +35,7 @@ struct TrishotSettingView: View {
         }
     }
     
-    // 프리셋 타이틀 + 내용
+    /// 프리셋 타이틀 + 내용
     private func presetView(_ item: TrishotItem, _ index: Int) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             titleView(name: item.preset.name)
@@ -44,9 +43,8 @@ struct TrishotSettingView: View {
         }
     }
     
-    // 프리셋 타이틀
+    /// 프리셋 타이틀
     private func titleView(name: String) -> some View {
-        
         Button {
             vm.send(action: .goToTrishotSelection)
         } label: {
@@ -56,12 +54,11 @@ struct TrishotSettingView: View {
                     .foregroundStyle(Color.g0)
                 Image(systemName: "chevron.right")
                     .foregroundStyle(Color.g7)
-                
             }
         }
     }
     
-    // 프리셋 내용
+    /// 프리셋 내용
     private func contentView(_ item: TrishotItem, _ index: Int) -> some View {
         HStack {
             contentSettingsView(item.preset)
@@ -74,7 +71,7 @@ struct TrishotSettingView: View {
         .clipShape(RoundedRectangle(cornerRadius: 100))
     }
     
-    // 프리셋 내용 - 세팅 종류
+    /// 프리셋 내용 - 세팅 종류
     private func contentSettingsView(_ preset: Preset) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -85,12 +82,10 @@ struct TrishotSettingView: View {
                 Circle().frame(width: 32, height: 32).foregroundStyle(Color.white)
             }
             shootingDescriptionView(preset)
-                
         }
         .frame(maxWidth: .infinity)
         .environment(\.layoutDirection, .leftToRight)
         .padding(.leading, 39)
-        
     }
     
     private func filterIcon(iso: ISO) -> some View {
@@ -113,12 +108,11 @@ struct TrishotSettingView: View {
         Image("")
     }
     
-    // 프리셋 내용 - 원
+    /// 프리셋 내용 - 원
     private func contentCircleView(num: Int) -> some View {
         Circle()
             .stroke(lineWidth: 0.5)
             .frame(width: 110, height: 110)
-
             .overlay {
                 Text("\(num)")
                     .font(.num1)
