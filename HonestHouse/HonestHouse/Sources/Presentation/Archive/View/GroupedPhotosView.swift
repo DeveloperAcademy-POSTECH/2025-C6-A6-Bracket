@@ -11,8 +11,8 @@ import Kingfisher
 struct GroupedPhotosView: View {
     @State var vm: GroupedPhotosViewModel
     
-    @State private var showToast: Bool = false
-    @State private var toastMessage: String = ""
+    @State private var showAlert: Bool = false
+    @State private var alertMessage: String = ""
     
     private let columnCount: Int = 2
     
@@ -37,7 +37,7 @@ struct GroupedPhotosView: View {
             case .failure(_):
                 Color.clear
             }
-
+            
             // 저장 상태 Overlay
             switch vm.savingState {
             case .idle:
@@ -45,14 +45,9 @@ struct GroupedPhotosView: View {
             case .saving(let current, let total):
                 savingProgressView(current: current, total: total)
             case .success:
-                SuccessSavingView()
+                successSavingView()
             case .failure:
                 Color.clear
-            }
-
-            if showToast {
-                ToastView(message: toastMessage, isShowing: $showToast)
-                    .transition(.move(edge: .bottom))
             }
         }
         .task {
@@ -60,12 +55,13 @@ struct GroupedPhotosView: View {
         }
         .onChange(of: vm.state) { _, newState in
             if case .failure(let groupingError) = newState {
-                toastMessage = "오류 발생: \(groupingError.localizedDescription)"
-                showToast = true
+                alertMessage = groupingError.localizedDescription
+                showAlert = true
             } else {
-                showToast = false
+                showAlert = false
             }
         }
+        // TODO: - SavingState 에러처리하기
         .onChange(of: vm.savingState) { _, newState in
             switch newState {
             case .success:
@@ -73,15 +69,21 @@ struct GroupedPhotosView: View {
                     vm.goToMain()
                 }
             case .failure(let error):
-                toastMessage = "저장 실패: \(error)"
-                showToast = true
+                alertMessage = error
+                showAlert = true
             default:
                 break
             }
         }
         .navigationBarWithBack(title: "", showShadow: true, rightView: {
-           EmptyView()
+            EmptyView()
         })
+        .alert(alertMessage, isPresented: $showAlert) {
+            Button("취소", role: .cancel) { vm.goToBack() }
+            Button("재연결") {
+                // 재연결 로직
+            }
+        }
     }
     
     private func groupedPhotosGridView(groupedPhotos: [SimilarPhotoGroup]) -> some View {
@@ -101,11 +103,11 @@ struct GroupedPhotosView: View {
     private func selectionCompleteButtonView() -> some View {
         VStack {
             Spacer()
-
+            
             ZStack {
                 ShadowView(startBottom: true)
                     .ignoresSafeArea(edges: [.top, .bottom])
-
+                
                 Button {
                     vm.saveSelectedPhotos()
                 } label: {
@@ -122,7 +124,7 @@ struct GroupedPhotosView: View {
         ZStack {
             Color.black.opacity(0.8)
                 .ignoresSafeArea()
-
+            
             VStack(spacing: 20) {
                 Text("\(current)/\(total)")
                     .font(.num2)
@@ -136,16 +138,16 @@ struct GroupedPhotosView: View {
         }
     }
     
-    private func SuccessSavingView() -> some View {
+    private func successSavingView() -> some View {
         ZStack {
             Color.black.opacity(0.8)
                 .ignoresSafeArea()
-
+            
             VStack(alignment: .center, spacing: 16) {
                 Image(.checkBtnLYellow)
                     .resizable()
                     .frame(width: 40, height: 40)
-
+                
                 Text("앨범에 저장되었습니다!")
                     .font(.num2)
                     .foregroundStyle(.white)
