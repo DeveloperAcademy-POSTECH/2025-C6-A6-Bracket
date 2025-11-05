@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct ConnectionGuideView: View {
-    var type: ConnectionType
-    
-    @State private var ipAddress: String = ""
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
     
+    @State private var ipAddress: String = ""
     @State private var showSuccessAlert = false
     @State private var showFailureAlert = false
     @State private var connectionError: ConnectionError?
     @State private var navigateToCompletion = false
+    
+    let type: ConnectionType
     
     var body: some View {
         VStack(spacing: 24) {
@@ -83,7 +83,7 @@ struct ConnectionGuideView: View {
         }
     }
     
-    //TODO: IP 직접 입력 후 연결 구현 필요
+    // TODO: IP 직접 입력 후 연결 구현 필요
     private func ipAddressTextField() -> some View {
         TextField("http://192.168.1.2:8080/ccapi/", text: $ipAddress)
             .font(.num4)
@@ -118,7 +118,7 @@ struct ConnectionGuideView: View {
         .padding(.horizontal, 16)
     }
     
-    //TODO: 연결 UI 로그용, 추후 삭제
+    // TODO: 연결 UI 로그용, 추후 삭제
     private func connectionStatusView() -> some View {
         switch cameraConnectionManager.connectionState {
         case .disconnected:

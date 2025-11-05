@@ -10,10 +10,10 @@ import SwiftUI
 struct LiveStreamView: View {
     @EnvironmentObject var container: DIContainer
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
+    
     @State var vm: LiveStreamViewModel
 
     var body: some View {
-
         VStack(spacing: 20) {
             if let image = vm.currentImage {
                 Image(uiImage: image)
@@ -80,12 +80,12 @@ struct LiveStreamView: View {
 
         vm.errorMessage = nil
         vm.startLiveView()
-        print("✅ 라이브뷰 시작")
+        Logger.info("라이브뷰 시작", category: .ui)
     }
 
     @MainActor
     private func stopLiveView() async {
         vm.stopLiveView()
-        print("✅ 라이브뷰 중지")
+        Logger.info("라이브뷰 중지", category: .ui)
     }
 }

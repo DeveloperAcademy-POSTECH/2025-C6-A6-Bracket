@@ -6,28 +6,25 @@
 //
 
 import SwiftUI
-import SwiftData
+
+enum PresetDetailAction {
+    case popToPresetView
+}
 
 @Observable
 final class PresetDetailViewModel {
-    var container: DIContainer
+    private let container: DIContainer
+    private let shootingControlService: ShootingControlServiceType
+    private let shootingSettingsService: ShootingSettingsServiceType
+    private let presetManager: PresetManagerType
+    
     var presetDetailMode: PresetDetailMode
     var newPreset: Preset?
     var selectedPreset: Preset?
-
     var showingCreateSheet = false
     var showingShootAlert = false
     var shootAlertPreset: Preset?
-    
     var error: PresetError?
-
-    private var shootingControlService: ShootingControlServiceType
-    private var shootingSettingsService: ShootingSettingsServiceType
-    private var presetManager: PresetManagerType
-    
-    enum Action {
-        case popToPresetView
-    }
     
     init(
         container: DIContainer,
@@ -42,44 +39,31 @@ final class PresetDetailViewModel {
         self.shootingSettingsService = container.services.shootingSettingsService
         self.presetManager = container.managers.presetManager
     }
-}
-
-//MARK: - Navigation
-extension PresetDetailViewModel {
-    func send(action: Action) {
+    
+    func send(action: PresetDetailAction) {
         switch action {
         case .popToPresetView:
             container.navigationRouter.pop()
         }
     }
     
-
-}
-
-// MARK: - PresetManager CRUD
-extension PresetDetailViewModel {
-    
-    /// Preset 생성
     func createPreset() {
         do {
-            // updatedAt을 현재 시간으로 설정
-            newPreset?.updatedAt = Date()
-            
+            newPreset?.updatedAt = Date()  // updatedAt을 현재 시간으로 설정
+        
             if let newPreset = newPreset {
                 try presetManager.createPreset(newPreset)
             }
             
-            
             error = nil
             
-            // 생성 후 목록으로 돌아가기
-            send(action: .popToPresetView)
+            
+            send(action: .popToPresetView)  // 생성 후 목록으로 돌아가기
         } catch {
-//            handleError(error)
+            //TODO: handleError 구현 필요
         }
     }
     
-    /// Preset 업데이트
     func updatePreset() {
         do {
             // updatedAt을 현재 시간으로 설정
@@ -92,25 +76,22 @@ extension PresetDetailViewModel {
             // 업데이트 후 목록으로 돌아가기
             send(action: .popToPresetView)
         } catch {
-//            handleError(error)
+            //TODO: handleError 구현 필요
         }
     }
     
-    /// Preset 삭제
     func deletePreset() {
         do {
             guard let selectedPreset else { return }
             try presetManager.deletePreset(selectedPreset)
             error = nil
             
-            // 삭제 후 목록으로 돌아가기
-            send(action: .popToPresetView)
+            send(action: .popToPresetView)  // 삭제 후 목록으로 돌아가기
         } catch {
-//            handleError(error)
+            //TODO: handleError 구현 필요
         }
     }
     
-    /// 특정 Preset 조회 (필요 시)
     func loadPreset(by id: UUID) {
         do {
             if let preset = try presetManager.fetchPreset(by: id) {
@@ -118,7 +99,7 @@ extension PresetDetailViewModel {
                 error = nil
             }
         } catch {
-//            handleError(error)
+            //TODO: handleError 구현 필요
         }
     }
 }

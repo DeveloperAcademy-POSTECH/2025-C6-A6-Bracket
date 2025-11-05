@@ -7,19 +7,19 @@
 
 import SwiftUI
 
+enum MainAction {
+    case goToTriShotSelection
+    case goToTriMode
+    case goToPresetEditor(PresetDetailMode, Preset)
+    case goToPhotoSelection
+}
+
 @Observable
 final class MainViewModel {
     
-    enum Action {
-        case goToTriShotSelection
-        case goToTriMode
-        case goToPresetEditor(PresetDetailMode, Preset)
-        case goToPhotoSelection
-    }
+    private let container: DIContainer
     
     var selectedSegment: MainViewSegmentType = .trishot
-    private var container: DIContainer
-    
     var segments: [MainViewSegmentType] = [.trishot, .preset]
     var isPresetEditMode: Bool = false
     var selectedPreset: Preset?
@@ -32,7 +32,7 @@ final class MainViewModel {
         self.container = container
     }
     
-    func send(action: Action) {
+    func send(action: MainAction) {
         switch action {
         case .goToTriShotSelection:
             container.navigationRouter.push(to: .trishotSelection)
@@ -61,21 +61,4 @@ final class MainViewModel {
     func exitEditMode() {
         isPresetEditMode = false
     }
-
-//    func showDetailView(for preset: Preset) {
-//        selectedDetailPreset = preset
-//    }
-//
-//    func showEditorView(for preset: Preset? = nil) {
-//        selectedEditorPreset = preset
-//    }
-//
-//    func showCreateSheet() {
-//        showingCreateSheet = true
-//    }
-}
-
-extension MainViewModel {
-    
-    
 }

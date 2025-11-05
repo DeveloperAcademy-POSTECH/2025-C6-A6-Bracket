@@ -7,19 +7,19 @@
 
 import SwiftUI
 
+enum PhotoSelectionAction {
+    case goToGroupedPhoto
+}
+
 @MainActor
 @Observable
 final class PhotoSelectionViewModel {
     typealias Success = [String]
     typealias Failure = SelectionError
-    
-    enum Action {
-        case goToGroupedPhoto
-    }
-    
-    private var container: DIContainer
-    private var imageOperationsService: ImageOperationsServiceType
-    private var imagePrefetchManager: ImagePrefetchManagerType
+
+    private let container: DIContainer
+    private let imageOperationsService: ImageOperationsServiceType
+    private let imagePrefetchManager: ImagePrefetchManagerType
 
     var state: ArchiveState<Success, Failure> = .idle
     
@@ -31,16 +31,11 @@ final class PhotoSelectionViewModel {
     var presentDirectory: String?
     
     var entireContentUrls: [String] = []
-
     var selectedPhotos: Set<Photo> = []
 
-    // Prefetch 시작 여부 플래그 (chunk 중복 방지)
     private var hasStartedInitialPrefetch = false
-
-    // State 업데이트 플래그 (첫 chunk에서만 .success 설정)
     private var hasSetSuccessState = false
 
-    // Computed property: 전체 Photo 리스트
     var allPhotos: [Photo] {
         entireContentUrls.map { Photo(url: $0) }
     }
@@ -50,13 +45,9 @@ final class PhotoSelectionViewModel {
         self.imageOperationsService = container.services.imageOperationsService
         self.imagePrefetchManager = container.managers.imagePrefetchManager
     }
-}
-
-extension PhotoSelectionViewModel: ArchiveErrorHandleable {
     
-    func send(action: Action) {
+    func send(action: PhotoSelectionAction) {
         switch action {
-            
         case .goToGroupedPhoto:
             container.navigationRouter.push(to: .groupedPhotos(Array(selectedPhotos)))
         }
@@ -91,7 +82,12 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
     }
     
     /// contentListResponse를 받아와서 contentList로 변환
-    func getContentList(storage: String, directory: String, type: String, order: String) async throws {
+    func getContentList(
+        storage: String,
+        directory: String,
+        type: String,
+        order: String
+    ) async throws {
         do {
             let response = try await imageOperationsService.getContentList(
                 storage: storage,
@@ -187,9 +183,7 @@ extension PhotoSelectionViewModel: ArchiveErrorHandleable {
             selectedPhotos.insert(photo)
         }
     }
-}
-
-extension PhotoSelectionViewModel {
+    
     func goToGroupedPhotos() {
         // 초기 prefetch 중단 (리소스 절약)
         imagePrefetchManager.cancelSelectionPartPrefetch()
@@ -200,8 +194,6 @@ extension PhotoSelectionViewModel {
     func goToBack() {
         container.navigationRouter.pop()
     }
-
-    // MARK: - DetailView 유틸리티
 
     /// 현재 Photo의 좌우 Photo 가져오기
     func getAdjacentPhotos(current: Photo) -> (previous: Photo?, next: Photo?) {
@@ -221,3 +213,5 @@ extension PhotoSelectionViewModel {
         imagePrefetchManager.prefetchAdjacent(current: current, previous: previous, next: next)
     }
 }
+
+extension PhotoSelectionViewModel: ArchiveErrorHandleable {}

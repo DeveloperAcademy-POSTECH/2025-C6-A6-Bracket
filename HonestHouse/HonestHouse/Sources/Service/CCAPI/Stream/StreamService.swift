@@ -9,13 +9,9 @@ import Foundation
 
 class StreamService: BaseStreamService {
 
-    // MARK: - Properties
-    
     private var urlSession: URLSession?
     private var streamingTask: URLSessionDataTask?
     private(set) var isStreaming = false
-
-    // MARK: - Configuration (Subclass Override Required)
 
     var endpoint: String {
         fatalError("Subclass must override endpoint")
@@ -25,15 +21,13 @@ class StreamService: BaseStreamService {
         fatalError("Subclass must override httpMethod")
     }
 
-    // MARK: - Public Methods
-
     @discardableResult
     func startStreaming(
         onData: @escaping (Data) -> Void,
         onError: @escaping (Error) -> Void
     ) async -> Bool {
         guard !isStreaming else {
-            print("Already streaming")
+            Logger.warning("Already streaming", category: .network)
             return false
         }
 
@@ -43,8 +37,6 @@ class StreamService: BaseStreamService {
             return false
         }
 
-        // BaseStreamService에서 상속
-        
         let request = await createAuthenticatedRequest(
             url: url,
             method: httpMethod
@@ -69,13 +61,13 @@ class StreamService: BaseStreamService {
         streamingTask?.resume()
         isStreaming = true
 
-        print("✅ Streaming started: \(endpoint)")
+        Logger.info("Streaming started: \(endpoint)", category: .network)
         return true
     }
 
     func stopStreaming() async throws {
         guard isStreaming else {
-            print("Not streaming")
+            Logger.warning("Not streaming", category: .network)
             return
         }
 
@@ -87,10 +79,8 @@ class StreamService: BaseStreamService {
 
         try await sendDeleteRequest()
 
-        print("✅ Streaming stopped: \(endpoint)")
+        Logger.info("Streaming stopped: \(endpoint)", category: .network)
     }
-
-    // MARK: - Private Methods
 
     private func buildURL() -> URL? {
         return URL(string: "\(BaseURLConstants.baseURL)\(endpoint)")
@@ -107,16 +97,14 @@ class StreamService: BaseStreamService {
             let (_, response) = try await URLSession.shared.data(for: request)
 
             if let httpResponse = response as? HTTPURLResponse {
-                print("DELETE response: \(httpResponse.statusCode)")
+                Logger.debug("DELETE response: \(httpResponse.statusCode)", category: .network)
             }
         } catch {
-            print("DELETE request error: \(error.localizedDescription)")
+            Logger.error("DELETE request error: \(error.localizedDescription)", category: .network)
             throw error
         }
     }
 }
-
-// MARK: - Stream Delegate
 
 private class StreamDelegate: NSObject, URLSessionDataDelegate {
     private var buffer = Data()
@@ -139,8 +127,8 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate {
 
         let dataCopy = Data(buffer)
 
-        print("📥 Received chunk: \(data.count) bytes, buffer total: \(buffer.count) bytes")
-        print("   First 20 bytes: \(dataCopy.prefix(20).map { String(format: "%02X", $0) }.joined(separator: " "))")
+        Logger.debug("Received chunk: \(data.count) bytes, buffer total: \(buffer.count) bytes", category: .network)
+        Logger.debug("First 20 bytes: \(dataCopy.prefix(20).map { String(format: "%02X", $0) }.joined(separator: " "))", category: .network)
 
         onData(dataCopy)
 
@@ -154,12 +142,12 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate {
         completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
     ) {
         if let httpResponse = response as? HTTPURLResponse {
-            print("📡 Stream response status: \(httpResponse.statusCode)")
+            Logger.debug("Stream response status: \(httpResponse.statusCode)", category: .network)
 
             if httpResponse.statusCode == 401 {
-                print("⚠️ 401 received - authentication required")
-                print("   This usually means initial authentication didn't get nonce")
-                print("   The stream will fail, please check authentication setup")
+                Logger.warning("401 received - authentication required", category: .network)
+                Logger.warning("This usually means initial authentication didn't get nonce", category: .network)
+                Logger.warning("The stream will fail, please check authentication setup", category: .network)
             }
 
             completionHandler(.allow)
@@ -170,10 +158,10 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate {
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if let error = error {
-            print("❌ Stream completed with error: \(error.localizedDescription)")
+            Logger.error("Stream completed with error: \(error.localizedDescription)", category: .network)
             onError(error)
         } else {
-            print("✅ Stream completed successfully")
+            Logger.info("Stream completed successfully", category: .network)
         }
     }
 

@@ -8,6 +8,11 @@
 import Foundation
 
 struct LiveViewInfo: Codable {
+    let afFrame: [AFFrame]?
+    let histogram: Histogram?
+    let zoom: Zoom?
+    let angle: [String: Double]?
+    
     struct AFFrame: Codable {
         let x: Int
         let y: Int
@@ -31,9 +36,4 @@ struct LiveViewInfo: Codable {
         let positionWidth: Int?
         let positionHeight: Int?
     }
-    
-    let afFrame: [AFFrame]?
-    let histogram: Histogram?
-    let zoom: Zoom?
-    let angle: [String: Double]?
 }

@@ -9,8 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct PresetView: View {
-//    @Query(sort: \Preset.createdAt, order: .reverse) private var presets: [Preset]
-    
     @EnvironmentObject private var container: DIContainer
     
     @State var vm: PresetViewModel
@@ -32,7 +30,6 @@ struct PresetView: View {
                 }
             }
             .padding(.bottom, 24)
-
         }
         .environment(vm)
     }
@@ -40,28 +37,20 @@ struct PresetView: View {
     private func presetGridScrollView() -> some View {
         ScrollView {
             presetGridView()
-            .padding(.top, 3)
-            .padding(.horizontal, 2)
+                .padding(.top, 3)
+                .padding(.horizontal, 2)
         }
         .scrollIndicators(.hidden)
     }
     
     private func presetGridView() -> some View {
-        
         let columns = [
             GridItem(.flexible(), spacing: 10),
             GridItem(.flexible(), spacing: 10)
         ]
         
         return LazyVGrid(columns: columns, spacing: 10) {
-//            ForEach(presets) { preset in
-//                PresetGridCellView(
-//                    preset: preset,
-//                    isEditMode: vm.isPresetEditMode,
-//                    isSelected: vm.selectedPresets.contains(preset.id)
-//                )
-//                .environment(vm)
-//            }
+            //TODO: Preset 데이터 연결 필요
         }
     }
 
@@ -74,7 +63,6 @@ struct PresetView: View {
                     .font(.system(size: 24, weight: .semibold))
                     .foregroundStyle(.black)
                     .frame(width: 48, height: 48)
-//                    .glassEffect()
             } else {
                 Image(systemName: "plus")
                     .font(.system(size: 24, weight: .semibold))

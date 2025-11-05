@@ -9,13 +9,14 @@ import SwiftUI
 
 struct PresetGridCellView: View {
     @Environment(PresetViewModel.self) var vm
+    
     let preset: Preset
     let isEditMode: Bool
     let isSelected: Bool
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            backgroundRegtangleView()
+            backgroundRectangleView()
             presetNameLabel()
 
             if isEditMode {
@@ -28,13 +29,11 @@ struct PresetGridCellView: View {
         .onTapGesture {
             if isEditMode {
                 vm.onToggleSelection(preset: preset)
-            } else {
-                
             }
         }
     }
     
-    private func backgroundRegtangleView() -> some View {
+    private func backgroundRectangleView() -> some View {
         RoundedRectangle(cornerRadius: 12)
             .fill(Color(.systemGray6))
             .frame(height: 120)

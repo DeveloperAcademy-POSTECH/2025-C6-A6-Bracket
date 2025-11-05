@@ -24,7 +24,6 @@ struct MainView: View {
                     cameraAndArchiveHeaderView()
                     CustomSegmentedControl(selection: $vm.selectedSegment)
                     selectedSegmentView()
-                    
                 }
                 .padding(.horizontal, 16)
                 .navigationDestination(for: NavigationDestination.self) {
@@ -116,4 +115,3 @@ struct MainView: View {
     MainView(vm: .init(container: .stub), isPresetEditMode: false)
         .environmentObject(DIContainer.stub)
 }
-

@@ -42,31 +42,18 @@ struct PresetDetailView: View {
             
             ToolbarItem(placement: .primaryAction) {
                 Button(toolbarButtonTitle) {
-                    
-//                    switch vm.presetDetailMode {
-//                        case .view:
-//                        vm.loadPreset()
-//                    case .edit:
-//                        vm.updatePreset()
-//                    case .create:
-//                        vm.createPreset()
-//                        
-//                    }
+                    //TODO: switch vm.presetDetailMode 구현 필요
                 }
             }
         }
     }
     
-    var editView: some View {
-        VStack {
-            
-        }
+    private var editView: some View {
+        VStack { }
     }
     
-    var generalView: some View {
-        VStack {
-            
-        }
+    private var generalView: some View {
+        VStack { }
     }
     
     private var navigationTitle: String {
@@ -81,14 +68,11 @@ struct PresetDetailView: View {
     }
     
     private var toolbarButtonTitle: String {
-        
         switch vm.presetDetailMode {
         case .view:
             return "편집"
         case .edit, .create:
-            
             return "저장"
         }
     }
-    
 }

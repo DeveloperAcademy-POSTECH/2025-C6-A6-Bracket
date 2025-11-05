@@ -29,9 +29,10 @@ enum LogLevel {
 enum LogCategory: String {
     case network = "Network"
     case imageCache = "ImageCache"
-    case ui = "UI"
     case prefetch = "Prefetch"
     case connection = "Connection"
+    case ui = "UI"
+    case viewModel = "ViewModel"
     case general = "General"
     
     var osLog: OSLog {

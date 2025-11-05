@@ -9,11 +9,12 @@ import SwiftUI
 import Kingfisher
 
 struct GroupedPhotosDetailView: View {
-    let groupedPhotos: SimilarPhotoGroup
     @Environment(GroupedPhotosViewModel.self) var vm
     @Environment(\.dismiss) private var dismiss
-
-    @State private var loadedImages: Set<String> = []  // 로딩 완료된 이미지 URL
+    
+    @State private var loadedImages: Set<String> = []
+    
+    let groupedPhotos: SimilarPhotoGroup
 
     var body: some View {
         TabView {
@@ -22,7 +23,7 @@ struct GroupedPhotosDetailView: View {
                     .tag(photo)
             }
         }
-        .tabViewStyle(.page(indexDisplayMode: .never)) // PageControl 숨김
+        .tabViewStyle(.page(indexDisplayMode: .never))
         .navigationBarWithBack(title: "", showShadow: false) {
             dismiss()
         } rightView: {

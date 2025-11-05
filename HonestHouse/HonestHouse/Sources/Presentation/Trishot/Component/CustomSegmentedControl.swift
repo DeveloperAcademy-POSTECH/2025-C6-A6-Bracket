@@ -28,7 +28,6 @@ struct CustomSegmentedControl: View {
                     .offset(x: selectedSegmentOffset(geometry: geometry))
                     .padding(4)
                     .animation(.spring(response: 0.3), value: selection)
-                    
                 
                 // 세그먼트 버튼들
                 HStack(spacing: 0) {
@@ -51,20 +50,18 @@ struct CustomSegmentedControl: View {
         .frame(height: height)
     }
     
-    // 각 세그먼트의 너비 계산
+    /// 각 세그먼트의 너비 계산
     private func segmentWidth(geometry: GeometryProxy) -> CGFloat {
         geometry.size.width / CGFloat(segments.count)
     }
     
-    // 선택된 세그먼트의 offset 계산
+    /// 선택된 세그먼트의 offset 계산
     private func selectedSegmentOffset(geometry: GeometryProxy) -> CGFloat {
         guard let index = segments.firstIndex(of: selection) else { return 0 }
         return CGFloat(index) * segmentWidth(geometry: geometry)
     }
 }
 
-
-// MARK: - Preview
 #Preview {
     struct PreviewWrapper: View {
         @State private var selection: MainViewSegmentType = .preset

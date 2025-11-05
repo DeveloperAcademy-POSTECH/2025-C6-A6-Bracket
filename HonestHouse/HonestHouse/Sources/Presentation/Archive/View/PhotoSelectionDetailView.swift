@@ -9,13 +9,14 @@ import SwiftUI
 import Kingfisher
 
 struct PhotoSelectionDetailView: View {
-    let initialPhoto: Photo
     @Environment(PhotoSelectionViewModel.self) var vm
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedURL: String
-    @State private var photos: [Photo] = []  // 스냅샷 (chunk 변ㄱ경 무시)
-    @State private var loadedImages: Set<String> = []  // 로딩 완료된 이미지 URL
+    @State private var photos: [Photo] = []
+    @State private var loadedImages: Set<String> = []
+    
+    let initialPhoto: Photo
 
     init(initialPhoto: Photo) {
         self.initialPhoto = initialPhoto
@@ -29,7 +30,7 @@ struct PhotoSelectionDetailView: View {
                     .tag(photo.url)
             }
         }
-        .tabViewStyle(.page(indexDisplayMode: .never)) // PageControl 숨김
+        .tabViewStyle(.page(indexDisplayMode: .never))
         .task {
             // 진입 시 현재 photos 스냅샷 저장 (chunk 변경 무시)
             if photos.isEmpty {

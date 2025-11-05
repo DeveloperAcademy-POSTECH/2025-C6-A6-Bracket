@@ -8,23 +8,23 @@
 import Foundation
 import SwiftUI
 
+enum PresetAction {
+    case goToPresetDetail(PresetDetailMode, Preset?)
+}
+
 @Observable
 final class PresetViewModel {
-    var container: DIContainer
+    
+    private let container: DIContainer
+    private let shootingControlService: ShootingControlServiceType
+    private let shootingSettingsService: ShootingSettingsServiceType
+    private let presetManager: PresetManagerType
+    
     var isPresetEditMode: Bool
     var onEditModeChange: ((Bool) -> Void)?
-    
     var presets: [Preset] = []
     var selectedPresets: Set<UUID> = []
     var error: PresetError?
-    
-    private var shootingControlService: ShootingControlServiceType
-    private var shootingSettingsService: ShootingSettingsServiceType
-    private var presetManager: PresetManagerType
-
-    enum Action {
-        case goToPresetDetail(PresetDetailMode, Preset?)
-    }
     
     init(
         container: DIContainer,
@@ -33,6 +33,7 @@ final class PresetViewModel {
     ) {
         self.container = container
         self.isPresetEditMode = isPresetEditMode
+        self.onEditModeChange = onEditModeChange
         
         self.shootingControlService = container.services.shootingControlService
         self.shootingSettingsService = container.services.shootingSettingsService
@@ -42,9 +43,8 @@ final class PresetViewModel {
 
 extension PresetViewModel {
     
-    func send(action: Action) {
+    func send(action: PresetAction) {
         switch action {
-            
         case .goToPresetDetail(let mode, let preset):
             container.navigationRouter.push(to: .presetEditor(mode, preset))
         }
@@ -52,10 +52,9 @@ extension PresetViewModel {
     
     /// View 진입 시 처음 호출할 용도로 만든 getAperture
     func getAperture() async {
-
         do {
             let res = try await shootingSettingsService.getAV(with: .ver100)
-            print(res)
+            Logger.debug("Aperture: \(res)", category: .viewModel)
         } catch {
             handleError(error)
         }
@@ -67,7 +66,7 @@ extension PresetViewModel {
         let pictureStyle = preset.pictureStyle
         
         do {
-            /// 현재 슈팅 모드 무시 on
+            // 현재 슈팅 모드 무시 on
             try await ignoreShootingMode(action: "on")
             try await setShootingMode(value: shootingMode.apiValue)
             
@@ -95,7 +94,7 @@ extension PresetViewModel {
                 try await setExposureCompensation(value: exposureCompensation)
             }
             
-            print(preset.colorTemperature ?? -1)
+            Logger.debug("Color Temperature: \(preset.colorTemperature ?? -1)", category: .viewModel)
             
             if let colorTemperature = preset.colorTemperature {
                 try await setColorTemperature(value: colorTemperature)
@@ -122,14 +121,12 @@ extension PresetViewModel {
         }
     }
     
-    // 편집 모드 변경
     func setEditMode(_ value: Bool) {
         isPresetEditMode = value
-        onEditModeChange?(value)  // 부모에게 변경 알림
+        onEditModeChange?(value)
     }
     
-    
-    func onShoot(preset: Preset)-> Void { }
+    func onShoot(preset: Preset) -> Void { }
     
     func onToggleSelection(preset: Preset) { }
 
@@ -146,10 +143,8 @@ extension PresetViewModel {
     }
 }
 
-// MARK: - SwiftData
 extension PresetViewModel {
     func loadPresets() {
-
         do {
             presets = try presetManager.fetchAllPresets()
             error = nil
@@ -166,10 +161,9 @@ extension PresetViewModel: PresetErrorHandleable {
     }
     
     private func getShootingMode() async throws {
-
         do {
             let res = try await shootingSettingsService.getShootingMode(with: .ver110)
-            print(res)
+            Logger.debug("Shooting Mode: \(res)", category: .viewModel)
         } catch {
             handleError(error)
         }
@@ -179,19 +173,19 @@ extension PresetViewModel: PresetErrorHandleable {
         let request = ShootingSettings.ShootingModeRequest(value: value)
         _ = try await shootingSettingsService.putShootingMode(with: .ver100, request: request)
         let response = try await shootingSettingsService.putShootingMode(with: .ver110, request: request)
-        print(response)
+        Logger.debug("Shooting Mode Response: \(response)", category: .viewModel)
     }
 
     private func setPictureStyle(value: String) async throws {
         let request = ShootingSettings.PictureStyleRequest(value: value)
         let response = try await shootingSettingsService.putPictureStyle(with: .ver100, request: request)
-        print(response)
+        Logger.debug("Picture Style Response: \(response)", category: .viewModel)
     }
 
     private func setAperture(value: String) async throws {
         let request = ShootingSettings.AVRequest(value: value)
         let response = try await shootingSettingsService.putAV(with: .ver100, request: request)
-        print(response)
+        Logger.debug("Aperture Response: \(response)", category: .viewModel)
     }
 
     private func setShutterSpeed(value: String) async throws {
@@ -202,25 +196,25 @@ extension PresetViewModel: PresetErrorHandleable {
     private func setISO(value: String) async throws {
         let request = ShootingSettings.ISORequest(value: value)
         let response = try await shootingSettingsService.putISO(with: .ver100, request: request)
-        print(response)
+        Logger.debug("ISO Response: \(response)", category: .viewModel)
     }
 
     private func setExposureCompensation(value: String) async throws {
         let request = ShootingSettings.ExposureCompensationRequest(value: value)
         let response = try await shootingSettingsService.putExposureCompensation(with: .ver100, request: request)
-        print(response)
+        Logger.debug("Exposure Compensation Response: \(response)", category: .viewModel)
     }
 
     private func setColorTemperature(value: Int) async throws {
         let request = ShootingSettings.ColorTemperatureRequest(value: value)
         let response = try await shootingSettingsService.putColorTemperature(with: .ver100, request: request)
-        print(response)
+        Logger.debug("Color Temperature Response: \(response)", category: .viewModel)
     }
 
     private func setWbShift(blueAmber: Int, magentaGreen: Int) async throws {
         let wbShift = ShootingSettings.WBShiftRequest.WBShift(blueAmber: blueAmber, magentaGreen: magentaGreen)
         let request = ShootingSettings.WBShiftRequest(value: wbShift)
         let response = try await shootingSettingsService.putWbShift(with: .ver100, request: request)
-        print(response)
+        Logger.debug("WB Shift Response: \(response)", category: .viewModel)
     }
 }

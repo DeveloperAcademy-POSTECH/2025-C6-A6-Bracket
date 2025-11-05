@@ -9,14 +9,11 @@ import SwiftUI
 
 @available(iOS 18.0, *)
 struct CustomWheelPickerView: View {
-    // MARK: Properties
     @State private var selectedAperture: String = ApertureData.defaultAperture
+    
     private let apertureData = ApertureData()
     
-    // MARK: Body
     var body: some View {
-        
-        // 커스텀 휠 피커
         VStack(spacing: 0) {
             CustomWheelPicker(
                 items: ApertureData.standardApertures,
@@ -39,14 +36,15 @@ struct CustomWheelPickerView: View {
                     Rectangle()
                         .frame(width: 1, height: 8)
                         .foregroundStyle(Color.g0)
+                    
                     Spacer()
+                    
                     Rectangle()
                         .frame(width: 1, height: 8)
                         .foregroundStyle(Color.g0)
                 }
                 .allowsHitTesting(false)
             }
-            
             .overlay(
                 LinearGradient(
                     colors: [
@@ -54,7 +52,6 @@ struct CustomWheelPickerView: View {
                         .clear,
                         .clear,
                         Color.g12
-                            
                     ],
                     startPoint: .leading,
                     endPoint: .trailing

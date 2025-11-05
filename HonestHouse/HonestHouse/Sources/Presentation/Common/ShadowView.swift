@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ShadowView: View {
-    
     let startBottom: Bool
     
     var body: some View {

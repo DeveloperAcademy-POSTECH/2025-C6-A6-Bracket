@@ -9,7 +9,6 @@ import SwiftUI
 
 // TODO: 민볼이 만든 뷰 이름으로 변경하기
 struct TrishotModeView: View {
-    
     @State var vm: TrishotModeViewModel
     
     var body: some View {
@@ -33,7 +32,7 @@ struct TrishotModeView: View {
             .padding(.top, 41)
     }
     
-    // TODO: - 로직 추가하기 & 뷰에 추가하기
+    // TODO: 로직 추가하기 & 뷰에 추가하기
     private func lockButtonView() -> some View {
         Circle().frame(width: 50, height: 50)
     }

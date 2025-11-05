@@ -9,19 +9,19 @@ import SwiftUI
 
 @MainActor
 @Observable
-class GroupedPhotosViewModel: ArchiveErrorHandleable {
+final class GroupedPhotosViewModel: ArchiveErrorHandleable {
     typealias Success = [SimilarPhotoGroup]
     typealias Failure = GroupingError
     
-    private var visionManager: VisionManagerType
-    private var photoManager: PhotoManagerType
-    private var imagePrefetchManager: ImagePrefetchManagerType
-    private var container: DIContainer
+    private let visionManager: VisionManagerType
+    private let photoManager: PhotoManagerType
+    private let imagePrefetchManager: ImagePrefetchManagerType
+    private let container: DIContainer
     
     var photosFromSelection: [Photo]
     var selectedPhotosInGroup: [Photo] = []
     
-    var state: ArchiveState<Success, Failure> = .idle // GroupingState
+    var state: ArchiveState<Success, Failure> = .idle
     var savingState: SavingState = .idle
     
     init(
@@ -29,9 +29,9 @@ class GroupedPhotosViewModel: ArchiveErrorHandleable {
         selectedPhotos: [Photo]
     ) {
         self.container = container
-        visionManager = container.managers.visionManager
-        photoManager = container.managers.photoManager
-        imagePrefetchManager = container.managers.imagePrefetchManager
+        self.visionManager = container.managers.visionManager
+        self.photoManager = container.managers.photoManager
+        self.imagePrefetchManager = container.managers.imagePrefetchManager
 
         self.photosFromSelection = selectedPhotos
     }
@@ -42,7 +42,6 @@ class GroupedPhotosViewModel: ArchiveErrorHandleable {
         } else if let visionError = error as? VisionError {
             state = .failure(GroupingError.from(visionError: visionError))
         } else {
-            // 예상치 못한 에러
             state = .failure(.unknown)
         }
     }
@@ -60,11 +59,11 @@ class GroupedPhotosViewModel: ArchiveErrorHandleable {
 
                 // Vision 완료 후 그룹 첫 사진 prefetch
                 let groups = try await visionResult
-                print("[Vision] Completed with \(groups.count) groups")
+                Logger.info("[Vision] Completed with \(groups.count) groups", category: .viewModel)
 
                 // 그룹 첫 사진 prefetch (await으로 완료 대기)
                 await imagePrefetchManager.prefetchGroupFirstPhotos(groups: groups)
-                print("[Group Prefetch] Completed")
+                Logger.info("[Group Prefetch] Completed", category: .viewModel)
 
                 // 둘 다 완료 후 상태 업데이트
                 state = .success(groups)
@@ -91,7 +90,7 @@ class GroupedPhotosViewModel: ArchiveErrorHandleable {
 
                 // 완료 표시 (progressbar 끝까지)
                 savingState = .saving(current: total, total: total)
-                try await Task.sleep(nanoseconds: 300_000_000) // 0.3초
+                try await Task.sleep(nanoseconds: 300_000_000)
 
                 // 저장 완료 후 모든 캐시 삭제
                 imagePrefetchManager.clearAllCache()
@@ -110,9 +109,7 @@ class GroupedPhotosViewModel: ArchiveErrorHandleable {
             selectedPhotosInGroup.append(photo)
         }
     }
-}
-
-extension GroupedPhotosViewModel {
+    
     func goToMain() {
         container.navigationRouter.popToRoot()
     }
@@ -120,8 +117,6 @@ extension GroupedPhotosViewModel {
     func goToBack() {
         container.navigationRouter.pop()
     }
-
-    // MARK: - DetailView 유틸리티
 
     /// 그룹 내 현재 Photo의 좌우 Photo 가져오기
     func getAdjacentPhotosInGroup(group: SimilarPhotoGroup, current: Photo) -> (previous: Photo?, next: Photo?) {
@@ -141,7 +136,6 @@ extension GroupedPhotosViewModel {
         imagePrefetchManager.prefetchAdjacent(current: current, previous: previous, next: next)
     }
 
-    // MARK: - 그룹별 선택 개수 관리
     /// 특정 그룹에서 선택된 사진 개수
     func selectedCount(in group: SimilarPhotoGroup) -> Int {
         selectedPhotosInGroup.filter { selectedPhoto in

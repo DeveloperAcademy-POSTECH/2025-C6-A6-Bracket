@@ -9,19 +9,16 @@ import SwiftUI
 
 @available(iOS 18.0, *)
 struct CustomWheelPicker<SelectionValue, Content>: View where SelectionValue: Hashable & Sendable, Content: View {
-    // MARK: Properties
     @State private var scrollPosition: ScrollPosition = .init(idType: SelectionValue.self)
     @State private var lastHapticItem: SelectionValue?
     
-    private var items: [SelectionValue]
-    private var content: (SelectionValue) -> Content
     @Binding private var selection: SelectionValue
-    private let config: Config
     
-    // 햅틱 피드백 생성기
+    private let items: [SelectionValue]
+    private let content: (SelectionValue) -> Content
+    private let config: Config
     private let hapticFeedback = UIImpactFeedbackGenerator(style: .light)
     
-    // MARK: Initialization
     init(
         items: [SelectionValue],
         selection: Binding<SelectionValue>,
@@ -34,13 +31,12 @@ struct CustomWheelPicker<SelectionValue, Content>: View where SelectionValue: Ha
         _selection = selection
     }
     
-    // MARK: Configuration
+    /// 휠 피커 설정
     struct Config {
         var spacing: CGFloat = 22
         var itemSize: CGSize = .init(width: 40, height: 24)
     }
     
-    // MARK: Body
     var body: some View {
         GeometryReader { proxy in
             let size = proxy.size
@@ -103,7 +99,6 @@ struct CustomWheelPicker<SelectionValue, Content>: View where SelectionValue: Ha
     }
 }
 
-// MARK: - Extensions
 extension View {
     func disableBounces() -> some View {
         modifier(DisableBouncesModifier())
@@ -121,4 +116,3 @@ struct DisableBouncesModifier: ViewModifier {
             }
     }
 }
-

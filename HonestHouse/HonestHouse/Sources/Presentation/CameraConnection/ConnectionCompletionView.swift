@@ -52,7 +52,7 @@ struct ConnectionCompletionView: View {
             .scaledToFit()
             .frame(maxWidth: .infinity)
             .frame(width: 300, height: 115)
-    } 
+    }
     
     private func startButtonView() -> some View {
         Button {
@@ -74,3 +74,4 @@ struct ConnectionCompletionView: View {
 #Preview {
     ConnectionCompletionView()
 }
+

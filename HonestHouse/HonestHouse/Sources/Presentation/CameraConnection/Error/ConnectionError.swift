@@ -39,6 +39,7 @@ extension ConnectionError {
                 return .generic(ccapiError.localizedDescription)
             }
         }
+        
         return .generic(error.localizedDescription)
     }
 }
