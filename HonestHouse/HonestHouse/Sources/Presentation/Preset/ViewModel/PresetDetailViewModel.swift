@@ -22,7 +22,7 @@ class PresetDetailViewModel {
     var isLoading: Bool = false
     var errorMessage: String?
     var showCameraModeSelector: Bool = false
-    var activeSlider: SettingType?
+    var activePicker: SettingType?
     
     private var originalPreset: Preset?
     
@@ -51,7 +51,7 @@ class PresetDetailViewModel {
     
     func switchToViewMode() {
         viewMode = .view
-        activeSlider = nil
+        activePicker = nil
         showCameraModeSelector = false
     }
     
@@ -66,7 +66,7 @@ class PresetDetailViewModel {
         guard currentPreset.shootingMode != mode else { return }
         
         currentPreset.shootingMode = mode
-        activeSlider = nil
+        activePicker = nil
         
         // Auto 처리를 위해 적절한 nil 설정
         switch mode {

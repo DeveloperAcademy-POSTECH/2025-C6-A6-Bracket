@@ -12,33 +12,31 @@ struct PresetDetailView: View {
     @State var vm: PresetDetailViewModel
     @State private var showDeleteAlert = false
     @State private var showUnsavedChangesAlert = false
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss // TODO: - vm에서 nvrouter로 관리
     
     var body: some View {
         ZStack {
-            // Background
             Color.g12.ignoresSafeArea(.all)
             
             VStack(spacing: 0) {
                 // Preview Area
-                previewSection
+                previewView
                     .frame(height: 200)
                 
                 // Control Panel
                 VStack(spacing: 25) {
                     // Camera Mode Section
-                    cameraModeSection
+                    shootingModeView
                     
                     // Primary Settings
-                    primarySettingsSection
+                    primarySettingsView
                     
-                    // Value Slider (if active)
-                    if let activeSlider = vm.activeSlider {
-                        sliderSection(for: activeSlider)
+                    if let activePicker = vm.activePicker {
+                        pickerView(for: activePicker)
                     }
                     
                     // Secondary Settings
-                    secondarySettingsSection
+                    secondarySettingsSView
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 30)
@@ -61,7 +59,7 @@ struct PresetDetailView: View {
     }
     
     // MARK: - Preview Section
-    private var previewSection: some View {
+    private var previewView: some View {
         ZStack {
             // Sample Image (구름 사진)
             Image(systemName: "cloud.fill")
@@ -79,9 +77,9 @@ struct PresetDetailView: View {
         }
     }
     
-    // MARK: - Camera Mode Section
-    private var cameraModeSection: some View {
-        CameraModeSelector(
+    // Camera Mode Section
+    private var shootingModeView: some View {
+        ShootingModeSelector(
             selectedMode: Binding(
                 get: { vm.currentPreset.shootingMode },
                 set: { vm.changeCameraMode(to: $0) }
@@ -90,26 +88,26 @@ struct PresetDetailView: View {
         )
     }
     
-    // MARK: - Primary Settings Section
-    private var primarySettingsSection: some View {
+    // Primary Settings Section
+    private var primarySettingsView: some View {
         HStack {
-            // Aperture
+            // Aperture (조리개)
             SettingButton(
                 type: .aperture,
                 state: vm.getButtonState(for: .aperture),
                 value: vm.currentPreset.aperture ?? "Auto",
-                isSelected: vm.activeSlider == .aperture,
+                isSelected: vm.activePicker == .aperture,
                 action: {
                     handleSettingButtonTap(.aperture)
                 }
             )
             
-            // Shutter Speed
+            // Shutter Speed (셔터 스피드)
             SettingButton(
                 type: .shutterSpeed,
                 state: vm.getButtonState(for: .shutterSpeed),
                 value: vm.currentPreset.shutterSpeed ?? "Auto",
-                isSelected: vm.activeSlider == .shutterSpeed,
+                isSelected: vm.activePicker == .shutterSpeed,
                 action: {
                     handleSettingButtonTap(.shutterSpeed)
                 }
@@ -120,17 +118,18 @@ struct PresetDetailView: View {
                 type: .iso,
                 state: vm.getButtonState(for: .iso),
                 value: vm.currentPreset.iso ?? "Auto",
-                isSelected: vm.activeSlider == .iso,
+                isSelected: vm.activePicker == .iso,
                 action: {
                     handleSettingButtonTap(.iso)
                 }
             )
             
+            // Picture Style (픽쳐 스타일)
             SettingButton(
                 type: .pictureStyle,
                 state: vm.getButtonState(for: .pictureStyle),
                 value: vm.currentPreset.pictureStyle.rawValue,
-                isSelected: vm.activeSlider == .pictureStyle,
+                isSelected: vm.activePicker == .pictureStyle,
                 action: {
 
                     handleSettingButtonTap(.pictureStyle)
@@ -141,8 +140,7 @@ struct PresetDetailView: View {
         .frame(maxWidth: .infinity)
     }
     
-    // MARK: - Slider Section
-    private func sliderSection(for type: SettingType) -> some View {
+    private func pickerView(for type: SettingType) -> some View {
         Group {
             switch type {
             case .aperture:
@@ -228,65 +226,44 @@ struct PresetDetailView: View {
         .transition(.opacity)
     }
     
-    // MARK: - Secondary Settings Section
-    private var secondarySettingsSection: some View {
+    // Secondary Settings Section
+    private var secondarySettingsSView: some View {
         HStack(spacing: 30) {
-            // Exposure Compensation
             
+            // Tint Magenta Green (마젠타-그린)
             SettingButton(
                 type: .tintMagentaGreen,
                 state: vm.getButtonState(for: .tintMagentaGreen),
                 value: vm.currentPreset.tintMagentaGreen,
-                isSelected: vm.activeSlider == .tintMagentaGreen,
+                isSelected: vm.activePicker == .tintMagentaGreen,
                 action: {
                     handleSettingButtonTap(.tintMagentaGreen)
                 }
             )
             
+            // Exposure Compensation (노출 보정)
             SettingButton(  // plusminus.circle
                 type: .exposure,
                 state: vm.getButtonState(for: .exposure),
                 value: vm.currentPreset.exposureCompensation,
-                isSelected: vm.activeSlider == .exposure,
+                isSelected: vm.activePicker == .exposure,
                 action: {
                     handleSettingButtonTap(.exposure)
                 }
             )
             
+            // Color Temperature (색온도)
             SettingButton(  // thermometer.medium
                 type: .colorTemp,
                 state: vm.getButtonState(for: .colorTemp),
                 value: vm.currentPreset.colorTemperature,
-                isSelected: vm.activeSlider == .colorTemp,
+                isSelected: vm.activePicker == .colorTemp,
                 action: {
                     handleSettingButtonTap(.colorTemp)
                 }
             )
         }
     }
-    
-    // MARK: - Helper Methods
-//    private func buttonBackgroundColor(for type: SettingType) -> Color {
-//        switch vm.getButtonState(for: type) {
-//        case .active:
-//            return vm.activeSlider == type ? .white : Color.white.opacity(0.2)
-//        case .disabled:
-//            return Color.black.opacity(0.3)
-//        case .viewOnly:
-//            return Color.yellow.opacity(0.3)
-//        }
-//    }
-    
-//    private func buttonTextColor(for type: SettingType) -> Color {
-//        switch vm.getButtonState(for: type) {
-//        case .active:
-//            return vm.activeSlider == type ? .black : .white
-//        case .disabled:
-//            return Color.gray.opacity(0.5)
-//        case .viewOnly:
-//            return .black
-//        }
-//    }
     
     private func handleSettingButtonTap(_ type: SettingType) {
         guard vm.viewMode != .view else {
@@ -299,10 +276,10 @@ struct PresetDetailView: View {
             return
         }
         
-        if vm.activeSlider == type {
-            vm.activeSlider = nil
+        if vm.activePicker == type {
+            vm.activePicker = nil
         } else {
-            vm.activeSlider = type
+            vm.activePicker = type
         }
     }
     

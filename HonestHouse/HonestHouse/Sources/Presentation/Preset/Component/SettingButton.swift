@@ -67,9 +67,7 @@ struct SettingButton<SelectionType>: View {
                 }
                 
             } label: {
-                
                 Circle()
-                    
                     .frame(width: buttonWidth(for: type), height: buttonHeight(for: type))
                     .foregroundStyle(backgroundColor)
                     .overlay {
@@ -107,7 +105,7 @@ struct SettingButton<SelectionType>: View {
     }
 }
 
-struct CameraModeSelector: View {
+struct ShootingModeSelector: View {
     @Binding var selectedMode: ShootingModeType
     let isEnabled: Bool
     
