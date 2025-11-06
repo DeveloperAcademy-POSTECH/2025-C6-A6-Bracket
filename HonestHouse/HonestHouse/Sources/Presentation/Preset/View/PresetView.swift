@@ -64,7 +64,7 @@ struct PresetView: View {
             spacing: 10
         ) {
             ForEach(vm.presets) { preset in
-                PresetGridItem(
+                PresetGridItemView(
                     preset: preset,
                     isSelected: vm.selectedPresets.contains(preset.id),
                     isEditMode: vm.isPresetEditMode,
@@ -87,7 +87,7 @@ struct PresetView: View {
     private var listView: some View {
         LazyVStack(spacing: 10) {
             ForEach(vm.presets) { preset in
-                PresetListItem(
+                PresetListItemView(
                     preset: preset,
                     isSelected: vm.selectedPresets.contains(preset.id),
                     isEditMode: vm.isPresetEditMode,

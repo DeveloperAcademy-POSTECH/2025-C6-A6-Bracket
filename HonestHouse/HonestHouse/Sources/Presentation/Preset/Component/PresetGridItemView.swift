@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PresetGridItem: View {
+struct PresetGridItemView: View {
     let preset: Preset
     let isSelected: Bool
     let isEditMode: Bool
@@ -50,7 +50,7 @@ struct PresetGridItem: View {
 
 #Preview {
     HStack(spacing: 10) {
-        PresetGridItem(
+        PresetGridItemView(
             preset: .stub1,
             isSelected: false,
             isEditMode: false,
@@ -58,7 +58,7 @@ struct PresetGridItem: View {
             onActionTap: {}
         )
         
-        PresetGridItem(
+        PresetGridItemView(
             preset: .stub2,
             isSelected: true,
             isEditMode: false,
