@@ -1,8 +1,8 @@
-# Team-HonestHouse
+# HonestHouse
 <div align="center">
-<img width="50%" alt="image" src="https://github.com/user-attachments/assets/a94cc120-b4f5-4b8f-96c4-ee2b6e12732e" />
+<img width="40%" alt="image" src="https://github.com/user-attachments/assets/a94cc120-b4f5-4b8f-96c4-ee2b6e12732e" />
 
-## DSLR/미러리스 카메라 사용자가 온전히 순간에 집중하며 촬영할 수 있도록 미리 설정한 프리셋이 셔터를 누를 때마다 자동 변경되는 ‘Tri-Shot’을 이용하고 촬영한 사진을 Ai로 그룹화하여 베스트샷을 쉽게 고를 수 있는 앱
+#### DSLR/미러리스 카메라 사용자가 온전히 순간에 집중하며 촬영할 수 있도록 미리 설정한 프리셋이 셔터를 누를 때마다 자동 변경되는 ‘Tri-Shot’을 이용하고 촬영한 사진을 Ai로 그룹화하여 베스트샷을 쉽게 고를 수 있는 앱
 
 <br/>
 
@@ -100,17 +100,12 @@ Bracket은 유사한 사진끼리 자동으로 그룹화하여
 **APIs**: Canon Camera Control API, RESTful API, Digest Authentication
 
 ---
-
 ## 팀
 
-**Team A6**  
-Apple Developer Academy @ POSTECH
-
-| 역할 | 이름 |
-|------|------|
-| Design | Hari |
-| iOS | Ivy, Minbol, Rama, Soop |
-| PM | Sandeul |
+| [![Sandeul](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크1) | [![Hari](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크2) | [![Ivy](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크3) | [![Minbol](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크4) | [![Rama](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크5) | [![Soop](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크6) |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| **양희준(Sandeul)** | **윤하정(Hari)** | **이현주(Ivy)** | **이보민(Minbol)** | **문형근(Rama)** | **한수빈(Soop)** |
+| 🎯 PM | 🎨 Design | 📱 iOS | 📱 iOS | 📱 iOS | 📱 iOS |
 
 ---
 
