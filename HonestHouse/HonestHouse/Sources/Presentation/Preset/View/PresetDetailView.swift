@@ -182,7 +182,7 @@ struct PresetDetailView: View {
                 items: vm.getPictureStyleValues(),
                 config: .init(
                     spacing: 22,
-                    itemSize: .init(width: 50, height: 24)
+                    itemSize: .init(width: 100, height: 24)
                 )
             )
             
