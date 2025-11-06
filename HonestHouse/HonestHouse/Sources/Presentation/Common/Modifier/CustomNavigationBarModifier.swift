@@ -39,34 +39,35 @@ struct NavigationBarWithBackButton<RightContent: View>: ViewModifier {
                 ShadowView(startBottom: false)
                     .ignoresSafeArea(edges: .top)
             }
-
+        
             // Navigation Bar
-            HStack(spacing: 0) {
-                Button(action: {
-                    if let customAction = onBackTapped {
-                        customAction()
-                    } else {
-                        container.navigationRouter.pop()
-                    }
-                }) {
-                    Image(.chevronLeft)
-                        .resizable()
-                        .frame(width: 24, height: 24)
+            Group {
+                HStack {
+                    Spacer()
+                    // Center - Title
+                    Text(title)
+                        .font(.num4)
+                        .lineLimit(1)
+                    Spacer()
                 }
-
-                Spacer()
-
-                // Center - Title
-                Text(title)
-                    .font(.num4)
-                    .lineLimit(1)
-
-                Spacer()
-
-                // Right - Custom View
-                rightView
-                    .frame(height: 24)
-                    .frame(minWidth: 24)
+                HStack(spacing: 0) {
+                    Button {
+                        if let customAction = onBackTapped {
+                            customAction()
+                        } else {
+                            container.navigationRouter.pop()
+                        }
+                    } label: {
+                        Image(.chevronLeft)
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                    }
+                    Spacer()
+                    // Right - Custom View
+                    rightView
+                        .frame(height: 24)
+                        .frame(minWidth: 24)
+                }
             }
             .screenPadding()
             .foregroundStyle(Color.g0)

@@ -16,7 +16,7 @@ extension View {
      .screenPadding()
      */
     func screenPadding() -> some View {
-        self.padding(Spacing.screen)
+        self.padding(.horizontal, Spacing.screen)
     }
     
     /*
