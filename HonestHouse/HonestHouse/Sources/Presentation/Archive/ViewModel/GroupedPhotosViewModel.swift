@@ -9,8 +9,8 @@ import SwiftUI
 
 @MainActor
 @Observable
-final class GroupedPhotosViewModel: ArchiveErrorHandleable {
-    private var container: DIContainer
+final class GroupedPhotosViewModel {
+    private let container: DIContainer
     
     var photosFromSelection: [Photo]
     var selectedPhotosInGroup: [Photo] = []
@@ -25,10 +25,6 @@ final class GroupedPhotosViewModel: ArchiveErrorHandleable {
         self.container = container
         self.photosFromSelection = selectedPhotos
     }
-    
-    func startGrouping() {
-        if case .loading = state { return }
-        if case .success = state { return }
 
     func startGrouping() {
         if case .loading = groupingState { return }
@@ -76,7 +72,7 @@ final class GroupedPhotosViewModel: ArchiveErrorHandleable {
                 }
 
                 // 완료 표시 (progressbar 끝까지)
-                savingState = .saving(current: total, total: total)
+                savingState = .loading(progress: 1.0)
                 try await Task.sleep(nanoseconds: 300_000_000)
 
                 // 저장 완료 후 모든 캐시 삭제
