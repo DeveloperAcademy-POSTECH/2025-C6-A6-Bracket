@@ -2,7 +2,7 @@
 <div align="center">
 <img width="40%" alt="image" src="https://github.com/user-attachments/assets/a94cc120-b4f5-4b8f-96c4-ee2b6e12732e" />
 
-#### DSLR/미러리스 카메라 사용자가 온전히 순간에 집중하며 촬영할 수 있도록 미리 설정한 프리셋이 셔터를 누를 때마다 자동 변경되는 ‘Tri-Shot’을 이용하고 촬영한 사진을 Ai로 그룹화하여 베스트샷을 쉽게 고를 수 있는 앱
+#### DSLR/미러리스 카메라 사용자가 온전히 순간에 집중하며 촬영할 수 있도록 미리 설정한 프리셋이 셔터를 누를 때마다 자동 변경되는 ‘Tri-Shot’을 이용하고 촬영한 사진을 그룹화하여 베스트샷을 쉽게 고를 수 있는 앱
 
 <br/>
 
@@ -34,36 +34,7 @@ Bracket은 유사한 사진끼리 자동으로 그룹화하여
 
 <br/>
 
-<!-- <div align="center">
-
-<table>
-<tr>
-<td align="center" width="33%">
-<img src="https://github.com/user-attachments/assets/700a89d7-90f5-4c97-b0c6-472685aee9bd" width="100%" />
-<br/>
-<b>프리셋 설정</b>
-<br/>
-<sub>원하는 설정 3개 저장</sub>
-</td>
-<td align="center" width="33%">
-<img src="https://github.com/user-attachments/assets/fc50ce99-efb0-4c73-b0bf-e941b5583c29" width="100%" />
-<br/>
-<b>자동 촬영</b>
-<br/>
-<sub>셔터만 누르면 자동 전환</sub>
-</td>
-<td align="center" width="33%">
-<img src="https://github.com/user-attachments/assets/ba00c874-c9cb-4acc-829f-5e6356cd9313" width="100%" />
-<br/>
-<b>AI 그룹화</b>
-<br/>
-<sub>비슷한 사진 자동 정리</sub>
-</td>
-</tr>
-</table>
-
-</div> -->
-
+<!--TODO: 이 사진들도 적당히 GIF따서 넣으면 될 듯 -->
 
 <div align="center">
 
@@ -75,29 +46,71 @@ Bracket은 유사한 사진끼리 자동으로 그룹화하여
 </div>
 
 
-
 ---
+
 ## 주요 기능
 
-### 📸 Tri-Shot
+<div align="center">
+
+### 📸 Tri-Shot - 자동 프리셋 전환
+
+<!-- GIF 추가 시: <img src="assets/tri-shot-demo.gif" width="70%" alt="Tri-Shot Demo" /> -->
+![the-simpsons-homer-simpson](https://github.com/user-attachments/assets/1e85cf71-5aeb-4753-8a22-e0c57aa7e06a)
+
 미리 저장한 3가지 프리셋이 셔터를 누를 때마다 자동으로 전환됩니다.
 ```
-셔터 1회 → 프리셋 A
-셔터 2회 → 프리셋 B  
-셔터 3회 → 프리셋 C
-셔터 4회 → 프리셋 A (반복)
+셔터 1회 → 프리셋 A (따뜻한 톤)
+셔터 2회 → 프리셋 B (자연스러운 톤)  
+셔터 3회 → 프리셋 C (차가운 톤)
+셔터 4회 → 프리셋 A (반복) 🔄
 ```
 
-### 🤖 AI 사진 그룹화
-시각적 유사도, 시간, 위치 정보를 분석하여 비슷한 사진끼리 자동 그룹화합니다.
+<br/>
+
+---
+
+<br/>
+
+### 🤖 사진 그룹화
+
+<!-- GIF 추가 시: <img src="assets/ai-grouping-demo.gif" width="70%" alt="AI Grouping Demo" /> -->
+![the-simpsons-homer-simpson](https://github.com/user-attachments/assets/1e85cf71-5aeb-4753-8a22-e0c57aa7e06a)
+
+Apple Vision Framework를 활용하여 비슷한 사진끼리 자동으로 분류합니다.
+
+```
+- 📐 시각적 유사도
+- ⏰ 촬영 시간
+- 📍 위치 정보
+```
+
+</div>
 
 ---
 
 ## 기술 스택
 
-**Frontend**: SwiftUI, MVVM  
-**Frameworks**: Vision, Core Location, Core Bluetooth, CoreData  
-**APIs**: Canon Camera Control API, RESTful API, Digest Authentication
+<div align="center">
+
+**Frontend**
+
+![SwiftUI](https://img.shields.io/badge/SwiftUI-0D96F6?style=for-the-badge&logo=swift&logoColor=white)
+![MVVM](https://img.shields.io/badge/MVVM-orange?style=for-the-badge)
+
+**Frameworks**
+
+![Vision](https://img.shields.io/badge/Vision-blue?style=for-the-badge&logo=apple&logoColor=white)
+![CoreLocation](https://img.shields.io/badge/Core_Location-007AFF?style=for-the-badge&logo=apple&logoColor=white)
+![CoreBluetooth](https://img.shields.io/badge/Core_Bluetooth-007AFF?style=for-the-badge&logo=bluetooth&logoColor=white)
+![CoreData](https://img.shields.io/badge/Core_Data-FA7343?style=for-the-badge&logo=apple&logoColor=white)
+
+**APIs**
+
+![Canon](https://img.shields.io/badge/Canon_Camera_Control_API-CE0000?style=for-the-badge&logo=canon&logoColor=white)
+![REST](https://img.shields.io/badge/RESTful_API-009688?style=for-the-badge)
+![Digest](https://img.shields.io/badge/Digest_Auth-4CAF50?style=for-the-badge&logo=lock&logoColor=white)
+
+</div>
 
 ---
 ## 팀
