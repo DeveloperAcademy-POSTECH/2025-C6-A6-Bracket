@@ -10,28 +10,18 @@ import Foundation
 /// 점진적 다운로드의 JSON 파싱 델리게이트
 /// - URLSessionDataDelegate 구현
 /// - 실시간으로 완성된 JSON 객체를 파싱하여 콜백
-import Foundation
-
-/// Chunked 스트림의 URLSessionDataDelegate
 final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelegate {
-    
-    // MARK: - Properties
     
     private let onProgress: ([T]) -> Void
     private let onComplete: ([T]) -> Void
     private let sslHandler: (URLAuthenticationChallenge, @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) -> Void
     
     var completion: ((Result<Void, Error>) -> Void)?
+    
     private var hasCompleted = false
-    
-    // MARK: - Parsing State
-    
-    private var textBuffer = ""  // 텍스트 버퍼만 유지
+    private var textBuffer = ""
     private var parsedObjects: [T] = []
-    
     private let decoder = JSONDecoder()
-    
-    // MARK: - Initialization
     
     init(
         decodingType: T.Type,
@@ -44,29 +34,25 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
         self.sslHandler = sslHandler
     }
     
-    // MARK: - URLSessionDataDelegate
-    
     func urlSession(
         _ session: URLSession,
         dataTask: URLSessionDataTask,
         didReceive data: Data
     ) {
         guard let newText = String(data: data, encoding: .utf8) else {
-            print("⚠️ Failed to decode chunk as UTF-8")
+            Logger.warning("Failed to decode chunk as UTF-8", category: .network)
             return
         }
         
-        // 버퍼에 추가
         textBuffer.append(newText)
         
-        print("📥 Received \(data.count) bytes, buffer: \(textBuffer.count) chars")
+        Logger.debug("Received \(data.count) bytes, buffer: \(textBuffer.count) chars", category: .network)
         
-        // 완성된 JSON 객체들 파싱
         let newlyParsed = extractAndParseJSONObjects()
         
         if !newlyParsed.isEmpty {
             parsedObjects.append(contentsOf: newlyParsed)
-            print("✅ Parsed \(newlyParsed.count) objects (Total: \(parsedObjects.count))")
+            Logger.debug("Parsed \(newlyParsed.count) objects (Total: \(parsedObjects.count))", category: .network)
             onProgress(parsedObjects)
         }
     }
@@ -82,10 +68,10 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
             return
         }
         
-        print("📡 Response status: \(httpResponse.statusCode)")
+        Logger.debug("Response status: \(httpResponse.statusCode)", category: .network)
         
         if validateResponseStatus(httpResponse.statusCode) != nil {
-            print("⚠️ Invalid status code, cancelling task")
+            Logger.warning("Invalid status code, cancelling task", category: .network)
             completionHandler(.cancel)
             return
         }
@@ -99,25 +85,24 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
         didCompleteWithError error: Error?
     ) {
         guard !hasCompleted else {
-            print("⚠️ Already completed, ignoring")
+            Logger.warning("Already completed, ignoring", category: .network)
             return
         }
         
         hasCompleted = true
         
-        // 남은 버퍼 처리
         if !textBuffer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            print("⚠️ Processing remaining buffer: \(textBuffer.count) chars")
+            Logger.warning("Processing remaining buffer: \(textBuffer.count) chars", category: .network)
             let remaining = extractAndParseJSONObjects()
             if !remaining.isEmpty {
                 parsedObjects.append(contentsOf: remaining)
-                print("✅ Parsed \(remaining.count) remaining objects")
+                Logger.debug("Parsed \(remaining.count) remaining objects", category: .network)
             }
         }
         
         if let error = error {
             if (error as NSError).code == NSURLErrorCancelled {
-                print("⚠️ Task cancelled")
+                Logger.warning("Task cancelled", category: .network)
                 if let httpResponse = task.response as? HTTPURLResponse,
                    let statusError = validateResponseStatus(httpResponse.statusCode) {
                     completion?(.failure(statusError))
@@ -125,11 +110,11 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
                     completion?(.failure(error))
                 }
             } else {
-                print("❌ Stream error: \(error)")
+                Logger.error("Stream error: \(error)", category: .network)
                 completion?(.failure(error))
             }
         } else {
-            print("✅ Stream completed: \(parsedObjects.count) objects")
+            Logger.info("Stream completed: \(parsedObjects.count) objects", category: .network)
             onComplete(parsedObjects)
             completion?(.success(()))
         }
@@ -143,24 +128,19 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
         handleSSLChallenge(challenge, completionHandler: completionHandler)
     }
     
-    // MARK: - Private Methods - Parsing
-    
     /// 완성된 JSON 객체들을 추출하고 파싱
     private func extractAndParseJSONObjects() -> [T] {
         var parsed: [T] = []
         
         while true {
-            // 다음 JSON 객체 찾기
             guard let (jsonString, consumedLength) = extractNextJSONObject() else {
                 break
             }
             
-            // JSON 파싱
             if let object = decodeJSONObject(from: jsonString) {
                 parsed.append(object)
             }
             
-            // 파싱된 부분 제거
             textBuffer.removeFirst(consumedLength)
         }
         
@@ -179,7 +159,6 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
         for index in textBuffer.indices {
             let char = textBuffer[index]
             
-            // 문자열 내부 처리
             if escapeNext {
                 escapeNext = false
                 continue
@@ -195,7 +174,6 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
                 continue
             }
             
-            // 문자열 밖에서만 중괄호 카운트
             if !inString {
                 if char == "{" {
                     if braceCount == 0 {
@@ -205,7 +183,6 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
                 } else if char == "}" {
                     braceCount -= 1
                     
-                    // 완전한 JSON 객체 완성
                     if braceCount == 0, let start = objectStart {
                         objectEnd = textBuffer.index(after: index)
                         
@@ -218,7 +195,6 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
             }
         }
         
-        // 완성된 객체 없음
         return nil
     }
     
@@ -234,22 +210,20 @@ final class StreamDownloadDelegate<T: Decodable>: NSObject, URLSessionDataDelega
         do {
             return try decoder.decode(T.self, from: jsonData)
         } catch {
-            print("⚠️ JSON decode error: \(error)")
+            Logger.warning("JSON decode error: \(error)", category: .network)
             return nil
         }
     }
-    
-    // MARK: - Private Methods - Validation
     
     private func validateResponseStatus(_ statusCode: Int) -> Error? {
         switch statusCode {
         case 200...299:
             return nil
         case 401:
-            print("⚠️ 401 Unauthorized")
+            Logger.warning("401 Unauthorized", category: .network)
             return CCAPIError.authenticationFailed(401)
         default:
-            print("⚠️ Unexpected status: \(statusCode)")
+            Logger.warning("Unexpected status: \(statusCode)", category: .network)
             return CCAPIError.unexpectedStatusCode(statusCode)
         }
     }

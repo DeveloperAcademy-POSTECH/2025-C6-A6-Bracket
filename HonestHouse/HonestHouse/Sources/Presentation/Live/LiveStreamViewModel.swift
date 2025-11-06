@@ -45,7 +45,6 @@ final class LiveStreamViewModel {
         Logger.info("Task cancellation detected", category: .viewModel)
     }
 
-
     private func configureStreaming() {
         guard !isStreaming else {
             Logger.warning("Already streaming", category: .viewModel)

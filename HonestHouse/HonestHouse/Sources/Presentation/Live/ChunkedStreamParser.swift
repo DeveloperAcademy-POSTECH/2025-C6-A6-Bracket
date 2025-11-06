@@ -49,7 +49,6 @@ actor ChunkedStreamParser {
 
     private func parseScrollFrame() -> ParsedFrame? {
         let localBuffer = Data(self.buffer)
-        Logger.debug("Buffer: \(localBuffer.map { String(format: "%02X", $0) }.joined(separator: " "))", category: .network)
         
         guard let soiRange = localBuffer.range(of: Data([0xFF, 0xD8])) else {
             return nil

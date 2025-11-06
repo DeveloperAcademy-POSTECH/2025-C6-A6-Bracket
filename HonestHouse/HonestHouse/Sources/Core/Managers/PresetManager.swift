@@ -124,8 +124,7 @@ final class PresetManager: PresetManagerType {
 
         try saveContext()
         
-        Logger.info("✅ Preset created successfully: \(preset.name) (id: \(preset.id))", category: .coreData)
-//        logPresetDetails(preset)
+        Logger.info("Preset created successfully: \(preset.name) (id: \(preset.id))", category: .coreData)
     }
     
     /// Preset 업데이트
@@ -144,7 +143,7 @@ final class PresetManager: PresetManagerType {
         
         try saveContext()
         
-        Logger.info("✅ Preset updated successfully: \(preset.name) (id: \(preset.id))", category: .coreData)
+        Logger.info("Preset updated successfully: \(preset.name) (id: \(preset.id))", category: .coreData)
 //        logPresetDetails(preset)
     }
     
@@ -169,7 +168,7 @@ final class PresetManager: PresetManagerType {
         
         try saveContext()
         
-        Logger.info("✅ Preset deleted successfully (id: \(id))", category: .coreData)
+        Logger.info("Preset deleted successfully (id: \(id))", category: .coreData)
     }
     
     /// Preset → PresetEntity 변환 (업데이트용)
@@ -219,9 +218,9 @@ final class PresetManager: PresetManagerType {
         if viewContext.hasChanges {
             do {
                 try viewContext.save()
-                Logger.debug("💾 CoreData context saved successfully", category: .coreData)
+                Logger.debug("CoreData context saved successfully", category: .coreData)
             } catch {
-                Logger.error("❌ Failed to save CoreData context: \(error.localizedDescription)", category: .coreData)
+                Logger.error("Failed to save CoreData context: \(error.localizedDescription)", category: .coreData)
                 throw PresetManagerError.saveFailed(error)
             }
         } else {
