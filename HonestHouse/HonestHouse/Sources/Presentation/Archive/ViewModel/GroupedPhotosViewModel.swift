@@ -10,16 +10,13 @@ import SwiftUI
 @MainActor
 @Observable
 final class GroupedPhotosViewModel: ArchiveErrorHandleable {
-    typealias Success = [SimilarPhotoGroup]
-    typealias Failure = GroupingError
-    
-    private let container: DIContainer
+    private var container: DIContainer
     
     var photosFromSelection: [Photo]
     var selectedPhotosInGroup: [Photo] = []
     
-    var state: ArchiveState<Success, Failure> = .idle
-    var savingState: SavingState = .idle
+    var groupingState: ViewState<[SimilarPhotoGroup], ArchiveError> = .idle
+    var savingState: ViewState<Bool, ArchiveError> = .idle
     
     init(
         container: DIContainer,
@@ -29,21 +26,15 @@ final class GroupedPhotosViewModel: ArchiveErrorHandleable {
         self.photosFromSelection = selectedPhotos
     }
     
-    func handleError(_ error: Error) {
-        if let groupingError = error as? GroupingError {
-            state = .failure(groupingError)
-        } else if let visionError = error as? VisionError {
-            state = .failure(GroupingError.from(visionError: visionError))
-        } else {
-            state = .failure(.unknown)
-        }
-    }
-    
     func startGrouping() {
         if case .loading = state { return }
         if case .success = state { return }
 
-        state = .loading
+    func startGrouping() {
+        if case .loading = groupingState { return }
+        if case .success = groupingState { return }
+
+        groupingState = .loading()
 
         Task {
             do {
@@ -59,17 +50,19 @@ final class GroupedPhotosViewModel: ArchiveErrorHandleable {
                 Logger.info("[Group Prefetch] Completed", category: .viewModel)
 
                 // 둘 다 완료 후 상태 업데이트
-                state = .success(groups)
+                groupingState = .success(groups)
 
+            } catch let visionError as VisionError {
+                groupingState = .failure(ArchiveError.fromVision(visionError))
             } catch {
-                handleError(error)
+                groupingState = .failure(.visionAnalysisFailed)
             }
         }
     }
     
     func saveSelectedPhotos() {
         let total = selectedPhotosInGroup.count
-        savingState = .saving(current: 0, total: total)
+        savingState = .loading(progress: 0.0)
 
         Task {
             do {
@@ -77,7 +70,8 @@ final class GroupedPhotosViewModel: ArchiveErrorHandleable {
                 try await container.managers.photoManager.savePhotos(photos: selectedPhotosInGroup) { [weak self] current, total in
                     guard let self = self else { return }
                     Task { @MainActor in
-                        self.savingState = .saving(current: current, total: total)
+                        let progress = total > 0 ? Double(current) / Double(total) : 0.0
+                        self.savingState = .loading(progress: progress)
                     }
                 }
 
@@ -88,9 +82,11 @@ final class GroupedPhotosViewModel: ArchiveErrorHandleable {
                 // 저장 완료 후 모든 캐시 삭제
                 container.managers.imagePrefetchManager.clearAllCache()
 
-                savingState = .success
+                savingState = .success(true)
+            } catch let photoError as PhotoError {
+                savingState = .failure(ArchiveError.fromPhoto(photoError))
             } catch {
-                savingState = .failure(error.localizedDescription)
+                savingState = .failure(.photoSaveFailed(failedCount: selectedPhotosInGroup.count))
             }
         }
     }
