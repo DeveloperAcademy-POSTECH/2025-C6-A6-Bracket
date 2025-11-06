@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "BracketAppIconDefault.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -12,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "BracketAppIconDark.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
