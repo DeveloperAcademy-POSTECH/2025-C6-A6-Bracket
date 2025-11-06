@@ -23,50 +23,10 @@ struct LiveStreamView: View {
                 Text("라이브뷰 대기 중")
                     .foregroundColor(.gray)
             }
-
-            Text("상태: \(cameraConnectionManager.connectionState == .connected ? (vm.isStreaming ? "스트리밍" : "연결됨") : "연결 안 됨")")
-                .font(.caption)
-                .foregroundColor(cameraConnectionManager.connectionState == .connected ? (vm.isStreaming ? .green : .orange) : .gray)
-
-            if vm.isStreaming {
-                Text("FPS: \(String(format: "%.1f", vm.fps))")
-                    .font(.caption)
-            }
-
-            if let error = vm.errorMessage {
-                Text("에러: \(error)")
-                    .font(.caption)
-                    .foregroundColor(.red)
-            }
-
-            HStack(spacing: 15) {
-                Button {
-                    Task {
-                        vm.startStreaming()
-                    }
-                } label: {
-                    Text(vm.isStreaming ? "스트리밍 중" : "라이브뷰 시작")
-                        .padding()
-                        .background(vm.isStreaming ? Color.orange : Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .disabled(cameraConnectionManager.connectionState != .connected || vm.isStreaming)
-
-                Button {
-                    Task {
-                        vm.stopStreaming()
-                    }
-                } label: {
-                    Text("중지")
-                        .padding()
-                        .background(Color.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .disabled(!vm.isStreaming)
-            }
         }
         .padding()
+        .task {
+            await vm.observeViewLifecycle()
+        }
     }
 }

@@ -24,12 +24,29 @@ final class LiveStreamViewModel {
     private var frameStream: AsyncStream<ParsedFrame>?
     private var frameContinuation: AsyncStream<ParsedFrame>.Continuation?
     private var renderTask: Task<Void, Never>?
+    private var lifecycleTask: Task<Void, Never>?
 
     init(container: DIContainer) {
         self.container = container
     }
+    
+    func observeViewLifecycle() async {
+        defer {
+            Logger.info("View lifecycle ended - cleaning up", category: .viewModel)
+            stopStreaming()
+        }
 
-    func startStreaming() {
+        configureStreaming()
+
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .seconds(0.5))
+        }
+
+        Logger.info("Task cancellation detected", category: .viewModel)
+    }
+
+
+    private func configureStreaming() {
         guard !isStreaming else {
             Logger.warning("Already streaming", category: .viewModel)
             return
@@ -68,12 +85,15 @@ final class LiveStreamViewModel {
         }
     }
 
-    func stopStreaming() {
+    private func stopStreaming() {
         guard isStreaming else {
             Logger.warning("Not streaming", category: .viewModel)
             return
         }
-
+        
+        lifecycleTask?.cancel()
+        lifecycleTask = nil
+        
         frameContinuation?.finish()
         frameContinuation = nil
         renderTask?.cancel()
@@ -86,8 +106,9 @@ final class LiveStreamViewModel {
                 currentImage = nil
                 afFrames.removeAll()
                 fps = 0.0
+                Logger.info("Streaming stopped successfully", category: .viewModel)
             } catch {
-                errorMessage = "Failed to stop live view: \(error.localizedDescription)"
+                Logger.error("Stop streaming error: \(error)", category: .viewModel)
             }
         }
     }
