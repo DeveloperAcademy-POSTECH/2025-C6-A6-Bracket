@@ -122,30 +122,20 @@ struct TrishotSelectionView: View {
 
     private func iconListView(for preset: Preset) -> some View {
         HStack(spacing: 4) {
-            Image(vm.isPresetOccupied(preset.id) ? .picturestyleCircleIconGray : .picturestyleCircleIconWhite)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 32, height: 32)
-
-            Image(shootingModeIcon(for: preset))
-                .resizable()
-                .scaledToFit()
-                .frame(width: 32, height: 32)
-
-            Image(vm.isPresetOccupied(preset.id) ? .colortemperatureCircleIconGray : .colortemperatureCircleIconWhite)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 32, height: 32)
-
-            Image(vm.isPresetOccupied(preset.id) ? .exposureCircleIconGray : .exposureCircleIconWhite)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 32, height: 32)
-
-            Image(vm.isPresetOccupied(preset.id) ? .wbshiftCircleIconGray : .wbshiftCircleIconWhite)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 32, height: 32)
+            Group {
+                Image(vm.isPresetOccupied(preset.id) ? .picturestyleCircleIconGray : .picturestyleCircleIconWhite)
+                    .resizable()
+                Image(shootingModeIcon(for: preset))
+                    .resizable()
+                Image(vm.isPresetOccupied(preset.id) ? .colortemperatureCircleIconGray : .colortemperatureCircleIconWhite)
+                    .resizable()
+                Image(vm.isPresetOccupied(preset.id) ? .exposureCircleIconGray : .exposureCircleIconWhite)
+                    .resizable()
+                Image(vm.isPresetOccupied(preset.id) ? .wbshiftCircleIconGray : .wbshiftCircleIconWhite)
+                    .resizable()
+            }
+            .scaledToFit()
+            .frame(width: 32, height: 32)
         }
     }
 
