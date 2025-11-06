@@ -32,6 +32,20 @@ Bracket은 유사한 사진끼리 자동으로 그룹화하여
 
 ---
 
+<br/>
+
+<div align="center">
+  <img width="30%" alt="image" src="https://github.com/user-attachments/assets/700a89d7-90f5-4c97-b0c6-472685aee9bd" />
+  <img width="30%" alt="image" src="https://github.com/user-attachments/assets/fc50ce99-efb0-4c73-b0bf-e941b5583c29" />
+  <img width="30%" alt="image" src="https://github.com/user-attachments/assets/ba00c874-c9cb-4acc-829f-5e6356cd9313" />
+
+</div>
+
+<div align="center">
+  <sub>프리셋 설정 · Tri-Shot 촬영 · AI 그룹화</sub>
+</div>
+
+---
 ## 주요 기능
 
 ### 📸 Tri-Shot
@@ -58,7 +72,7 @@ Bracket은 유사한 사진끼리 자동으로 그룹화하여
 
 ## 팀
 
-**오후 6팀 (Afternoon Team 6)**  
+**Team A6**  
 Apple Developer Academy @ POSTECH
 
 | 역할 | 이름 |
