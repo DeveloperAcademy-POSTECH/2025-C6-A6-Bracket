@@ -20,12 +20,13 @@ struct MainView: View {
         NavigationStack(path: $container.navigationRouter.destinations) {
             ZStack {
                 Color.g12.ignoresSafeArea(.all)
-                VStack(spacing: 18) {
+                VStack(spacing: 12) {
                     cameraAndArchiveHeaderView()
                     CustomSegmentedControl(selection: $vm.selectedSegment)
+                        .padding(.bottom, 24)
                     selectedSegmentView()
                 }
-                .padding(.horizontal, 16)
+                .screenPadding()
                 .navigationDestination(for: NavigationDestination.self) {
                     NavigationRoutingView(destination: $0)
                 }
@@ -46,10 +47,10 @@ struct MainView: View {
             Button {
                 // TODO: 카메라 연결
             } label: {
-                Image(systemName: "camera.badge.ellipsis")
+                Image(.setting)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 24)
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
             }
             Spacer()
 
@@ -67,13 +68,13 @@ struct MainView: View {
                 // TODO: 사진 불러오기 연결
                 vm.send(action: .goToPhotoSelection)
             } label: {
-                Image(systemName: "photo.badge.plus")
+                Image(.import)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 24)
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
             }
         }
-        .foregroundStyle(.black)
+        .padding(.vertical, 10)
     }
     
     private func segmentedControlView() -> some View {
