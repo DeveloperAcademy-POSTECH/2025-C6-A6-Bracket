@@ -14,7 +14,7 @@ enum PhotoSelectionAction {
 @MainActor
 @Observable
 final class PhotoSelectionViewModel {
-    private var container: DIContainer
+    private let container: DIContainer
 
     var state: ViewState<[String], ArchiveError> = .idle
     
@@ -48,19 +48,19 @@ final class PhotoSelectionViewModel {
     
     /// storageListResponse를 받아와서 storageList로 변환
     func getStorageList() async throws {
-        let storageListResponse = try await imageOperationsService.getStorageList()
+        let storageListResponse = try await container.services.imageOperationsService.getStorageList()
         storageList = storageListResponse.toEntity()
     }
     
     /// directoryListResponse를 받아와서 directoryList로 변환
     func getDirectoryList(storage: String) async throws {
-        let directoryListResponse = try await imageOperationsService.getDirectoryList(storage: storage)
+        let directoryListResponse = try await container.services.imageOperationsService.getDirectoryList(storage: storage)
         directoryList = directoryListResponse.toEntity()
     }
     
     /// contentListResponse를 받아와서 contentList로 변환
     func getContentList(storage: String, directory: String, type: String, order: String) async throws {
-        let response = try await imageOperationsService.getContentList(
+        let response = try await container.services.imageOperationsService.getContentList(
             storage: storage,
             directory: directory,
             type: type,
@@ -82,7 +82,7 @@ final class PhotoSelectionViewModel {
                 if !self.hasStartedInitialPrefetch && self.entireContentUrls.count >= 100 {
                     self.hasStartedInitialPrefetch = true
                     let photos = self.entireContentUrls.map { Photo(url: $0) }
-                    self.imagePrefetchManager.startInitialPrefetch(photos: photos, count: 50)
+                    self.container.managers.imagePrefetchManager.startInitialPrefetch(photos: photos, count: 50)
                 }
             }
         )
