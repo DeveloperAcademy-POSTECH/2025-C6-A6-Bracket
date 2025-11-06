@@ -10,7 +10,7 @@ import SwiftUI
 struct LiveStreamView: View {
     @EnvironmentObject var container: DIContainer
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
-    
+
     @State var vm: LiveStreamViewModel
 
     var body: some View {
@@ -42,7 +42,7 @@ struct LiveStreamView: View {
             HStack(spacing: 15) {
                 Button {
                     Task {
-                        await startLiveView()
+                        vm.startStreaming()
                     }
                 } label: {
                     Text(vm.isStreaming ? "스트리밍 중" : "라이브뷰 시작")
@@ -55,8 +55,7 @@ struct LiveStreamView: View {
 
                 Button {
                     Task {
-                        // TODO: 제대로 동작하게 수정 필요
-                        await stopLiveView()
+                        vm.stopStreaming()
                     }
                 } label: {
                     Text("중지")
@@ -69,23 +68,5 @@ struct LiveStreamView: View {
             }
         }
         .padding()
-    }
-
-    @MainActor
-    private func startLiveView() async {
-        guard cameraConnectionManager.connectionState == .connected else {
-            vm.errorMessage = "먼저 카메라를 연결하세요"
-            return
-        }
-
-        vm.errorMessage = nil
-        vm.startLiveView()
-        Logger.info("라이브뷰 시작", category: .ui)
-    }
-
-    @MainActor
-    private func stopLiveView() async {
-        vm.stopLiveView()
-        Logger.info("라이브뷰 중지", category: .ui)
     }
 }
