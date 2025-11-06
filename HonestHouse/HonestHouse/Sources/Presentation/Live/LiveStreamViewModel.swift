@@ -9,36 +9,64 @@ import SwiftUI
 
 @Observable
 final class LiveStreamViewModel {
-
     private let container: DIContainer
-    
+
     var isStreaming = false
     var currentImage: UIImage?
     var afFrames: [LiveViewInfo.AFFrame] = []
-    var errorMessage: String?
+    var errorMessage: String? //TODO: Error State로 변경
     var fps: Double = 0.0
-    
+
     private var frameCount = 0
     private var fpsStartTime = Date()
     private let fpsUpdateInterval: TimeInterval = 1.0
-    
+
+    private var frameStream: AsyncStream<ParsedFrame>?
+    private var frameContinuation: AsyncStream<ParsedFrame>.Continuation?
+    private var renderTask: Task<Void, Never>?
+    private var lifecycleTask: Task<Void, Never>?
+
     init(container: DIContainer) {
         self.container = container
     }
+    
+    func observeViewLifecycle() async {
+        defer {
+            Logger.info("View lifecycle ended - cleaning up", category: .viewModel)
+            stopStreaming()
+        }
 
-    func startLiveView() {
+        configureStreaming()
+
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .seconds(0.5))
+        }
+
+        Logger.info("Task cancellation detected", category: .viewModel)
+    }
+
+    private func configureStreaming() {
         guard !isStreaming else {
             Logger.warning("Already streaming", category: .viewModel)
             return
         }
 
+        let (stream, continuation) = AsyncStream.makeStream(
+            of: ParsedFrame.self,
+            bufferingPolicy: .bufferingNewest(1)
+        )
+
+        frameStream = stream
+        frameContinuation = continuation
+
         Task { @MainActor in
             let success = await container.services.liveViewService.startLiveView(
                 onFrame: { [weak self] frame in
-                    self?.handleFrame(frame)
+                    self?.frameContinuation?.yield(frame)
                 },
                 onError: { [weak self] error in
                     self?.handleError(error)
+                    self?.frameContinuation?.finish()
                 },
                 size: "medium",
                 display: "on"
@@ -48,17 +76,27 @@ final class LiveStreamViewModel {
                 isStreaming = true
                 errorMessage = nil
                 resetFPS()
+                startRenderLoop()
             } else {
                 errorMessage = "Failed to start live view"
+                frameContinuation?.finish()
             }
         }
     }
 
-    func stopLiveView() {
+    private func stopStreaming() {
         guard isStreaming else {
             Logger.warning("Not streaming", category: .viewModel)
             return
         }
+        
+        lifecycleTask?.cancel()
+        lifecycleTask = nil
+        
+        frameContinuation?.finish()
+        frameContinuation = nil
+        renderTask?.cancel()
+        renderTask = nil
 
         Task { @MainActor in
             do {
@@ -66,9 +104,29 @@ final class LiveStreamViewModel {
                 isStreaming = false
                 currentImage = nil
                 afFrames.removeAll()
+                fps = 0.0
+                Logger.info("Streaming stopped successfully", category: .viewModel)
             } catch {
-                errorMessage = "Failed to stop live view: \(error.localizedDescription)"
+                Logger.error("Stop streaming error: \(error)", category: .viewModel)
             }
+        }
+    }
+
+    private func startRenderLoop() {
+        renderTask = Task { @MainActor in
+            guard let stream = frameStream else { return }
+            Logger.info("Render loop started", category: .viewModel)
+
+            for await frame in stream {
+                guard !Task.isCancelled else {
+                    Logger.info("Render loop cancelled", category: .viewModel)
+                    break
+                }
+
+                handleFrame(frame)
+            }
+
+            Logger.info("Render loop ended", category: .viewModel)
         }
     }
 
@@ -98,6 +156,9 @@ final class LiveStreamViewModel {
         isStreaming = false
         errorMessage = "Connection error: \(error.localizedDescription)"
         Logger.error("LiveView error: \(error)", category: .viewModel)
+
+        frameContinuation?.finish()
+        renderTask?.cancel()
     }
 
     private func updateFPS() {

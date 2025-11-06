@@ -51,7 +51,7 @@ final class LiveViewService: StreamService, LiveViewServiceType {
             await parser.reset()
 
             return await startStreaming(
-                onData: { [weak self] data in
+                onDataReceived: { [weak self] data in
                     guard let self = self else { return }
                     Task {
                         await self.parser.appendChunk(data)

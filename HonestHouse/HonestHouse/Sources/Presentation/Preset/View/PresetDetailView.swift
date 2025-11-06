@@ -54,22 +54,9 @@ struct PresetDetailView: View {
         }
     }
     
-    // Preview Section
     private func previewView() -> some View {
         ZStack {
-            // Sample Image (구름 사진)
-            Image(systemName: "cloud.fill")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-                .overlay(
-                    LinearGradient(
-                        colors: [Color.clear, Color.black.opacity(0.3)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+            LiveStreamView(vm: LiveStreamViewModel(container: vm.container))
         }
     }
     

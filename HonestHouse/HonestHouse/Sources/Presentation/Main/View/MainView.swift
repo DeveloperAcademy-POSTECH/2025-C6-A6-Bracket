@@ -92,13 +92,11 @@ struct MainView: View {
     
     @ViewBuilder
     private func selectedSegmentView() -> some View {
-        switch vm.selectedSegment {
-        case .trishot:
+        if vm.selectedSegment == .trishot {
             TrishotSettingView(
                 vm: TrishotSettingViewModel(container: container)
             )
-            
-        case .preset:
+        } else if vm.selectedSegment == .preset {
             PresetView(
                 vm: PresetViewModel(
                     container: container,
