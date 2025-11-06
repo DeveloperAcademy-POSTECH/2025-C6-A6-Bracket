@@ -150,16 +150,15 @@ class PresetDetailViewModel {
     func savePreset() async throws {
         isLoading = true
         defer { isLoading = false }
-        
-        // 1. updatedAt 갱신
-        currentPreset.updatedAt = Date()
-        
-        // 2. PresetManager 가져오기
+
         let presetManager = container.managers.presetManager
         
-        // 3. viewMode에 따라 create/update 분기
         do {
+            currentPreset.updatedAt = Date()
+            
             switch viewMode {
+                
+                
             case .create:
                 // 새 프리셋 생성
                 try presetManager.createPreset(currentPreset)

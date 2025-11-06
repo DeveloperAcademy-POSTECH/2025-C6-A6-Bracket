@@ -137,7 +137,7 @@ struct PresetView: View {
         } label: {
             Image(systemName: "plus")
                 .font(.system(size: 24, weight: .semibold))
-                .foregroundStyle(Color.g0)
+                .foregroundStyle(Color.g12)
                 .frame(width: 50, height: 50)
                 .background(Circle().fill(Color.g0))
         }

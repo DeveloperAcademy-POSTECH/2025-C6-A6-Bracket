@@ -83,6 +83,7 @@ struct SettingButton<SelectionType>: View {
             
             .disabled(!isInteractive)
             .animation(.easeInOut(duration: 0.15), value: isSelected)
+            .buttonStyle(NoHighlightButtonStyle())
         }
     }
     
@@ -121,89 +122,5 @@ struct ShootingModeSelector: View {
                 }
             }
         }
-    }
-}
-
-// TODO : 삭제 예정
-struct ValueSlider: View {
-    let title: String
-    @Binding var selectedIndex: Int
-    let values: [String]
-    let isEnabled: Bool
-    let onValueChange: (Int) -> Void
-    
-    @State private var dragOffset: CGFloat = 0
-    @GestureState private var isDragging: Bool = false
-    
-    private let itemWidth: CGFloat = 70
-    private let itemSpacing: CGFloat = 5
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            // Slider Track
-            GeometryReader { geometry in
-                let totalWidth = CGFloat(values.count - 1) * (itemWidth + itemSpacing)
-                let centerX = geometry.size.width / 2
-                
-                HStack(spacing: itemSpacing) {
-                    ForEach(Array(values.enumerated()), id: \.offset) { index, value in
-                        Text(value)
-                            .font(.system(size: index == selectedIndex ? 16 : 12))
-                            .fontWeight(index == selectedIndex ? .bold : .regular)
-                            .foregroundColor(
-                                index == selectedIndex ? .white :
-                                isEnabled ? Color.white.opacity(0.5) : Color.gray.opacity(0.3)
-                            )
-                            .frame(width: itemWidth, height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(index == selectedIndex ? Color.yellow : Color.clear)
-                            )
-                            .scaleEffect(index == selectedIndex ? 1.1 : 1.0)
-                            .animation(.easeInOut(duration: 0.15), value: selectedIndex)
-                    }
-                }
-                .offset(x: calculateOffset(geometry: geometry))
-                .gesture(
-                    isEnabled ? DragGesture()
-                        .updating($isDragging) { _, state, _ in
-                            state = true
-                        }
-                        .onChanged { value in
-                            dragOffset = value.translation.width
-                        }
-                        .onEnded { value in
-                            let totalOffset = value.translation.width
-                            let itemTotalWidth = itemWidth + itemSpacing
-                            let steps = Int(round(-totalOffset / itemTotalWidth))
-                            
-                            let newIndex = max(0, min(values.count - 1, selectedIndex + steps))
-                            if newIndex != selectedIndex {
-                                onValueChange(newIndex)
-                            }
-                            
-                            dragOffset = 0
-                        }
-                    : nil
-                )
-            }
-            .frame(height: 60)
-            
-            // Center Indicator
-            Rectangle()
-                .fill(Color.yellow)
-                .frame(width: 2, height: 20)
-                .offset(y: -10)
-        }
-        .opacity(isEnabled ? 1.0 : 0.5)
-    }
-    
-    private func calculateOffset(geometry: GeometryProxy) -> CGFloat {
-        let itemTotalWidth = itemWidth + itemSpacing
-        let centerX = geometry.size.width / 2
-        let selectedOffset = -CGFloat(selectedIndex) * itemTotalWidth
-        let centering = centerX - (itemWidth / 2)
-        
-        return centering + selectedOffset + (isDragging ? dragOffset : 0)
     }
 }
