@@ -19,24 +19,20 @@ struct PresetDetailView: View {
             Color.g12.ignoresSafeArea(.all)
             
             VStack(spacing: 0) {
-                // Preview Area
-                previewView
+                previewView()
                     .frame(height: 200)
                 
-                // Control Panel
                 VStack(spacing: 25) {
-                    // Camera Mode Section
-                    shootingModeView
+                    shootingModeView()
                     
                     // Primary Settings
-                    primarySettingsView
+                    primarySettingsView()
                     
                     if let activePicker = vm.activePicker {
                         pickerView(for: activePicker)
                     }
                     
-                    // Secondary Settings
-                    secondarySettingsSView
+                    secondarySettingsSView()
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 30)
@@ -46,7 +42,7 @@ struct PresetDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            toolbarContent
+            toolbarContent()
         }
         .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
             Button("저장하지 않고 나가기", role: .destructive) {
@@ -58,8 +54,8 @@ struct PresetDetailView: View {
         }
     }
     
-    // MARK: - Preview Section
-    private var previewView: some View {
+    // Preview Section
+    private func previewView() -> some View {
         ZStack {
             // Sample Image (구름 사진)
             Image(systemName: "cloud.fill")
@@ -78,7 +74,7 @@ struct PresetDetailView: View {
     }
     
     // Camera Mode Section
-    private var shootingModeView: some View {
+    private func shootingModeView() -> some View {
         ShootingModeSelector(
             selectedMode: Binding(
                 get: { vm.currentPreset.shootingMode },
@@ -89,7 +85,7 @@ struct PresetDetailView: View {
     }
     
     // Primary Settings Section
-    private var primarySettingsView: some View {
+    private func primarySettingsView() -> some View {
         HStack {
             // Aperture (조리개)
             SettingButton(
@@ -223,7 +219,7 @@ struct PresetDetailView: View {
     }
     
     // Secondary Settings Section
-    private var secondarySettingsSView: some View {
+    private func secondarySettingsSView() -> some View {
         HStack(spacing: 30) {
             
             // Tint Magenta Green (마젠타-그린)
@@ -261,7 +257,7 @@ struct PresetDetailView: View {
         }
     }
     
-    private func handleSettingButtonTap(_ type: SettingType) {
+    private func handleSettingButtonTap(_ type: SettingType){
         guard vm.viewMode != .view else {
             vm.switchToEditMode()
             return
@@ -281,7 +277,7 @@ struct PresetDetailView: View {
     
     // Toolbar
     @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
+    private func toolbarContent() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
             Button("취소") {
                 if vm.viewMode == .create {
@@ -321,7 +317,6 @@ struct PresetDetailView: View {
     }
 }
 
-// MARK: - Preview
 #Preview("View Mode") {
     PresetDetailView(vm: .init(container: .stub, mode: .view, preset: .stub1))
 }

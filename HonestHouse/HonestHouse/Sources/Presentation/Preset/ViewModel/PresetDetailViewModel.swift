@@ -61,7 +61,7 @@ class PresetDetailViewModel {
         originalPreset = nil
     }
     
-    // MARK: - Camera Mode Management
+    // Camera Mode Management
     func changeCameraMode(to mode: ShootingModeType) {
         guard currentPreset.shootingMode != mode else { return }
         
@@ -91,7 +91,7 @@ class PresetDetailViewModel {
         }
     }
 
-    // MARK: - Button State
+    // Button State
     func getButtonState(for type: SettingType) -> ButtonState {
         // 조회 모드에서는 모든 버튼이 viewOnly
         if viewMode == .view {
@@ -118,7 +118,7 @@ class PresetDetailViewModel {
         return getButtonState(for: type) == .active
     }
     
-    // MARK: - Value Updates
+    // Value Updates
     func updateAperture(_ value: String) {
         guard isSettingEditable(.aperture) else { return }
         currentPreset.aperture = value
@@ -146,7 +146,7 @@ class PresetDetailViewModel {
         return "\(value)K"
     }
     
-    // MARK: - Data Persistence
+    // Data Persistence
     func savePreset() async throws {
         isLoading = true
         defer { isLoading = false }
@@ -207,7 +207,7 @@ class PresetDetailViewModel {
         lhs.colorTemperature == rhs.colorTemperature
     }
     
-    // MARK: - Get Setting Values
+    // Get Setting Values
     func getISOValues() -> [String] {
         return CameraConstants.isoValues
     }

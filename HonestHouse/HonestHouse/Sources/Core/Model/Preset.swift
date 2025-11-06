@@ -74,7 +74,7 @@ struct Preset: Hashable, Identifiable {
     }
 }
 
-// MARK: - Equatable & Hashable
+// Equatable & Hashable
 extension Preset {
     static func == (lhs: Preset, rhs: Preset) -> Bool {
         lhs.id == rhs.id
@@ -85,7 +85,7 @@ extension Preset {
     }
 }
 
-// MARK: - UI Description
+// UI Description
 extension Preset {
     // TODO: 추후 UIAdapter 등으로 분리 요망
     var modeDescription: String? {
@@ -106,7 +106,7 @@ extension Preset {
     }
 }
 
-// MARK: - Display Formatting
+// Display Formatting
 extension Preset {
     /// 뷰에서 표시할 조리개 값
     var displayAperture: String {
@@ -153,7 +153,7 @@ extension Preset {
     }
 }
 
-// MARK: - Stub Data
+// Stub Data
 extension Preset {
     static var stub1: Preset {
         .init(
