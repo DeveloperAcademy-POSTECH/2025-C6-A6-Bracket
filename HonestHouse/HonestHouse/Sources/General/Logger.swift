@@ -64,30 +64,4 @@ struct Logger {
         
         os_log("%{public}@", log: category.osLog, type: level.osLogType, logMessage)
     }
-    
-    // MARK: - Convenience Methods
-    static func debug(_ message: String, category: LogCategory = .general) {
-        log(.debug, category: category, message: message)
-    }
-    
-    static func info(_ message: String, category: LogCategory = .general) {
-        log(.info, category: category, message: message)
-    }
-    
-    static func warning(_ message: String, category: LogCategory = .general) {
-        log(.warning, category: category, message: message)
-    }
-    
-    static func error(_ message: String, category: LogCategory = .general) {
-        log(.error, category: category, message: message)
-    }
-}
-
-// MARK: - DateFormatter Extension
-private extension DateFormatter {
-    static func logTimestamp() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss.SSS"
-        return formatter.string(from: Date())
-    }
 }

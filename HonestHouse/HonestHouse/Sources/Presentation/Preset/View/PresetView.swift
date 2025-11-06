@@ -17,25 +17,23 @@ struct PresetView: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            mainContent
+            mainView
 
             Group {
                 if vm.isPresetEditMode {
-                    deleteButton()
+                    deleteButtonView()
                 } else {
                     HStack {
                         Spacer()
-                        addButton()
+                        addButtonView()
                     }
                 }
             }
             .padding(.bottom, 24)
         }
-        .navigationTitle("프리셋")
-        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                viewModeMenu
+                viewModeMenuView
             }
         }
         .environment(vm)
@@ -44,9 +42,8 @@ struct PresetView: View {
         }
     }
     
-    // Main Content
     @ViewBuilder
-    private var mainContent: some View {
+    private var mainView: some View {
         ScrollView {
             if vm.viewMode == .grid {
                 gridView
@@ -58,7 +55,6 @@ struct PresetView: View {
         .animation(.easeInOut(duration: 0.3), value: vm.viewMode)
     }
     
-    // Grid View
     private var gridView: some View {
         LazyVGrid(
             columns: [
@@ -111,19 +107,21 @@ struct PresetView: View {
         .padding(.top, 16)
     }
     
-    // View Mode Menu
-    private var viewModeMenu: some View {
+    private var viewModeMenuView: some View {
         Menu {
-            Button {
-                vm.setViewMode(.list)
-            } label: {
-                Label("리스트 보기", systemImage: "list.bullet")
-            }
-            
-            Button {
-                vm.setViewMode(.grid)
-            } label: {
-                Label("그리드 보기", systemImage: "square.grid.2x2")
+            switch vm.viewMode {
+            case .grid:
+                Button {
+                    vm.setViewMode(.list)
+                } label: {
+                    Label("리스트 보기", systemImage: "list.bullet")
+                }
+            case .list:
+                Button {
+                    vm.setViewMode(.grid)
+                } label: {
+                    Label("그리드 보기", systemImage: "square.grid.2x2")
+                }
             }
         } label: {
             Image(systemName: vm.viewMode == .grid ? "square.grid.2x2" : "list.bullet")
@@ -133,20 +131,19 @@ struct PresetView: View {
     }
     
     // Buttons
-    private func addButton() -> some View {
+    private func addButtonView() -> some View {
         Button {
             vm.send(action: .goToPresetDetail(.create, nil))
         } label: {
             Image(systemName: "plus")
                 .font(.system(size: 24, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 56, height: 56)
-                .background(Circle().fill(Color.blue))
-                .shadow(radius: 4, y: 2)
+                .foregroundStyle(Color.g0)
+                .frame(width: 50, height: 50)
+                .background(Circle().fill(Color.g0))
         }
     }
     
-    private func deleteButton() -> some View {
+    private func deleteButtonView() -> some View {
         Button {
             vm.deleteSelectedPresets()
             vm.isPresetEditMode = false

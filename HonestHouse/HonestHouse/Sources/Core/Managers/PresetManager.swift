@@ -125,7 +125,7 @@ final class PresetManager: PresetManagerType {
         try saveContext()
         
         Logger.info("✅ Preset created successfully: \(preset.name) (id: \(preset.id))", category: .coreData)
-        logPresetDetails(preset)
+//        logPresetDetails(preset)
     }
     
     /// Preset 업데이트
@@ -145,7 +145,7 @@ final class PresetManager: PresetManagerType {
         try saveContext()
         
         Logger.info("✅ Preset updated successfully: \(preset.name) (id: \(preset.id))", category: .coreData)
-        logPresetDetails(preset)
+//        logPresetDetails(preset)
     }
     
     /// Preset 삭제
