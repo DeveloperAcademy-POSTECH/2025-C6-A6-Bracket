@@ -74,36 +74,31 @@ struct TrishotSelectionView: View {
                 vm.selectPreset(preset.id)
             }
         } label: {
-            ZStack {
-                Capsule()
-                    .fill(isSelected ? Color.yellow1.opacity(0.08) : Color.clear)
-                HStack {
-                    Spacer()
-                    VStack(alignment: .center, spacing: 12) {
-                        nameView(preset.name, isSelected: isSelected)
-                        iconListView(for: preset)
-                        shootingDescriptionView(preset, isSelected: isSelected)
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal, 31)
-                .padding(.vertical, 15)
-                HStack {
-                    Spacer()
-                    Image(.chevronRight)
-                        .renderingMode(isOccupied ? .template : .original)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                        .foregroundColor(isSelected ? Color.g0 : Color.g7)
-                }
-                .padding(.trailing, 8)
+            VStack(alignment: .center, spacing: 12) {
+                nameView(preset.name, isSelected: isSelected)
+                iconListView(for: preset)
+                shootingDescriptionView(preset, isSelected: isSelected)
             }
-            
+            .padding(.horizontal, 37)
+            .frame(maxWidth: .infinity)
+            .overlay(alignment: .trailing) {
+                Image(.chevronRight)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(isSelected ? Color.g0 : Color.g7)
+                    .padding(.trailing, 8)
+            }
+            .padding(.vertical, 15)
             .frame(height: 122)
             .background(
                 Capsule()
                     .fill(Color.g11)
+            )
+            .overlay(
+                Capsule()
+                    .fill(isSelected ? Color.yellow1.opacity(0.08) : Color.clear)
             )
             .overlay(
                 CapsuleRoundStroke()
