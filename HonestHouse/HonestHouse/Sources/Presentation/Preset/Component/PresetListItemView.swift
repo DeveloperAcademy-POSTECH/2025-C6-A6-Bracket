@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PresetListItem: View {
+struct PresetListItemView: View {
     let preset: Preset
     let isSelected: Bool
     let isEditMode: Bool
@@ -15,31 +15,26 @@ struct PresetListItem: View {
     let onActionTap: () -> Void
     
     var body: some View {
-        Button(action: onTap) {
-            HStack {
-                Spacer()
-                VStack(alignment: .center, spacing: 12) {
-                    
-                    nameView()
-                    iconListView()
-                    settingDescriptionView()
-                    
-                }
-                Spacer()
-                applyButtonView()
-                
+        HStack {
+            Spacer()
+            VStack(alignment: .center, spacing: 12) {
+                nameView()
+                iconListView()
+                settingDescriptionView()
             }
-            
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 15)
-            .padding(.trailing, 8)
-            .background(Color.g11)
-            .clipShape(
-                RoundedRectangle(cornerRadius: 100)
-                    
-            )
+            Spacer()
+            applyButtonView()
         }
-        .buttonStyle(NoHighlightButtonStyle())
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 15)
+        .padding(.trailing, 8)
+        .background(Color.g11)
+        .clipShape(
+            RoundedRectangle(cornerRadius: 100)
+        )
+        .onTapGesture {
+            onTap()
+        }
     }
     
     func nameView() -> some View {
@@ -67,7 +62,7 @@ struct PresetListItem: View {
             }
             
             Text(preset.isoDescription)
-               
+            
         }
         .font(.num6)
         .foregroundStyle(Color.g0)
@@ -84,7 +79,7 @@ struct PresetListItem: View {
 
 #Preview {
     VStack(spacing: 20) {
-        PresetListItem(
+        PresetListItemView(
             preset: .stub1,
             isSelected: false,
             isEditMode: false,
@@ -92,7 +87,7 @@ struct PresetListItem: View {
             onActionTap: {}
         )
         
-        PresetListItem(
+        PresetListItemView(
             preset: .stub2,
             isSelected: true,
             isEditMode: false,
@@ -100,7 +95,7 @@ struct PresetListItem: View {
             onActionTap: {}
         )
         
-        PresetListItem(
+        PresetListItemView(
             preset: .stub3,
             isSelected: false,
             isEditMode: true,
