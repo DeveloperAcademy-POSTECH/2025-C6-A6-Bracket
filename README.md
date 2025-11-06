@@ -1,4 +1,4 @@
-# 2025-C6-A6-HonestHouse
+# Team-HonestHouse
 <div align="center">
 <img width="50%" alt="image" src="https://github.com/user-attachments/assets/a94cc120-b4f5-4b8f-96c4-ee2b6e12732e" />
 
@@ -34,16 +34,47 @@ Bracket은 유사한 사진끼리 자동으로 그룹화하여
 
 <br/>
 
+<!-- <div align="center">
+
+<table>
+<tr>
+<td align="center" width="33%">
+<img src="https://github.com/user-attachments/assets/700a89d7-90f5-4c97-b0c6-472685aee9bd" width="100%" />
+<br/>
+<b>프리셋 설정</b>
+<br/>
+<sub>원하는 설정 3개 저장</sub>
+</td>
+<td align="center" width="33%">
+<img src="https://github.com/user-attachments/assets/fc50ce99-efb0-4c73-b0bf-e941b5583c29" width="100%" />
+<br/>
+<b>자동 촬영</b>
+<br/>
+<sub>셔터만 누르면 자동 전환</sub>
+</td>
+<td align="center" width="33%">
+<img src="https://github.com/user-attachments/assets/ba00c874-c9cb-4acc-829f-5e6356cd9313" width="100%" />
+<br/>
+<b>AI 그룹화</b>
+<br/>
+<sub>비슷한 사진 자동 정리</sub>
+</td>
+</tr>
+</table>
+
+</div> -->
+
+
 <div align="center">
-  <img width="30%" alt="image" src="https://github.com/user-attachments/assets/700a89d7-90f5-4c97-b0c6-472685aee9bd" />
-  <img width="30%" alt="image" src="https://github.com/user-attachments/assets/fc50ce99-efb0-4c73-b0bf-e941b5583c29" />
-  <img width="30%" alt="image" src="https://github.com/user-attachments/assets/ba00c874-c9cb-4acc-829f-5e6356cd9313" />
+
+| <img width="100%" src="https://github.com/user-attachments/assets/700a89d7-90f5-4c97-b0c6-472685aee9bd" /> | <img width="100%" src="https://github.com/user-attachments/assets/fc50ce99-efb0-4c73-b0bf-e941b5583c29" /> | <img width="100%" src="https://github.com/user-attachments/assets/ba00c874-c9cb-4acc-829f-5e6356cd9313" /> | <img width="100%" src="https://github.com/user-attachments/assets/4d84fab9-a794-4ebb-9599-5edc4628831b" /> |
+|:---:|:---:|:---:|:---:|
+| **Tri-Shot** | **프리셋 제작** | **카메라를 조작하는 듯한 Ui** | **사진 그룹화** |
+| 원하는 설정으로 촬영 | 카메라 화면을 핸드폰으로 보며 값 조정 | 실제 카메라의 다이얼에서 영감을 얻은 디자인 | Vison과 시공간 정보로 사진 유사도를 계산하여 그룹화 |
 
 </div>
 
-<div align="center">
-  <sub>프리셋 설정 · Tri-Shot 촬영 · AI 그룹화</sub>
-</div>
+
 
 ---
 ## 주요 기능
