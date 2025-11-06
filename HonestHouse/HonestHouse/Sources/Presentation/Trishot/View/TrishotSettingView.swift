@@ -78,9 +78,11 @@ struct TrishotSettingView: View {
                 Text(name)
                     .font(.title3)
                     .foregroundStyle(Color.g0)
-                // TODO: Custom Asset으로 대체
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 24))
+                Image(.chevronRight)
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
                     .foregroundStyle(Color.g7)
             }
         }
