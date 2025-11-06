@@ -21,6 +21,7 @@ final class PresetManager: PresetManagerType {
         request.sortDescriptors = [NSSortDescriptor(keyPath: \PresetEntity.createdAt, ascending: true)]
         
         let entities = try viewContext.fetch(request)
+        Logger.debug("Fetched \(entities.count) presets from CoreData", category: .coreData)
         return entities.map { $0.toPreset() }
     }
     
@@ -31,7 +32,12 @@ final class PresetManager: PresetManagerType {
         request.fetchLimit = 1
         
         let entities = try viewContext.fetch(request)
-        return entities.first?.toPreset()
+        if let preset = entities.first?.toPreset() {
+            Logger.debug("Fetched preset: \(preset.name) (id: \(id))", category: .coreData)
+            return preset
+        }
+        Logger.warning("Preset not found with id: \(id)", category: .coreData)
+        return nil
     }
 
     /// 모든 SelectedPreset 조회 (order 기준 오름차순)
@@ -102,6 +108,8 @@ final class PresetManager: PresetManagerType {
     /// ### 새 Preset 생성
     /// 총 프리셋이 3개 미만인 경우 자동적으로 selectedPresetEntity가 된다.
     func createPreset(_ preset: Preset) throws {
+        Logger.info("Creating preset: \(preset.name)", category: .coreData)
+        
         let entity = PresetEntity(context: viewContext)
         updateEntityFromPreset(entity, preset: preset)
 
@@ -115,10 +123,15 @@ final class PresetManager: PresetManagerType {
         }
 
         try saveContext()
+        
+        Logger.info("✅ Preset created successfully: \(preset.name) (id: \(preset.id))", category: .coreData)
+//        logPresetDetails(preset)
     }
     
     /// Preset 업데이트
     func updatePreset(_ preset: Preset) throws {
+        Logger.info("Updating preset: \(preset.name)", category: .coreData)
+        
         let request = PresetEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", preset.id as CVarArg)
         request.fetchLimit = 1
@@ -130,6 +143,9 @@ final class PresetManager: PresetManagerType {
         updateEntityFromPreset(entity, preset: preset)
         
         try saveContext()
+        
+        Logger.info("✅ Preset updated successfully: \(preset.name) (id: \(preset.id))", category: .coreData)
+//        logPresetDetails(preset)
     }
     
     /// Preset 삭제
@@ -139,6 +155,8 @@ final class PresetManager: PresetManagerType {
     
     /// ID로 Preset 삭제
     func deletePreset(by id: UUID) throws {
+        Logger.info("Deleting preset with id: \(id)", category: .coreData)
+        
         let request = PresetEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         request.fetchLimit = 1
@@ -150,6 +168,8 @@ final class PresetManager: PresetManagerType {
         viewContext.delete(entity)
         
         try saveContext()
+        
+        Logger.info("✅ Preset deleted successfully (id: \(id))", category: .coreData)
     }
     
     /// Preset → PresetEntity 변환 (업데이트용)
@@ -158,15 +178,40 @@ final class PresetManager: PresetManagerType {
         entity.name = preset.name
         entity.pictureStyle = preset.pictureStyle.rawValue
         entity.shootingMode = preset.shootingMode.rawValue
+        
+        // 옵셔널 String → 옵셔널 String (nil 허용)
         entity.aperture = preset.aperture
         entity.shutterSpeed = preset.shutterSpeed
         entity.iso = preset.iso
         entity.exposureCompensation = preset.exposureCompensation
+        
+        // Int? → Int16 (nil일 경우 0으로 저장)
         entity.colorTemperature = preset.colorTemperature.map { Int16($0) } ?? 0
         entity.tintBlueAmber = preset.tintBlueAmber.map { Int16($0) } ?? 0
         entity.tintMagentaGreen = preset.tintMagentaGreen.map { Int16($0) } ?? 0
+        
         entity.createdAt = preset.createdAt
         entity.updatedAt = preset.updatedAt
+    }
+    
+    /// Preset 상세 정보 로깅
+    private func logPresetDetails(_ preset: Preset) {
+        Logger.debug("""
+        📋 Preset Details:
+          - Name: \(preset.name)
+          - ID: \(preset.id)
+          - PictureStyle: \(preset.pictureStyle.rawValue)
+          - ShootingMode: \(preset.shootingMode.rawValue)
+          - Aperture: \(preset.aperture ?? "nil")
+          - ShutterSpeed: \(preset.shutterSpeed ?? "nil")
+          - ISO: \(preset.iso ?? "nil")
+          - ExposureCompensation: \(preset.exposureCompensation ?? "nil")
+          - ColorTemperature: \(preset.colorTemperature?.description ?? "nil")
+          - TintBlueAmber: \(preset.tintBlueAmber?.description ?? "nil")
+          - TintMagentaGreen: \(preset.tintMagentaGreen?.description ?? "nil")
+          - CreatedAt: \(preset.createdAt)
+          - UpdatedAt: \(preset.updatedAt)
+        """, category: .coreData)
     }
     
     /// Context 저장
@@ -174,13 +219,18 @@ final class PresetManager: PresetManagerType {
         if viewContext.hasChanges {
             do {
                 try viewContext.save()
+                Logger.debug("💾 CoreData context saved successfully", category: .coreData)
             } catch {
+                Logger.error("❌ Failed to save CoreData context: \(error.localizedDescription)", category: .coreData)
                 throw PresetManagerError.saveFailed(error)
             }
+        } else {
+            Logger.debug("No changes in CoreData context", category: .coreData)
         }
     }
 }
 
+// MARK: - Stub Implementation
 final class StubPresetManager: PresetManagerType {
     private var presets: [Preset] = [.stub1, .stub2, .stub3]
     private var activatedPresets: Set<UUID> = [Preset.stub1.id, Preset.stub2.id, Preset.stub3.id]

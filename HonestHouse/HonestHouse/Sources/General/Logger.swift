@@ -33,6 +33,7 @@ enum LogCategory: String {
     case connection = "Connection"
     case ui = "UI"
     case viewModel = "ViewModel"
+    case coreData = "CoreData"
     case general = "General"
     
     var osLog: OSLog {
@@ -64,6 +65,3 @@ struct Logger {
         os_log("%{public}@", log: category.osLog, type: level.osLogType, logMessage)
     }
 }
-
-
-

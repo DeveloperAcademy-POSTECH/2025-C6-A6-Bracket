@@ -12,33 +12,27 @@ struct PresetDetailView: View {
     @State var vm: PresetDetailViewModel
     @State private var showDeleteAlert = false
     @State private var showUnsavedChangesAlert = false
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss // TODO: - vm에서 nvrouter로 관리
     
     var body: some View {
         ZStack {
-            // Background
             Color.g12.ignoresSafeArea(.all)
             
             VStack(spacing: 0) {
-                // Preview Area
-                previewSection
-                    .frame(height: UIScreen.main.bounds.height * 0.35)
+                previewView()
+                    .frame(height: 200)
                 
-                // Control Panel
                 VStack(spacing: 25) {
-                    // Camera Mode Section
-                    cameraModeSection
+                    shootingModeView()
                     
                     // Primary Settings
-                    primarySettingsSection
+                    primarySettingsView()
                     
-                    // Value Slider (if active)
-                    if let activeSlider = vm.activeSlider {
-                        sliderSection(for: activeSlider)
+                    if let activePicker = vm.activePicker {
+                        pickerView(for: activePicker)
                     }
                     
-                    // Secondary Settings
-                    secondarySettingsSection
+                    secondarySettingsSView()
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 30)
@@ -48,7 +42,7 @@ struct PresetDetailView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            toolbarContent
+            toolbarContent()
         }
         .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
             Button("저장하지 않고 나가기", role: .destructive) {
@@ -60,8 +54,8 @@ struct PresetDetailView: View {
         }
     }
     
-    // MARK: - Preview Section
-    private var previewSection: some View {
+    // Preview Section
+    private func previewView() -> some View {
         ZStack {
             // Sample Image (구름 사진)
             Image(systemName: "cloud.fill")
@@ -79,9 +73,9 @@ struct PresetDetailView: View {
         }
     }
     
-    // MARK: - Camera Mode Section
-    private var cameraModeSection: some View {
-        CameraModeSelector(
+    // Camera Mode Section
+    private func shootingModeView() -> some View {
+        ShootingModeSelector(
             selectedMode: Binding(
                 get: { vm.currentPreset.shootingMode },
                 set: { vm.changeCameraMode(to: $0) }
@@ -90,26 +84,26 @@ struct PresetDetailView: View {
         )
     }
     
-    // MARK: - Primary Settings Section
-    private var primarySettingsSection: some View {
+    // Primary Settings Section
+    private func primarySettingsView() -> some View {
         HStack {
-            // Aperture
+            // Aperture (조리개)
             SettingButton(
                 type: .aperture,
                 state: vm.getButtonState(for: .aperture),
-                value: vm.currentPreset.aperture ?? "Auto",
-                isSelected: vm.activeSlider == .aperture,
+                value: vm.currentPreset.displayAperture,
+                isSelected: vm.activePicker == .aperture,
                 action: {
                     handleSettingButtonTap(.aperture)
                 }
             )
             
-            // Shutter Speed
+            // Shutter Speed (셔터 스피드)
             SettingButton(
                 type: .shutterSpeed,
                 state: vm.getButtonState(for: .shutterSpeed),
-                value: vm.currentPreset.shutterSpeed ?? "Auto",
-                isSelected: vm.activeSlider == .shutterSpeed,
+                value: vm.currentPreset.displayShutterSpeed,
+                isSelected: vm.activePicker == .shutterSpeed,
                 action: {
                     handleSettingButtonTap(.shutterSpeed)
                 }
@@ -119,20 +113,20 @@ struct PresetDetailView: View {
             SettingButton(
                 type: .iso,
                 state: vm.getButtonState(for: .iso),
-                value: vm.currentPreset.iso ?? "Auto",
-                isSelected: vm.activeSlider == .iso,
+                value: vm.currentPreset.displayISO,
+                isSelected: vm.activePicker == .iso,
                 action: {
                     handleSettingButtonTap(.iso)
                 }
             )
             
+            // Picture Style (픽쳐 스타일)
             SettingButton(
                 type: .pictureStyle,
                 state: vm.getButtonState(for: .pictureStyle),
                 value: vm.currentPreset.pictureStyle.rawValue,
-                isSelected: vm.activeSlider == .pictureStyle,
+                isSelected: vm.activePicker == .pictureStyle,
                 action: {
-
                     handleSettingButtonTap(.pictureStyle)
                 }
             )
@@ -141,12 +135,14 @@ struct PresetDetailView: View {
         .frame(maxWidth: .infinity)
     }
     
-    // MARK: - Slider Section
-    private func sliderSection(for type: SettingType) -> some View {
-        Group {
-            switch type {
-            case .aperture:
-                
+    @ViewBuilder
+    private func pickerView(for type: SettingType) -> some View {
+        switch type {
+        case .cameraMode:
+            EmptyView()
+            
+        case .aperture:
+            if vm.currentPreset.shootingMode == .av {
                 CustomWheelPickerView(
                     selectedValue: $vm.currentPreset.aperture,
                     items: vm.getApertureValues(),
@@ -155,108 +151,105 @@ struct PresetDetailView: View {
                         itemSize: .init(width: 50, height: 24)
                     )
                 )
-
-                
-                
-            case .shutterSpeed:
+            }
+            
+            
+        case .shutterSpeed:
+            if vm.currentPreset.shootingMode == .tv {
                 CustomWheelPickerView(
                     selectedValue: $vm.currentPreset.shutterSpeed,
                     items: vm.getShutterSpeedValues(),
                     config: .init(
                         spacing: 22,
-                        itemSize: .init(width: 50, height: 24)
+                        itemSize: .init(width: 60, height: 24)
                     )
                 )
-                
-                
-            case .iso:
-                CustomWheelPickerView(
-                    selectedValue: $vm.currentPreset.iso,
-                    items: vm.getISOValues(),
-                    config: .init(
-                        spacing: 22,
-                        itemSize: .init(width: 50, height: 24)
-                    )
-                )
-
-//            case .pictureStyle:
-//                CustomWheelPickerView(
-//                    selectedValue: $vm.currentPreset.pictureStyle,
-//                    items: vm.getPictureStyleValues(),
-//                    config: .init(
-//                        spacing: 22,
-//                        itemSize: .init(width: 50, height: 24)
-//                    )
-//                )
-                
-            case .tintMagentaGreen:
-                CustomWheelPickerView(
-                    selectedValue: $vm.currentPreset.tintMagentaGreen,
-                    items: vm.getTintMagentGreenValues(),
-                    config: .init(
-                        spacing: 22,
-                        itemSize: .init(width: 50, height: 24)
-                    )
-                )
-                
-            case .exposure:
-                CustomWheelPickerView(
-                    selectedValue: $vm.currentPreset.exposureCompensation,
-                    items: vm.getExposureCompensationValues(),
-                    config: .init(
-                        spacing: 22,
-                        itemSize: .init(width: 50, height: 24)
-                    )
-                )
-                
-//            case .colorTemp:
-//                CustomWheelPickerView(
-//                    selectedValue: $vm.currentPreset.colorTemperature,
-//                    items: vm.getColorTemperatureValues(),
-//                    config: .init(
-//                        spacing: 22,
-//                        itemSize: .init(width: 50, height: 24)
-//                    )
-//                )
-                
-            default:
-                EmptyView()
             }
+            
+        case .iso:
+            CustomWheelPickerView(
+                selectedValue: $vm.currentPreset.iso,
+                items: vm.getISOValues(),
+                config: .init(
+                    spacing: 22,
+                    itemSize: .init(width: 50, height: 24)
+                )
+            )
+            
+        case .pictureStyle:
+            NonOptionalWheelPickerView(
+                selectedValue: $vm.currentPreset.pictureStyle,
+                items: vm.getPictureStyleValues(),
+                config: .init(
+                    spacing: 22,
+                    itemSize: .init(width: 100, height: 24)
+                )
+            )
+            
+        case .tintMagentaGreen:
+            CustomWheelPickerView(
+                selectedValue: $vm.currentPreset.tintMagentaGreen,
+                items: vm.getTintMagentGreenValues(),
+                config: .init(
+                    spacing: 22,
+                    itemSize: .init(width: 50, height: 24)
+                )
+            )
+            
+        case .exposure:
+            CustomWheelPickerView(
+                selectedValue: $vm.currentPreset.exposureCompensation,
+                items: vm.getExposureCompensationValues(),
+                config: .init(
+                    spacing: 22,
+                    itemSize: .init(width: 60, height: 24)
+                )
+            )
+            
+        case .colorTemp:
+            CustomWheelPickerView(
+                selectedValue: $vm.currentPreset.colorTemperature,
+                items: vm.getColorTemperatureValues(),
+                config: .init(
+                    spacing: 22,
+                    itemSize: .init(width: 50, height: 24)
+                )
+            )
         }
-        .frame(height: 80)
-        .transition(.opacity)
     }
     
-    // MARK: - Secondary Settings Section
-    private var secondarySettingsSection: some View {
+    // Secondary Settings Section
+    private func secondarySettingsSView() -> some View {
         HStack(spacing: 30) {
-            // Exposure Compensation
             
+            // Tint Magenta Green (마젠타-그린)
             SettingButton(
                 type: .tintMagentaGreen,
                 state: vm.getButtonState(for: .tintMagentaGreen),
-                value: vm.currentPreset.tintMagentaGreen,
-                isSelected: vm.activeSlider == .tintMagentaGreen,
+                value: vm.currentPreset.displayTintMagentaGreen,
+                isSelected: vm.activePicker == .tintMagentaGreen,
                 action: {
                     handleSettingButtonTap(.tintMagentaGreen)
                 }
             )
             
-            SettingButton(  // plusminus.circle
+            // Exposure Compensation (노출 보정)
+            SettingButton(
                 type: .exposure,
                 state: vm.getButtonState(for: .exposure),
-                value: vm.currentPreset.exposureCompensation,
-                isSelected: vm.activeSlider == .exposure,
+                value: vm.currentPreset.displayExposureCompensation,
+                isSelected: vm.activePicker == .exposure,
                 action: {
                     handleSettingButtonTap(.exposure)
                 }
             )
             
-            SettingButton(  // thermometer.medium
+            // Color Temperature (색온도)
+            SettingButton(
                 type: .colorTemp,
                 state: vm.getButtonState(for: .colorTemp),
-                value: vm.currentPreset.colorTemperature,
-                isSelected: vm.activeSlider == .colorTemp,
+                value: vm.currentPreset.displayColorTemperature,
+                isSelected: vm.activePicker == .colorTemp,
                 action: {
                     handleSettingButtonTap(.colorTemp)
                 }
@@ -264,49 +257,27 @@ struct PresetDetailView: View {
         }
     }
     
-    // MARK: - Helper Methods
-//    private func buttonBackgroundColor(for type: SettingType) -> Color {
-//        switch vm.getButtonState(for: type) {
-//        case .active:
-//            return vm.activeSlider == type ? .white : Color.white.opacity(0.2)
-//        case .disabled:
-//            return Color.black.opacity(0.3)
-//        case .viewOnly:
-//            return Color.yellow.opacity(0.3)
-//        }
-//    }
-    
-//    private func buttonTextColor(for type: SettingType) -> Color {
-//        switch vm.getButtonState(for: type) {
-//        case .active:
-//            return vm.activeSlider == type ? .black : .white
-//        case .disabled:
-//            return Color.gray.opacity(0.5)
-//        case .viewOnly:
-//            return .black
-//        }
-//    }
-    
-    private func handleSettingButtonTap(_ type: SettingType) {
+    private func handleSettingButtonTap(_ type: SettingType){
         guard vm.viewMode != .view else {
-            // 조회 모드에서는 편집 모드로 전환
             vm.switchToEditMode()
             return
         }
         
-        guard vm.isSettingEditable(type) else { return }
+        // 편집 불가능한 설정은 무시
+        guard vm.isSettingEditable(type) else {
+            return
+        }
         
-        // Toggle slider visibility
-        if vm.activeSlider == type {
-            vm.activeSlider = nil
+        if vm.activePicker == type {
+            vm.activePicker = nil
         } else {
-            vm.activeSlider = type
+            vm.activePicker = type
         }
     }
     
     // Toolbar
     @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
+    private func toolbarContent() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
             Button("취소") {
                 if vm.viewMode == .create {
@@ -346,7 +317,6 @@ struct PresetDetailView: View {
     }
 }
 
-// MARK: - Preview
 #Preview("View Mode") {
     PresetDetailView(vm: .init(container: .stub, mode: .view, preset: .stub1))
 }

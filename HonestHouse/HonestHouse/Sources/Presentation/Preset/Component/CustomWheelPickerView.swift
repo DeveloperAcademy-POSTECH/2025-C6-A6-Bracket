@@ -12,9 +12,11 @@ struct Config {
     var itemSize: CGSize
 }
 
+
+// TODO: 데이터 옵셔널 케이스 처리해서 하나로 합칠 예정
 struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashable & Sendable {
 
-    @Binding var selectedValue: SelectionValue
+    @Binding var selectedValue: SelectionValue?
     let items: [SelectionValue]
     let config: Config
     
@@ -25,15 +27,19 @@ struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashabl
                 selection: $selectedValue,
                 config: config
             ) { value in
-                Text("\(value)")
-                    .font(.num4)
-                    .foregroundStyle(value == selectedValue ? Color.yellow1 : Color.g0)
-                    .animation(.easeInOut(duration: 0.2), value: selectedValue)
-                    .frame(width: config.itemSize.width,
-                           height: config.itemSize.height)
+                
+                if let value = value {
+                    Text("\(value)")
+                        .font(.num4)
+                        .foregroundStyle(value == selectedValue ? Color.yellow1 : Color.g0)
+                        .animation(.easeInOut(duration: 0.2), value: selectedValue)
+                        .frame(width: config.itemSize.width,
+                               height: config.itemSize.height)
+                }
             }
             .frame(height: 52)
             .overlay {
+                
                 VStack {
                     Rectangle()
                         .frame(width: 1, height: 8)
@@ -67,6 +73,25 @@ struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashabl
                     .allowsHitTesting(false)
             }
         }
+    }
+}
+
+struct NonOptionalWheelPickerView<SelectionValue>: View
+where SelectionValue: Hashable & Sendable {
+    @Binding var selectedValue: SelectionValue  // Non-Optional
+    let items: [SelectionValue]
+    let config: Config
+    
+    var body: some View {
+        // Optional로 변환해서 기존 CustomWheelPickerView 재사용
+        CustomWheelPickerView(
+            selectedValue: Binding(
+                get: { self.selectedValue },
+                set: { self.selectedValue = $0 ?? self.selectedValue }
+            ),
+            items: items,
+            config: config
+        )
     }
 }
 

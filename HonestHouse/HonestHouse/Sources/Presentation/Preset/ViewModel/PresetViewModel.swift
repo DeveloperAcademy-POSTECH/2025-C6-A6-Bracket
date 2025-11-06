@@ -25,6 +25,10 @@ final class PresetViewModel {
     var presets: [Preset] = []
     var selectedPresets: Set<UUID> = []
     var error: PresetError?
+    
+    // 뷰 모드 관련 추가 속성
+    var viewMode: PresetViewMode = .list
+    var isViewModeMenuPresented: Bool = false
 
     enum Action {
         case goToPresetDetail(ViewMode, Preset?)
@@ -42,9 +46,28 @@ final class PresetViewModel {
         self.shootingControlService = container.services.shootingControlService
         self.shootingSettingsService = container.services.shootingSettingsService
         self.presetManager = container.managers.presetManager
+        
+        // 초기 데이터 로드
+        loadPresets()
     }
 }
 
+// MARK: - View Mode Methods
+extension PresetViewModel {
+    func toggleViewMode() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            viewMode = viewMode == .grid ? .list : .grid
+        }
+    }
+    
+    func setViewMode(_ mode: PresetViewMode) {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            viewMode = mode
+        }
+    }
+}
+
+// MARK: - Actions
 extension PresetViewModel {
     
     func send(action: PresetAction) {
@@ -147,6 +170,7 @@ extension PresetViewModel {
     }
 }
 
+// MARK: - Data Loading
 extension PresetViewModel {
     func loadPresets() {
         do {
@@ -158,6 +182,7 @@ extension PresetViewModel {
     }
 }
 
+// MARK: - API Methods
 extension PresetViewModel: PresetErrorHandleable {
     private func ignoreShootingMode(action: String) async throws {
         let request = ShootingControl.IgnoreShootingModeRequest(action: action)
