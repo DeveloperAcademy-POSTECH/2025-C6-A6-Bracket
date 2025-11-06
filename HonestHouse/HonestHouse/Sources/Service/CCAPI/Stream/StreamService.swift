@@ -23,7 +23,7 @@ class StreamService: BaseStreamService {
 
     @discardableResult
     func startStreaming(
-        onData: @escaping (Data) -> Void,
+        onDataReceived: @escaping (Data) -> Void,
         onError: @escaping (Error) -> Void
     ) async -> Bool {
         guard !isStreaming else {
@@ -45,7 +45,7 @@ class StreamService: BaseStreamService {
         let config = createSessionConfiguration()
 
         let delegate = StreamDelegate(
-            onData: onData,
+            onBinaryDataReceived: onDataReceived,
             onError: onError,
             sslHandler: handleSSLChallenge
         )
@@ -108,16 +108,16 @@ class StreamService: BaseStreamService {
 
 private class StreamDelegate: NSObject, URLSessionDataDelegate {
     private var buffer = Data()
-    private let onData: (Data) -> Void
+    private let onBinaryDataReceived: (Data) -> Void
     private let onError: (Error) -> Void
     private let sslHandler: (URLAuthenticationChallenge, @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) -> Void
 
     init(
-        onData: @escaping (Data) -> Void,
+        onBinaryDataReceived: @escaping (Data) -> Void,
         onError: @escaping (Error) -> Void,
         sslHandler: @escaping (URLAuthenticationChallenge, @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) -> Void
     ) {
-        self.onData = onData
+        self.onBinaryDataReceived = onBinaryDataReceived
         self.onError = onError
         self.sslHandler = sslHandler
     }
@@ -130,7 +130,7 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate {
         Logger.debug("Received chunk: \(data.count) bytes, buffer total: \(buffer.count) bytes", category: .network)
         Logger.debug("First 20 bytes: \(dataCopy.prefix(20).map { String(format: "%02X", $0) }.joined(separator: " "))", category: .network)
 
-        onData(dataCopy)
+        onBinaryDataReceived(dataCopy)
 
         buffer.removeAll()
     }

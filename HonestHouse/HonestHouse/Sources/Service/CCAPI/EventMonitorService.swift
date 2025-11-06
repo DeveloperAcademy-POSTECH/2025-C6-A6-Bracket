@@ -34,7 +34,7 @@ final class EventMonitorService: StreamService, EventMonitorServiceType {
         onError: @escaping (Error) -> Void
     ) async -> Bool {
         return await startStreaming(
-            onData: { [weak self] data in
+            onDataReceived: { [weak self] data in
                 self?.handleReceivedData(data, onEvent: onEvent)
             },
             onError: onError
