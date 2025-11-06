@@ -51,13 +51,13 @@ struct NavigationBarWithBackButton<RightContent: View>: ViewModifier {
                     Spacer()
                 }
                 HStack(spacing: 0) {
-                    Button(action: {
+                    Button {
                         if let customAction = onBackTapped {
                             customAction()
                         } else {
                             container.navigationRouter.pop()
                         }
-                    }) {
+                    } label: {
                         Image(.chevronLeft)
                             .resizable()
                             .frame(width: 24, height: 24)
