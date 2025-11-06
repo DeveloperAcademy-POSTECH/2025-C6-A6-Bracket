@@ -139,90 +139,87 @@ struct PresetDetailView: View {
         .frame(maxWidth: .infinity)
     }
     
+    @ViewBuilder
     private func pickerView(for type: SettingType) -> some View {
-        Group {
-            switch type {
-            case .aperture:
-                if vm.currentPreset.shootingMode == .av {
-                    CustomWheelPickerView(
-                        selectedValue: $vm.currentPreset.aperture,
-                        items: vm.getApertureValues(),
-                        config: .init(
-                            spacing: 22,
-                            itemSize: .init(width: 50, height: 24)
-                        )
-                    )
-                }
-                
-                
-            case .shutterSpeed:
-                if vm.currentPreset.shootingMode == .tv {
-                    CustomWheelPickerView(
-                        selectedValue: $vm.currentPreset.shutterSpeed,
-                        items: vm.getShutterSpeedValues(),
-                        config: .init(
-                            spacing: 22,
-                            itemSize: .init(width: 50, height: 24)
-                        )
-                    )
-                    
-                }
-            case .iso:
+        switch type {
+        case .cameraMode:
+            EmptyView()
+            
+        case .aperture:
+            if vm.currentPreset.shootingMode == .av {
                 CustomWheelPickerView(
-                    selectedValue: $vm.currentPreset.iso,
-                    items: vm.getISOValues(),
+                    selectedValue: $vm.currentPreset.aperture,
+                    items: vm.getApertureValues(),
                     config: .init(
                         spacing: 22,
                         itemSize: .init(width: 50, height: 24)
                     )
                 )
-
-//            case .pictureStyle:
-//                CustomWheelPickerView(
-//                    selectedValue: $vm.currentPreset.pictureStyle,
-//                    items: vm.getPictureStyleValues(),
-//                    config: .init(
-//                        spacing: 22,
-//                        itemSize: .init(width: 50, height: 24)
-//                    )
-//                )
-                
-            case .tintMagentaGreen:
-                CustomWheelPickerView(
-                    selectedValue: $vm.currentPreset.tintMagentaGreen,
-                    items: vm.getTintMagentGreenValues(),
-                    config: .init(
-                        spacing: 22,
-                        itemSize: .init(width: 50, height: 24)
-                    )
-                )
-                
-            case .exposure:
-                CustomWheelPickerView(
-                    selectedValue: $vm.currentPreset.exposureCompensation,
-                    items: vm.getExposureCompensationValues(),
-                    config: .init(
-                        spacing: 22,
-                        itemSize: .init(width: 50, height: 24)
-                    )
-                )
-                
-//            case .colorTemp:
-//                CustomWheelPickerView(
-//                    selectedValue: $vm.currentPreset.colorTemperature,
-//                    items: vm.getColorTemperatureValues(),
-//                    config: .init(
-//                        spacing: 22,
-//                        itemSize: .init(width: 50, height: 24)
-//                    )
-//                )
-                
-            default:
-                EmptyView()
             }
+            
+            
+        case .shutterSpeed:
+            if vm.currentPreset.shootingMode == .tv {
+                CustomWheelPickerView(
+                    selectedValue: $vm.currentPreset.shutterSpeed,
+                    items: vm.getShutterSpeedValues(),
+                    config: .init(
+                        spacing: 22,
+                        itemSize: .init(width: 60, height: 24)
+                    )
+                )
+            }
+            
+        case .iso:
+            CustomWheelPickerView(
+                selectedValue: $vm.currentPreset.iso,
+                items: vm.getISOValues(),
+                config: .init(
+                    spacing: 22,
+                    itemSize: .init(width: 50, height: 24)
+                )
+            )
+            
+        case .pictureStyle:
+            NonOptionalWheelPickerView(
+                selectedValue: $vm.currentPreset.pictureStyle,
+                items: vm.getPictureStyleValues(),
+                config: .init(
+                    spacing: 22,
+                    itemSize: .init(width: 50, height: 24)
+                )
+            )
+            
+        case .tintMagentaGreen:
+            CustomWheelPickerView(
+                selectedValue: $vm.currentPreset.tintMagentaGreen,
+                items: vm.getTintMagentGreenValues(),
+                config: .init(
+                    spacing: 22,
+                    itemSize: .init(width: 50, height: 24)
+                )
+            )
+            
+        case .exposure:
+            CustomWheelPickerView(
+                selectedValue: $vm.currentPreset.exposureCompensation,
+                items: vm.getExposureCompensationValues(),
+                config: .init(
+                    spacing: 22,
+                    itemSize: .init(width: 60, height: 24)
+                )
+            )
+            
+        case .colorTemp:
+            CustomWheelPickerView(
+                selectedValue: $vm.currentPreset.colorTemperature,
+                items: vm.getColorTemperatureValues(),
+                config: .init(
+                    spacing: 22,
+                    itemSize: .init(width: 50, height: 24)
+                )
+            )
         }
-        .frame(height: 80)
-        .transition(.opacity)
     }
     
     // Secondary Settings Section

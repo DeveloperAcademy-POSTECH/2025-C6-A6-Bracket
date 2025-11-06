@@ -220,8 +220,8 @@ class PresetDetailViewModel {
         return CameraConstants.shutterSpeedValues
     }
     
-    func getPictureStyleValues() -> [String] {
-        return CameraConstants.pictureStyleValues
+    func getPictureStyleValues() -> [PictureStyleType] {
+        return PictureStyleType.allCases
     }
     
     func getTintMagentGreenValues() -> [Int] {

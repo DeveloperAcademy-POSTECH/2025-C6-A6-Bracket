@@ -12,6 +12,8 @@ struct Config {
     var itemSize: CGSize
 }
 
+
+// TODO: 데이터 옵셔널 케이스 처리해서 하나로 합칠 예정
 struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashable & Sendable {
 
     @Binding var selectedValue: SelectionValue?
@@ -27,7 +29,6 @@ struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashabl
             ) { value in
                 
                 if let value = value {
-                    
                     Text("\(value)")
                         .font(.num4)
                         .foregroundStyle(value == selectedValue ? Color.yellow1 : Color.g0)
@@ -38,6 +39,7 @@ struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashabl
             }
             .frame(height: 52)
             .overlay {
+                
                 VStack {
                     Rectangle()
                         .frame(width: 1, height: 8)
@@ -71,6 +73,25 @@ struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashabl
                     .allowsHitTesting(false)
             }
         }
+    }
+}
+
+struct NonOptionalWheelPickerView<SelectionValue>: View
+where SelectionValue: Hashable & Sendable {
+    @Binding var selectedValue: SelectionValue  // Non-Optional
+    let items: [SelectionValue]
+    let config: Config
+    
+    var body: some View {
+        // Optional로 변환해서 기존 CustomWheelPickerView 재사용
+        CustomWheelPickerView(
+            selectedValue: Binding(
+                get: { self.selectedValue },
+                set: { self.selectedValue = $0 ?? self.selectedValue }
+            ),
+            items: items,
+            config: config
+        )
     }
 }
 
