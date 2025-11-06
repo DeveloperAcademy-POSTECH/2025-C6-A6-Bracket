@@ -14,12 +14,9 @@ enum PhotoSelectionAction {
 @MainActor
 @Observable
 final class PhotoSelectionViewModel {
-    typealias Success = [String]
-    typealias Failure = SelectionError
+    private var container: DIContainer
 
-    private let container: DIContainer
-
-    var state: ArchiveState<Success, Failure> = .idle
+    var state: ViewState<[String], ArchiveError> = .idle
     
     var storageList: StorageList?
     var directoryList: DirectoryList?
@@ -41,7 +38,7 @@ final class PhotoSelectionViewModel {
     init(container: DIContainer) {
         self.container = container
     }
-    
+
     func send(action: PhotoSelectionAction) {
         switch action {
         case .goToGroupedPhoto:
@@ -49,74 +46,49 @@ final class PhotoSelectionViewModel {
         }
     }
     
-    func handleError(_ error: Error) {
-        if let selectionError = error as? SelectionError {
-            state = .failure(selectionError)
-        } else {
-            state = .failure(SelectionError.from(error))
-        }
-    }
-    
     /// storageListResponse를 받아와서 storageList로 변환
     func getStorageList() async throws {
-        do {
-            let storageListResponse = try await container.services.imageOperationsService.getStorageList()
-            storageList = storageListResponse.toEntity()
-        } catch {
-            throw SelectionError.from(error)
-        }
+        let storageListResponse = try await imageOperationsService.getStorageList()
+        storageList = storageListResponse.toEntity()
     }
     
     /// directoryListResponse를 받아와서 directoryList로 변환
     func getDirectoryList(storage: String) async throws {
-        do {
-            let directoryListResponse = try await container.services.imageOperationsService.getDirectoryList(storage: storage)
-            directoryList = directoryListResponse.toEntity()
-        } catch {
-            throw SelectionError.from(error)
-        }
+        let directoryListResponse = try await imageOperationsService.getDirectoryList(storage: storage)
+        directoryList = directoryListResponse.toEntity()
     }
     
     /// contentListResponse를 받아와서 contentList로 변환
-    func getContentList(
-        storage: String,
-        directory: String,
-        type: String,
-        order: String
-    ) async throws {
-        do {
-            let response = try await container.services.imageOperationsService.getContentList(
-                storage: storage,
-                directory: directory,
-                type: type,
-                order: order,
-                onProgress: { [weak self] response in
+    func getContentList(storage: String, directory: String, type: String, order: String) async throws {
+        let response = try await imageOperationsService.getContentList(
+            storage: storage,
+            directory: directory,
+            type: type,
+            order: order,
+            onProgress: { [weak self] response in
 
-                    guard let self = self else { return }
+                guard let self = self else { return }
 
-                    self.contentList = response.toEntity()
-                    self.entireContentUrls = self.contentList?.url ?? []
+                self.contentList = response.toEntity()
+                self.entireContentUrls = self.contentList?.url ?? []
 
-                    // 첫 chunk에서만 state를 .success로 설정
-                    if !self.hasSetSuccessState {
-                        self.hasSetSuccessState = true
-                        self.state = .success(self.entireContentUrls)
-                    }
-
-                    // 첫 100장 도착 시 prefetch 시작 (한 번만)
-                    if !self.hasStartedInitialPrefetch && self.entireContentUrls.count >= 100 {
-                        self.hasStartedInitialPrefetch = true
-                        let photos = self.entireContentUrls.map { Photo(url: $0) }
-                        self.container.managers.imagePrefetchManager.startInitialPrefetch(photos: photos, count: 50)
-                    }
+                // 첫 chunk에서만 state를 .success로 설정
+                if !self.hasSetSuccessState {
+                    self.hasSetSuccessState = true
+                    self.state = .success(self.entireContentUrls)
                 }
-            )
-            
-            contentList = response.toEntity()
-            entireContentUrls = contentList?.url ?? []
-        } catch {
-            throw SelectionError.from(error)
-        }
+
+                // 첫 100장 도착 시 prefetch 시작 (한 번만)
+                if !self.hasStartedInitialPrefetch && self.entireContentUrls.count >= 100 {
+                    self.hasStartedInitialPrefetch = true
+                    let photos = self.entireContentUrls.map { Photo(url: $0) }
+                    self.imagePrefetchManager.startInitialPrefetch(photos: photos, count: 50)
+                }
+            }
+        )
+
+        contentList = response.toEntity()
+        entireContentUrls = contentList?.url ?? []
     }
     
     /// storageList에서 첫번째 storage 가져오기
@@ -126,11 +98,11 @@ final class PhotoSelectionViewModel {
             let storageUrl = storageList?.url?.first,
             let storageName = storageUrl.split(separator: "/").last.map(String.init)
         else {
-            throw SelectionError.generic
+            throw ArchiveError.photoLoadFailed
         }
         presentStorage = storageName
     }
-    
+
     /// directoryList에서 첫번째 directory가져오기
     func setPresentDirectory(storage: String) async throws {
         try await getDirectoryList(storage: storage)
@@ -138,27 +110,27 @@ final class PhotoSelectionViewModel {
             let dirUrl = directoryList?.url?.first,
             let dirName = dirUrl.split(separator: "/").last.map(String.init)
         else {
-            throw SelectionError.generic
+            throw ArchiveError.photoLoadFailed
         }
         presentDirectory = dirName
     }
     
     /// 점진적 로딩으로 모든 이미지 가져오기
     func fetchAllImages() async {
-        state = .loading
+        state = .loading()
         entireContentUrls.removeAll()
         hasSetSuccessState = false
         hasStartedInitialPrefetch = false
-        
+
         do {
             // 1. Storage 설정
             try await setPresentStorage()
-            guard let storage = presentStorage else { throw SelectionError.generic }
-            
+            guard let storage = presentStorage else { throw ArchiveError.photoLoadFailed }
+
             // 2. Directory 설정
             try await setPresentDirectory(storage: storage)
-            guard let directory = presentDirectory else { throw SelectionError.generic }
-            
+            guard let directory = presentDirectory else { throw ArchiveError.photoLoadFailed }
+
             // 3. Content List 가져오기 (점진적 로딩)
             try await getContentList(
                 storage: storage,
@@ -167,8 +139,12 @@ final class PhotoSelectionViewModel {
                 order: "desc"
             )
 
+        } catch let archiveError as ArchiveError {
+            state = .failure(archiveError)
+        } catch let ccapiError as CCAPIError {
+            state = .failure(ArchiveError.fromCCAPI(ccapiError))
         } catch {
-            handleError(error)
+            state = .failure(.photoLoadFailed)
         }
     }
     
@@ -209,5 +185,3 @@ final class PhotoSelectionViewModel {
         container.managers.imagePrefetchManager.prefetchAdjacent(current: current, previous: previous, next: next)
     }
 }
-
-extension PhotoSelectionViewModel: ArchiveErrorHandleable {}

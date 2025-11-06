@@ -10,9 +10,8 @@ import Kingfisher
 
 struct GroupedPhotosView: View {
     @State var vm: GroupedPhotosViewModel
-    
-    @State private var showAlert: Bool = false
-    @State private var alertMessage: String = ""
+
+    @State private var currentError: ArchiveError?
     
     private let columnCount: Int = 2
     
@@ -23,7 +22,7 @@ struct GroupedPhotosView: View {
     var body: some View {
         ZStack {
             // 메인 상태 (Grouping)
-            switch vm.state {
+            switch vm.groupingState {
             case .idle, .loading:
                 ZStack {
                     GroupedPhotosSkeletonView()
@@ -34,7 +33,7 @@ struct GroupedPhotosView: View {
                     groupedPhotosGridView(groupedPhotos: groupedPhotos)
                     selectionCompleteButtonView()
                 }
-            case .failure(_):
+            case .failure:
                 Color.clear
             }
             
@@ -42,8 +41,12 @@ struct GroupedPhotosView: View {
             switch vm.savingState {
             case .idle:
                 Color.clear
-            case .saving(let current, let total):
-                savingProgressView(current: current, total: total)
+            case .loading(let progress):
+                if let progress = progress {
+                    savingProgressView(progress: progress)
+                } else {
+                    ProgressView()
+                }
             case .success:
                 successSavingView()
             case .failure:
@@ -53,12 +56,9 @@ struct GroupedPhotosView: View {
         .task {
             vm.startGrouping()
         }
-        .onChange(of: vm.state) { _, newState in
-            if case .failure(let groupingError) = newState {
-                alertMessage = groupingError.localizedDescription
-                showAlert = true
-            } else {
-                showAlert = false
+        .onChange(of: vm.groupingState) { _, newState in
+            if case .failure(let error) = newState {
+                currentError = error
             }
         }
         // TODO: - SavingState 에러처리하기
@@ -69,10 +69,47 @@ struct GroupedPhotosView: View {
                     vm.goToMain()
                 }
             case .failure(let error):
-                alertMessage = error
-                showAlert = true
+                currentError = error
             default:
                 break
+            }
+        }
+        .errorAlert(error: $currentError) { error in
+            switch error {
+            // Grouping 에러
+            case .imageLoadingFailed, .visionAnalysisFailed:
+                Button("돌아가기", role: .cancel) {
+                    vm.goToBack()
+                }
+                Button("재시도") {
+                    vm.startGrouping()
+                }
+
+            case .partialAnalysisFailed:
+                Button("돌아가기", role: .cancel) {
+                    vm.goToBack()
+                }
+                Button("계속하기") {
+                    // 이미 success 상태이므로 그냥 진행
+                }
+
+            // Saving 에러
+            case .photoPermissionDenied:
+                Button("취소", role: .cancel) { }
+                Button("설정으로 이동") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+
+            case .albumCreationFailed, .photoSaveFailed:
+                Button("취소", role: .cancel) { }
+                Button("재시도") {
+                    vm.saveSelectedPhotos()
+                }
+
+            default:
+                Button("확인", role: .cancel) { }
             }
         }
         .navigationBarWithBack(title: "", showShadow: true, rightView: {
@@ -120,17 +157,18 @@ struct GroupedPhotosView: View {
         .ignoresSafeArea(edges: .bottom)
     }
     
-    private func savingProgressView(current: Int, total: Int) -> some View {
+    private func savingProgressView(progress: Double) -> some View {
         ZStack {
             Color.black.opacity(0.8)
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
-                Text("\(current)/\(total)")
+                Text("\(Int(progress * 100))%")
                     .font(.num2)
                     .foregroundColor(.white)
 
-                ProgressView(value: Double(current), total: Double(total))
+                // 프로그레스 바
+                ProgressView(value: progress, total: 1.0)
                     .progressViewStyle(LinearProgressViewStyle(tint: Color.yellow1))
                     .frame(maxWidth: .infinity)
             }
