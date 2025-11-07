@@ -29,16 +29,14 @@ final class VisionManager: VisionManagerType {
     /// 각 이미지의 특징을 Vision으로 추출
     private func extractFeatures(from photos: [Photo]) async throws -> [AnalyzedPhoto] {
         var features: [AnalyzedPhoto] = []
-        var errorInfos: [(photo: Photo, error: Error)] = []
-        
+
         for photo in photos {
             do {
                 // Thumbnail 사용 (300x300, Vision에 충분)
                 let uiImage = try await imageLoader.fetchUIImage(from: photo.thumbnailURL)
 
                 guard let cgImage = uiImage.cgImage else {
-                    errorInfos.append((photo, VisionError.cgImageConversion(url: photo.thumbnailURL)))
-                    continue
+                    throw VisionError.cgImageConversion(url: photo.thumbnailURL)
                 }
 
                 let request = VNGenerateImageFeaturePrintRequest()
@@ -47,8 +45,7 @@ final class VisionManager: VisionManagerType {
                 try handler.perform([request])
 
                 guard let observation = request.results?.first else {
-                    errorInfos.append((photo, VisionError.observation(url: photo.thumbnailURL)))
-                    continue
+                    throw VisionError.observation(url: photo.thumbnailURL)
                 }
 
                 features.append(
@@ -58,18 +55,20 @@ final class VisionManager: VisionManagerType {
                     )
                 )
             }
-            catch let error {
-                errorInfos.append((photo, VisionError.imageFetching(url: photo.thumbnailURL, underlyingError: error)))
-                continue
+            catch let imageLoadingError as ImageLoadingError {
+                // ImageLoadingError → VisionError 변환
+                throw VisionError.imageFetching(url: photo.thumbnailURL, underlyingError: imageLoadingError)
+            }
+            catch let visionError as VisionError {
+                // 이미 VisionError면 그대로 throw
+                throw visionError
+            }
+            catch {
+                // 예상 못한 에러
+                throw VisionError.imageFetching(url: photo.thumbnailURL, underlyingError: error)
             }
         }
-        
-        if !errorInfos.isEmpty {
-            let failedPhotos = errorInfos.map { $0.photo }
-            let errors = errorInfos.map{ $0.error }
-            throw VisionError.partialAnalysis(failedPhotos: failedPhotos, errors: errors)
-        }
-        
+
         return features
     }
     

@@ -22,22 +22,29 @@ final class PhotoManager: PhotoManagerType {
     ) async throws {
         try await requestAuthorization()
         let album = try await getOrCreateAlbum(albumName: albumName)
-
+        
         let total = photos.count
         for (index, photo) in photos.enumerated() {
             let current = index + 1
-
+            
             // displayURL 실패 시 원본 URL로 재시도
             let imageData: Data
             do {
                 imageData = try await imageLoader.fetchImageData(from: photo.displayURL)
             } catch {
                 // displayURL 실패 시 원본 URL로 fallback
-                imageData = try await imageLoader.fetchImageData(from: photo.url)
+                do {
+                    imageData = try await imageLoader.fetchImageData(from: photo.url)
+                } catch let imageLoadingError as ImageLoadingError {
+                    // ImageLoadingError → PhotoError 변환
+                    throw PhotoError.imageDataMissing
+                } catch {
+                    throw PhotoError.unknown
+                }
             }
             
             try await saveImageData(imageData, to: album)
-
+            
             // Progress 콜백 호출 (저장 완료)
             onProgress?(current, total)
         }
@@ -68,7 +75,7 @@ final class PhotoManager: PhotoManagerType {
         fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
         let collections = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
         if let album = collections.firstObject { return album }
-
+        
         var albumPlaceholder: PHObjectPlaceholder?
         
         do {
