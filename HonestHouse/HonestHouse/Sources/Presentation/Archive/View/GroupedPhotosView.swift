@@ -76,16 +76,14 @@ struct GroupedPhotosView: View {
             switch error {
             case .photoLoadingFailed:
                 Button("취소", role: .cancel) { vm.goToBack() }
-                Button("재연결") {
+                Button("재시도") {
                     vm.startGrouping()
                 }
                 
             case .visionAnalysisFailed:
                 Button("취소", role: .cancel) { vm.goToBack() }
                 Button("재시도") {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(url)
-                    }
+                    vm.startGrouping()
                 }
                 
             case .photoPermissionDenied:
