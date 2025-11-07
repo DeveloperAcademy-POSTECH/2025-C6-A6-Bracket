@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ImageLoadingError: Error, LocalizedError {
+enum ImageLoadingError: LocalizedError {
     case invalidURL
     case networkError(statusCode: Int)
     case invalidImageData

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum PhotoError: Error, LocalizedError {
+enum PhotoError: LocalizedError {
     case authorizationDenied
     case authorizationRestricted
     case albumCreationFailed
