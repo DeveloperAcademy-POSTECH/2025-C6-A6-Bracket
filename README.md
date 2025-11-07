@@ -1,56 +1,35 @@
-## 프로젝트 원페이저
 <div align="center">
   
-<!-- <img width="40%" alt="image" src="https://github.com/user-attachments/assets/a94cc120-b4f5-4b8f-96c4-ee2b6e12732e" />
+![finalonepager 001](https://github.com/user-attachments/assets/c3b198d0-9137-4fbd-9893-fb5d0ba87a7c)
 
-#### DSLR/미러리스 카메라 사용자가 온전히 순간에 집중하며 촬영할 수 있도록 미리 설정한 프리셋이 셔터를 누를 때마다 자동 변경되는 ‘Tri-Shot’을 이용하고 촬영한 사진을 그룹화하여 베스트샷을 쉽게 고를 수 있는 앱 -->
-
-![onepager](https://github.com/user-attachments/assets/d43d07fb-0740-47ea-b13a-3886c44d5070)
-
-<!-- <br/>
-
-[![iOS](https://img.shields.io/badge/iOS-18.0+-black?logo=apple)](https://www.apple.com/kr/ios)
-[![Swift](https://img.shields.io/badge/Swift-5.9-FA7343?logo=swift)](https://swift.org)
-[![Canon](https://img.shields.io/badge/Canon-Camera_API-red)](https://developers.canon.com)
--->
 </div> 
+
+---
+
+## 프로젝트 배경
+
+<div align="center">
+
+프로젝트 기획, 유저 리서치, 개발 과정 등 자세한 스토리는
+
+[![Notion](https://img.shields.io/badge/Notion-프로젝트_기획_과정-000000?style=for-the-badge&logo=notion&logoColor=white)](https://slime-shirt-140.notion.site/Bracket-2a202aff8b528063be0ff432c107e135)
+
+</div>
 
 ---
 
 ## 앱 개요
 
-<!--순간을 놓치지 않는 것, 사진가에게 가장 중요한 일입니다.
-
-화이트밸런스, ISO, 셔터스피드, 조리개, 틴트, 픽처스타일...  
-완벽한 순간을 담기 위한 설정이지만, 이를 조작하는 사이 그 순간은 사라집니다.
-
-**Bracket은 미러리스 카메라 사용자가 촬영의 순간에만 집중하도록 돕기 위해 출발했습니다.**
-
-3가지 프리셋을 미리 저장해두면 셔터를 누를 때마다 설정들이 자동으로 전환됩니다.  
-같은 순간을 여러 느낌으로 촬영하고, 나중에 선택할 수 있습니다.
-
-한 장면을 여러 설정으로 촬영하면 비슷한 사진이 수백 장 쌓이게 됩니다.  
-Bracket은 유사한 사진끼리 자동으로 그룹화하여  
-각 그룹에서 원하는 사진을 선택해 갤러리에 저장할 수 있도록 합니다.
-
----
--->
 <br/>
-
-
-
-
-<!--TODO: 이 사진들도 적당히 GIF따서 넣으면 될 듯 -->
 
 <div align="center">
 
 | <img width="100%" src="https://github.com/user-attachments/assets/700a89d7-90f5-4c97-b0c6-472685aee9bd" /> | <img width="100%" src="https://github.com/user-attachments/assets/fc50ce99-efb0-4c73-b0bf-e941b5583c29" /> | <img width="100%" src="https://github.com/user-attachments/assets/ba00c874-c9cb-4acc-829f-5e6356cd9313" /> | <img width="100%" src="https://github.com/user-attachments/assets/4d84fab9-a794-4ebb-9599-5edc4628831b" /> |
 |:---:|:---:|:---:|:---:|
 | **Tri-Shot** | **프리셋 제작** | **카메라를 조작하는 듯한 Ui** | **사진 그룹화** |
-| 원하는 설정으로 촬영 | 카메라 화면을 핸드폰으로 보며 값 저장 | 실제 카메라의 다이얼에서 영감을 얻은 디자인 | Vison과 시공간 정보를 이용해 유사한 사진끼리 그룹화 |
+| 원하는 설정으로 촬영 | 카메라 화면을 핸드폰으로 보며 값 저장 | 실제 카메라의 다이얼에서 영감을 얻은 디자인 | Vision과 시간 정보를 이용해 유사한 사진끼리 그룹화 |
 
 </div>
-
 
 ---
 
@@ -83,11 +62,9 @@ Bracket은 유사한 사진끼리 자동으로 그룹화하여
 ![the-simpsons-homer-simpson](https://github.com/user-attachments/assets/1e85cf71-5aeb-4753-8a22-e0c57aa7e06a)
 
 Apple Vision Framework를 활용하여 비슷한 사진끼리 자동으로 분류합니다.
-
 ```
 📐 시각적 유사도
 ⏰ 촬영 시간
-📍 위치 정보
 ```
 
 </div>
@@ -106,7 +83,6 @@ Apple Vision Framework를 활용하여 비슷한 사진끼리 자동으로 분�
 **Frameworks**
 
 <img src="https://img.shields.io/badge/Vision-blue?style=for-the-badge&logo=apple&logoColor=white" alt="Vision" />
-<img src="https://img.shields.io/badge/Core_Location-007AFF?style=for-the-badge&logo=apple&logoColor=white" alt="Core Location" />
 <img src="https://img.shields.io/badge/Core_Bluetooth-007AFF?style=for-the-badge&logo=bluetooth&logoColor=white" alt="Core Bluetooth" />
 <img src="https://img.shields.io/badge/Core_Data-FA7343?style=for-the-badge&logo=apple&logoColor=white" alt="Core Data" />
 
@@ -119,6 +95,7 @@ Apple Vision Framework를 활용하여 비슷한 사진끼리 자동으로 분�
 </div>
 
 ---
+
 ## 팀
 
 | [![Sandeul](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크1) | [![Hari](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크2) | [![Ivy](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크3) | [![Minbol](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크4) | [![Rama](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크5) | [![Soop](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크6) |
