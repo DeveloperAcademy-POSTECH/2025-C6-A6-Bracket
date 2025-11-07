@@ -17,6 +17,7 @@ final class GroupedPhotosViewModel {
     
     var groupingState: ViewState<[SimilarPhotoGroup], ArchiveError> = .idle
     var savingState: ViewState<Bool, ArchiveError> = .idle
+    var currentError: ArchiveError?
     
     init(
         container: DIContainer,
@@ -79,10 +80,10 @@ final class GroupedPhotosViewModel {
                 container.managers.imagePrefetchManager.clearAllCache()
 
                 savingState = .success(true)
-            } catch let photoError as PhotoError {
-                savingState = .failure(ArchiveError.fromPhoto(photoError))
+            } catch let error as PhotoError {
+                savingState = .failure(ArchiveError.fromPhoto(error))
             } catch {
-                savingState = .failure(.photoSaveFailed(failedCount: selectedPhotosInGroup.count))
+                savingState = .failure(.photoProcessingError)
             }
         }
     }

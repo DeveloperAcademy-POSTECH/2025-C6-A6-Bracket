@@ -9,12 +9,11 @@ import SwiftUI
 import Kingfisher
 
 struct GroupedPhotosView: View {
+    @EnvironmentObject var container: DIContainer
+    
     @State var vm: GroupedPhotosViewModel
-
-    @State private var currentError: ArchiveError?
     
     private let columnCount: Int = 2
-    
     private var columns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: 9), count: columnCount)
     }
@@ -34,7 +33,7 @@ struct GroupedPhotosView: View {
                     selectionCompleteButtonView()
                 }
             case .failure:
-                Color.clear
+                GroupedPhotosSkeletonView()
             }
             
             // 저장 상태 Overlay
@@ -58,10 +57,9 @@ struct GroupedPhotosView: View {
         }
         .onChange(of: vm.groupingState) { _, newState in
             if case .failure(let error) = newState {
-                currentError = error
+                vm.currentError = error
             }
         }
-        // TODO: - SavingState 에러처리하기
         .onChange(of: vm.savingState) { _, newState in
             switch newState {
             case .success:
@@ -69,31 +67,27 @@ struct GroupedPhotosView: View {
                     vm.goToMain()
                 }
             case .failure(let error):
-                currentError = error
+                vm.currentError = error
             default:
                 break
             }
         }
-        .errorAlert(error: $currentError) { error in
+        .errorAlert(error: $vm.currentError) { error in
             switch error {
-            // Grouping 에러
-            case .imageLoadingFailed, .visionAnalysisFailed:
-                Button("돌아가기", role: .cancel) {
-                    vm.goToBack()
-                }
-                Button("재시도") {
+            case .photoLoadingFailed:
+                Button("취소", role: .cancel) { vm.goToBack() }
+                Button("재연결") {
                     vm.startGrouping()
                 }
-
-            case .partialAnalysisFailed:
-                Button("돌아가기", role: .cancel) {
-                    vm.goToBack()
+                
+            case .visionAnalysisFailed:
+                Button("취소", role: .cancel) { vm.goToBack() }
+                Button("재시도") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
                 }
-                Button("계속하기") {
-                    // 이미 success 상태이므로 그냥 진행
-                }
-
-            // Saving 에러
+                
             case .photoPermissionDenied:
                 Button("취소", role: .cancel) { }
                 Button("설정으로 이동") {
@@ -101,27 +95,22 @@ struct GroupedPhotosView: View {
                         UIApplication.shared.open(url)
                     }
                 }
-
-            case .albumCreationFailed, .photoSaveFailed:
+                
+            case .photoProcessingError:
                 Button("취소", role: .cancel) { }
                 Button("재시도") {
                     vm.saveSelectedPhotos()
                 }
-
+                
             default:
-                Button("확인", role: .cancel) { }
+                Button("확인") { }
             }
         }
         .navigationBarWithBack(title: "", showShadow: true, rightView: {
             EmptyView()
         })
-        .alert(alertMessage, isPresented: $showAlert) {
-            Button("취소", role: .cancel) { vm.goToBack() }
-            Button("재연결") {
-                // 재연결 로직
-            }
-        }
     }
+        
     
     private func groupedPhotosGridView(groupedPhotos: [SimilarPhotoGroup]) -> some View {
         ScrollView {
