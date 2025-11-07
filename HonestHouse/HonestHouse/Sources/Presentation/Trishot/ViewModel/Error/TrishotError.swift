@@ -155,6 +155,8 @@ extension TrishotError: Equatable {
             return .cameraBusy
         case .decodingFailed:
             return .unknown(ccapiError)
+        default:
+            return .unknown(ccapiError)
         }
     }
 }
