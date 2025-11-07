@@ -13,11 +13,7 @@ struct PhotoSelectionView: View {
     
     @State var vm: PhotoSelectionViewModel
     
-    @State private var showToast: Bool = false
-    @State private var toastMessage: String = ""
-    
     private let columnCount: Int = 3
-    
     private var columns: [GridItem] {
         Array(repeating: GridItem(.flexible(), spacing: 5), count: columnCount)
     }
@@ -35,14 +31,9 @@ struct PhotoSelectionView: View {
                     photoSelectionGridView()
                     selectionCompleteButtonView()
                 }
-
+                
             case .failure(_):
-                Color.clear
-            }
-
-            if showToast {
-                ToastView(message: toastMessage, isShowing: $showToast)
-                    .transition(.move(edge: .bottom))
+                PhotoSelectionSkeletonView()
             }
         }
         .task {
@@ -52,10 +43,32 @@ struct PhotoSelectionView: View {
         }
         .onChange(of: vm.state) { _, newState in
             if case .failure(let error) = newState {
-                toastMessage = error.localizedDescription
-                showToast = true
-            } else {
-                showToast = false
+                vm.currentError = error
+            }
+        }
+        .errorAlert(error: $vm.currentError) { error in
+            switch error {
+            case .cameraBusy:
+                Button("취소", role: .cancel) { vm.goToBack() }
+                Button("재시도") {
+                    Task {
+                        await vm.fetchAllImages()
+                    }
+                }
+            case .cameraDisconnected:
+                Button("취소", role: .cancel) { vm.goToBack() }
+                Button("재연결") { } //TODO: - 카메라 연결 끊겼을 때
+                
+            case .photoLoadingFailed:
+                Button("취소", role: .cancel) { vm.goToBack() }
+                Button("재시도") {
+                    Task {
+                        await vm.fetchAllImages()
+                    }
+                }
+                
+            default:
+                Button("확인") { }
             }
         }
         .navigationBarWithBack(title: "", showShadow: true, rightView: {
