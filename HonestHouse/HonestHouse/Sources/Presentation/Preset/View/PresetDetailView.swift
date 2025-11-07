@@ -41,6 +41,7 @@ struct PresetDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             toolbarContent()
         }
