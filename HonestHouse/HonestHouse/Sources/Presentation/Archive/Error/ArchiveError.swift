@@ -8,152 +8,114 @@
 import Foundation
 
 /// Archive 기능에서 발생하는 모든 에러 (Selection, Grouping, Saving)
-enum ArchiveError: Error, AlertPresentable, Equatable {
-    // Selection Errors
+enum ArchiveError: LocalizedError, Equatable, AlertPresentable {
     case cameraBusy
     case cameraDisconnected
-    case photoLoadFailed
-
-    // Grouping Errors
-    case imageLoadingFailed
+    
+    case photoLoadingFailed
     case visionAnalysisFailed
-    case partialAnalysisFailed(failedCount: Int)
-
-    // Saving Errors
+    
     case photoPermissionDenied
-    case photoPermissionRestricted
-    case albumCreationFailed
-    case photoSaveFailed(failedCount: Int)
-    case imageDataInvalid
-
-    // General
-    case unknown
-
+    case photoProcessingError // 사진 저장 실패 관련으로 바꾸기
+    
+    // LocalizedError
+    var errorDescription: String? {
+        alertInfo.title
+    }
+    
+    // AlertPresentable
     var alertInfo: AlertInfo {
         switch self {
-        // MARK: Selection
         case .cameraBusy:
             return AlertInfo(
-                title: "카메라 사용 중",
-                message: "카메라가 사용 중입니다. 잠시 후 다시 시도해주세요."
+                title: "카메라가 이미 사용 중입니다.\n잠시 후에 다시 시도해주세요.",
+                message: "카메라가 촬영 중일 때는 아카이빙 기능을 이용할 수 없습니다."
             )
-
+            
+            // TODO: - 카메라 연결 끊겼을 때
         case .cameraDisconnected:
             return AlertInfo(
-                title: "카메라 연결 끊김",
-                message: "카메라 연결이 불안정합니다. 다시 연결해주세요."
+                title: "카메라와의 연결이 불안정합니다.",
+                message: "카메라를 다시 연결해주세요."
             )
-
-        case .photoLoadFailed:
+            
+        case .photoLoadingFailed:
             return AlertInfo(
-                title: "사진 불러오기 실패",
-                message: "사진을 불러오는 중 오류가 발생했습니다. 네트워크 연결을 확인해주세요."
+                title: "이미지를 불러오는데 문제가 발생하였습니다.",
+                message: ""
             )
-
-        // MARK: Grouping
-        case .imageLoadingFailed:
-            return AlertInfo(
-                title: "이미지 로딩 실패",
-                message: "이미지를 불러오는 데 실패했습니다. 네트워크 연결을 확인해주세요."
-            )
-
+            
         case .visionAnalysisFailed:
             return AlertInfo(
-                title: "분석 실패",
-                message: "이미지 분석 중 오류가 발생했습니다. 다시 시도해주세요."
+                title: "이미지를 분류하는데 오류가 발생하였습니다.",
+                message: ""
             )
-
-        case .partialAnalysisFailed(let failedCount):
-            return AlertInfo(
-                title: "일부 분석 실패",
-                message: "일부 이미지(\(failedCount)개) 분석에 실패했습니다.\n나머지 이미지는 정상적으로 처리되었습니다."
-            )
-
-        // MARK: Saving
+            
         case .photoPermissionDenied:
             return AlertInfo(
-                title: "권한 필요",
-                message: "사진 앱 접근 권한이 거부되었습니다.\n설정에서 권한을 허용해주세요."
+                title: "사진 앱 접근 권한을 확인해주세요.",
+                message: "설정 → 앱 → Bracket → 사진 → '전체 접근'으로 설정해주세요."
             )
-
-        case .photoPermissionRestricted:
+            
+        case .photoProcessingError:
             return AlertInfo(
-                title: "권한 제한됨",
-                message: "사진 앱 접근이 제한되었습니다.\n기기 설정을 확인해주세요."
-            )
-
-        case .albumCreationFailed:
-            return AlertInfo(
-                title: "앨범 생성 실패",
-                message: "앨범 생성에 실패했습니다. 다시 시도해주세요."
-            )
-
-        case .photoSaveFailed(let failedCount):
-            return AlertInfo(
-                title: "저장 실패",
-                message: "\(failedCount)개의 사진을 저장하는 데 실패했습니다.\n다시 시도해주세요."
-            )
-
-        case .imageDataInvalid:
-            return AlertInfo(
-                title: "이미지 데이터 오류",
-                message: "이미지 데이터를 가져오는 데 실패했습니다."
-            )
-
-        // MARK: General
-        case .unknown:
-            return AlertInfo(
-                title: "오류 발생",
-                message: "알 수 없는 오류가 발생했습니다. 다시 시도해주세요."
+                title: "이미지를 처리하는 과정에서 문제가 발생하였습니다.",
+                message: ""
             )
         }
     }
 }
-
-// MARK: - Conversion from Foundation/Domain Errors
 
 extension ArchiveError {
-    /// CCAPIError → ArchiveError (Selection 단계)
+    /// CCAPIError → ArchiveError
+    // TODO: - 카메라 연결 끊겼을 때
     static func fromCCAPI(_ error: CCAPIError) -> ArchiveError {
-        switch error {
-        case .deviceUnavailable:
-            return .cameraBusy
-        case .invalidResponse, .unexpectedStatusCode, .urlNotFound, .badRequest:
-            return .photoLoadFailed
-        default:
+        // 1. 연결 완전히 끊김 (최우선)
+        if error.isDisconnected {
             return .cameraDisconnected
         }
-    }
-
-    /// VisionError → ArchiveError (Grouping 단계)
-    static func fromVision(_ error: VisionError) -> ArchiveError {
+        
+        // 2. 일시적으로 바쁨
+        if error.isTemporarilyBusy {
+            return .cameraBusy
+        }
+        
+        // 3. 클라이언트 오류 (요청 오류)
+        if error.isClientError {
+            return .photoLoadingFailed
+        }
+        
+        // 4. 개별 에러 처리
         switch error {
-        case .imageFetching:
-            return .imageLoadingFailed
-        case .cgImageConversion, .observation:
-            return .visionAnalysisFailed
-        case .partialAnalysis(let failedPhotos, _):
-            return .partialAnalysisFailed(failedCount: failedPhotos.count)
-        case .unknown:
-            return .unknown
+            // 인증 관련
+        case .notAuthenticated, .noWWWAuthenticateHeader,
+                .authHeaderGenerationFailed, .maxRetriesExceeded:
+            return .cameraDisconnected
+            
+        default:
+            return .photoLoadingFailed
         }
     }
-
-    /// PhotoError → ArchiveError (Saving 단계)
+    
+    
+    /// VisionError → ArchiveError
+    static func fromVision(_ error: VisionError) -> ArchiveError {
+        switch error {
+        case .imageFetching, .unknown:
+            return .photoLoadingFailed
+        case .cgImageConversion, .observation:
+            return .visionAnalysisFailed
+        }
+    }
+    
+    /// PhotoError → ArchiveError
     static func fromPhoto(_ error: PhotoError) -> ArchiveError {
         switch error {
-        case .authorizationDenied:
+        case .authorizationDenied, .authorizationRestricted:
             return .photoPermissionDenied
-        case .authorizationRestricted:
-            return .photoPermissionRestricted
-        case .albumCreationFailed:
-            return .albumCreationFailed
-        case .photoSaveFailed:
-            return .photoSaveFailed(failedCount: 1)
-        case .imageURLInvalid, .imageDataMissing:
-            return .imageDataInvalid
-        case .unknown:
-            return .unknown
+        case .albumCreationFailed, .photoSaveFailed, .imageURLInvalid, .imageDataMissing, .unknown:
+            return .photoProcessingError
         }
     }
 }
+
