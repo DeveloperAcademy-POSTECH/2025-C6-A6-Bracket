@@ -21,11 +21,6 @@ class BaseService {
     ) async throws -> T {
         let response = try await networkManager.request(target)
         
-        // 200번대가 아니면 에러
-        guard (200...299).contains(response.statusCode) else {
-            throw CCAPIError.unexpectedStatusCode(response.statusCode)
-        }
-        
         // JSON 디코딩
         do {
             return try jsonDecoder.decode(T.self, from: response.data)
@@ -36,20 +31,12 @@ class BaseService {
     
     /// 응답이 없는 API 요청 (POST, DELETE 등)
     func request<Target: TargetType>(_ target: Target) async throws {
-        let response = try await networkManager.request(target)
-        
-        guard (200...299).contains(response.statusCode) else {
-            throw CCAPIError.unexpectedStatusCode(response.statusCode)
-        }
+        _ = try await networkManager.request(target)
     }
     
     /// Raw Data 응답 (이미지, 파일 다운로드 등)
     func requestData<Target: TargetType>(_ target: Target) async throws -> Data {
         let response = try await networkManager.request(target)
-        
-        guard (200...299).contains(response.statusCode) else {
-            throw CCAPIError.unexpectedStatusCode(response.statusCode)
-        }
         
         return response.data
     }
