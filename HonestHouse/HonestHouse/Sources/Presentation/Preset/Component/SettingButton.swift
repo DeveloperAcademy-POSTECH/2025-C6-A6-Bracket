@@ -119,6 +119,13 @@ struct ShootingModeSelector: View {
                     }
                 } label: {
                     Text(mode.rawValue)
+                        .font(.num6)
+                        .foregroundStyle(Color.g0)
+                        .padding(15)
+                        .clipShape(Circle())
+                        .overlay {
+                            Circle().strokeBorder(Color.g0, lineWidth: 1)
+                        }
                 }
             }
         }

@@ -207,6 +207,10 @@ class PresetDetailViewModel {
     }
     
     // Get Setting Values
+    func getCameraShootingModeValues() -> [ShootingModeType] {
+        return ShootingModeType.allCases
+    }
+    
     func getISOValues() -> [String] {
         return CameraConstants.isoValues
     }

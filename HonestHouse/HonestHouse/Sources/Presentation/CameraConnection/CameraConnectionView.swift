@@ -24,7 +24,7 @@ struct CameraConnectionView: View {
                         Button {
                             dismiss()
                         } label: {
-                            Image("closeIcon")
+                            Image(.closeIcon)
                                 .resizable()
                                 .frame(width: 36, height: 36)
                         }

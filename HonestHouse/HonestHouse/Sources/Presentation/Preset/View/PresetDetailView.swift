@@ -41,6 +41,7 @@ struct PresetDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             toolbarContent()
         }
@@ -74,6 +75,17 @@ struct PresetDetailView: View {
     // Primary Settings Section
     private func primarySettingsView() -> some View {
         HStack {
+            
+//            SettingButton(
+//                type: .cameraMode,
+//                state: vm.getButtonState(for: .cameraMode),
+//                value: vm.currentPreset.shootingMode,
+//                isSelected: vm.activePicker == .cameraMode,
+//                action: {
+//                    handleSettingButtonTap(.cameraMode)
+//                }
+//            )
+            
             // Aperture (조리개)
             SettingButton(
                 type: .aperture,
@@ -126,7 +138,14 @@ struct PresetDetailView: View {
     private func pickerView(for type: SettingType) -> some View {
         switch type {
         case .cameraMode:
-            EmptyView()
+            NonOptionalWheelPickerView(
+                selectedValue: $vm.currentPreset.shootingMode,
+                items: vm.getCameraShootingModeValues(),
+                config: .init(
+                    spacing: 22,
+                    itemSize: .init(width: 50, height: 24)
+                )
+            )
             
         case .aperture:
             if vm.currentPreset.shootingMode == .av {

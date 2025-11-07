@@ -25,7 +25,7 @@ enum SettingType: String {
     case aperture = "f"
     case shutterSpeed = "s"
     case iso = "ISO"
-    case pictureStyle = "pictureStyle"
+    case pictureStyle = "Style"
     
     case tintMagentaGreen = "TintMG"
     case exposure = "Exp"
