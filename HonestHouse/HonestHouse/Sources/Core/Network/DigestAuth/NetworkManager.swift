@@ -161,11 +161,6 @@ final class NetworkManager {
         }
         throw convertToCCAPIError(response)  // 실패
     }
-
-    /// Response를 CCAPIError로 변환 (throws 버전)
-    private func validateResponseError(_ response: Response) throws -> CCAPIError {
-        return convertToCCAPIError(response)
-    }
     
     /// 503 Service Unavailable 메시지 파싱
     private func parse503Error(message: String?) -> CCAPIError {
@@ -205,11 +200,7 @@ final class NetworkManager {
             return .networkError(nsError)
             
         case .statusCode(let response):
-            // HTTP 에러 응답 (validateResponse에서 이미 처리되었을 것)
-            if let validatedError = try? validateResponseError(response) {
-                return validatedError
-            }
-            return .httpError(response.statusCode)
+            return convertToCCAPIError(response)
             
         case .objectMapping(let error, _):
             return .decodingFailed(error.localizedDescription)
