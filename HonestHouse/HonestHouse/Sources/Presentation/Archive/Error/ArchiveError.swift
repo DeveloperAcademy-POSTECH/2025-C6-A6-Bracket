@@ -32,7 +32,6 @@ enum ArchiveError: LocalizedError, Equatable, AlertPresentable {
                 message: "카메라가 촬영 중일 때는 아카이빙 기능을 이용할 수 없습니다."
             )
             
-            // TODO: - 카메라 연결 끊겼을 때
         case .cameraDisconnected:
             return AlertInfo(
                 title: "카메라와의 연결이 불안정합니다.",
@@ -41,14 +40,12 @@ enum ArchiveError: LocalizedError, Equatable, AlertPresentable {
             
         case .photoLoadingFailed:
             return AlertInfo(
-                title: "이미지를 불러오는데 문제가 발생하였습니다.",
-                message: ""
+                title: "이미지를 불러오는데 문제가 발생하였습니다."
             )
             
         case .visionAnalysisFailed:
             return AlertInfo(
-                title: "이미지를 분류하는데 오류가 발생하였습니다.",
-                message: ""
+                title: "이미지를 분류하는데 오류가 발생하였습니다."
             )
             
         case .photoPermissionDenied:
@@ -59,8 +56,7 @@ enum ArchiveError: LocalizedError, Equatable, AlertPresentable {
             
         case .photoProcessingError:
             return AlertInfo(
-                title: "이미지를 처리하는 과정에서 문제가 발생하였습니다.",
-                message: ""
+                title: "이미지를 처리하는 과정에서 문제가 발생하였습니다."
             )
         }
     }
@@ -68,9 +64,8 @@ enum ArchiveError: LocalizedError, Equatable, AlertPresentable {
 
 extension ArchiveError {
     /// CCAPIError → ArchiveError
-    // TODO: - 카메라 연결 끊겼을 때
     static func fromCCAPI(_ error: CCAPIError) -> ArchiveError {
-        // 1. 연결 완전히 끊김 (최우선)
+        // 1. 연결 끊김 (최우선)
         if error.isDisconnected {
             return .cameraDisconnected
         }
