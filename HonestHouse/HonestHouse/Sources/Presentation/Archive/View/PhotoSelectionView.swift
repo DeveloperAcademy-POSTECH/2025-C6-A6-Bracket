@@ -9,8 +9,6 @@ import SwiftUI
 import Kingfisher
 
 struct PhotoSelectionView: View {
-    @EnvironmentObject var container: DIContainer
-    
     @State var vm: PhotoSelectionViewModel
     
     private let columnCount: Int = 3
