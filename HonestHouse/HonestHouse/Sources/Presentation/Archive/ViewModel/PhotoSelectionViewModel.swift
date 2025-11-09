@@ -140,13 +140,13 @@ final class PhotoSelectionViewModel {
                 order: "desc"
             )
             
-        } catch let error as ArchiveError {
-            state = .failure(error)
-        } catch let error as CCAPIError {
-            state = .failure(ArchiveError.fromCCAPI(error))
-        } catch let error as URLError {
+        } catch let archiveError as ArchiveError {
+            state = .failure(archiveError)
+        } catch let ccapiError as CCAPIError {
+            state = .failure(ArchiveError.fromCCAPI(ccapiError))
+        } catch let urlError as URLError {
             // URLError 처리 (스트리밍 중 네트워크 에러)
-            let ccapiError = CCAPIError.networkError(error)
+            let ccapiError = CCAPIError.networkError(urlError)
             state = .failure(.fromCCAPI(ccapiError))
             
         } catch {
@@ -165,7 +165,6 @@ final class PhotoSelectionViewModel {
     func goToGroupedPhotos() {
         // 초기 prefetch 중단 (리소스 절약)
         container.managers.imagePrefetchManager.cancelSelectionPartPrefetch()
-        
         container.navigationRouter.push(to: .groupedPhotos(Array(selectedPhotos)))
     }
     
