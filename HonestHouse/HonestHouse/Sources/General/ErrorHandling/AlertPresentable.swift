@@ -2,7 +2,7 @@
 //  AlertPresentable.swift
 //  HonestHouse
 //
-//  Created by Claude on 11/6/25.
+//  Created by 이현주 on 11/6/25.
 //
 
 import Foundation
