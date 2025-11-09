@@ -9,8 +9,6 @@ import SwiftUI
 import Kingfisher
 
 struct GroupedPhotosView: View {
-    @EnvironmentObject var container: DIContainer
-    
     @State var vm: GroupedPhotosViewModel
     
     private let columnCount: Int = 2
