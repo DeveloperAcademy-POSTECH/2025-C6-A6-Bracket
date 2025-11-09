@@ -30,12 +30,13 @@ final class PhotoManager: PhotoManagerType {
             // displayURL 실패 시 원본 URL로 재시도
             let imageData: Data
             do {
+                // 우선 displayURL로 시도
                 imageData = try await imageLoader.fetchImageData(from: photo.displayURL)
             } catch {
                 // displayURL 실패 시 원본 URL로 fallback
                 do {
                     imageData = try await imageLoader.fetchImageData(from: photo.url)
-                } catch let imageLoadingError as ImageLoadingError {
+                } catch _ as ImageLoadingError {
                     // ImageLoadingError → PhotoError 변환
                     throw PhotoError.imageDataMissing
                 } catch {

@@ -108,10 +108,10 @@ final class NetworkManager {
                 
                 return response
                 
-            } catch let error as CCAPIError {
-                throw error
-            } catch let error as MoyaError {
-                if case .statusCode(let response) = error, response.statusCode == 401 {
+            } catch let ccapiError as CCAPIError {
+                throw ccapiError
+            } catch let moyaError as MoyaError {
+                if case .statusCode(let response) = moyaError, response.statusCode == 401 {
                     authErrorCount += 1
                     if authErrorCount < maxAuthRetries {
                         Logger.warning("401(MoyaError) received, retrying... (\(authErrorCount)/\(maxAuthRetries))", category: .network)
@@ -123,7 +123,7 @@ final class NetworkManager {
                 }
                 
                 // 다른 MoyaError 변환
-                throw handleMoyaError(error)
+                throw handleMoyaError(moyaError)
             } catch let urlError as URLError {
                 // URLError 변환
                 Logger.error("URLError: \(urlError.localizedDescription)", category: .network)
