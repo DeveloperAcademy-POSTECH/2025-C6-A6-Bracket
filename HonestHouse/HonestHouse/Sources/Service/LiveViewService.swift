@@ -57,10 +57,11 @@ final class LiveViewService: StreamService, LiveViewServiceType {
                         await self.parser.appendChunk(data)
                         let frames = await self.parser.extractFrames()
                         if !frames.isEmpty {
-                            Logger.debug("Parsed \(frames.count) frame(s)", category: .network)
-                            await MainActor.run {
-                                for frame in frames {
-                                    onFrame(frame)
+                            if let lastFrame = frames.last {
+                                await MainActor.run {
+                                    for frame in frames {
+                                        onFrame(lastFrame)
+                                    }
                                 }
                             }
                         }
