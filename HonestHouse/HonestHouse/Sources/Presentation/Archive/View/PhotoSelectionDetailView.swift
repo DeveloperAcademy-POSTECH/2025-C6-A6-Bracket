@@ -14,7 +14,6 @@ struct PhotoSelectionDetailView: View {
 
     @State private var selectedURL: String // TabView 현재 페이지
     @State private var photos: [Photo] = [] // 스냅샷 (vm chunk append시, 무시 목적)
-    @State private var loadedImages: Set<String> = [] // 버튼 띄우기 용
     
     let initialPhoto: Photo
 
@@ -47,18 +46,22 @@ struct PhotoSelectionDetailView: View {
     }
 
     private func photoDetailView(photo: Photo) -> some View {
-        ZStack(alignment: .bottomTrailing) {
-            ProgressiveDisplayImageView(
-                photo: photo,
-                onImageLoaded: {
-                    loadedImages.insert(photo.url)
-                }
-            )
-
-            if loadedImages.contains(photo.url) {
+        ZStack(alignment: .topLeading) {
+            VStack(spacing: 0) {
+                Spacer()
+                
+                ProgressiveDisplayImageView(
+                    photo: photo
+                )
+                
+                Spacer()
+            }
+            
+            VStack(spacing: 0) {
                 selectionButtonView(photo: photo)
                     .padding(16)
-                    .transition(.opacity)
+                
+                Spacer()
             }
         }
         .task {
