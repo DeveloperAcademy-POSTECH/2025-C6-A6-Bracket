@@ -10,9 +10,9 @@ import Foundation
 /// Alert에 표시될 정보를 담는 구조체
 struct AlertInfo {
     let title: String
-    let message: String
+    let message: String?
 
-    init(title: String, message: String) {
+    init(title: String, message: String? = nil) {
         self.title = title
         self.message = message
     }
