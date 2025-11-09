@@ -12,8 +12,6 @@ struct GroupedPhotosDetailView: View {
     @Environment(GroupedPhotosViewModel.self) var vm
     @Environment(\.dismiss) private var dismiss
     
-    @State private var loadedImages: Set<String> = [] // 버튼 띄우기 용
-    
     let groupedPhotos: SimilarPhotoGroup
 
     var body: some View {
@@ -32,20 +30,22 @@ struct GroupedPhotosDetailView: View {
     }
 
     private func photoDetailView(photo: Photo) -> some View {
-        ZStack(alignment: .bottomTrailing) {
-            // Progressive Display Image (Thumbnail → Display → Display 실패 시 원본)
-            ProgressiveDisplayImageView(
-                photo: photo,
-                onImageLoaded: {
-                    loadedImages.insert(photo.url)
-                }
-            )
-
-            // 선택/해제 버튼 (이미지 로딩 완료 후 표시)
-            if loadedImages.contains(photo.url) {
+        ZStack(alignment: .topLeading) {
+            VStack(spacing: 0) {
+                Spacer()
+                
+                ProgressiveDisplayImageView(
+                    photo: photo
+                )
+                
+                Spacer()
+            }
+            
+            VStack(spacing: 0) {
                 selectionButtonView(photo: photo)
                     .padding(16)
-                    .transition(.opacity)
+                
+                Spacer()
             }
         }
         .task {

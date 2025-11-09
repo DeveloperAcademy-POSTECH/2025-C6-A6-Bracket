@@ -13,7 +13,6 @@ struct ProgressiveDisplayImageView: View {
     @State private var shouldUseFallback = false
     
     let photo: Photo
-    let onImageLoaded: (() -> Void)?  // 이미지 로딩 완료 콜백
     
     
     var body: some View {
@@ -33,9 +32,6 @@ struct ProgressiveDisplayImageView: View {
             .placeholder {
                 thumbnailImageView(url: photo.thumbnailURL)
             }
-            .onSuccess { _ in
-                onImageLoaded?()
-            }
             .onFailure { error in
                 print("[Display] Failed: \(photo.displayURL) - \(error.localizedDescription)")
                 print("[Fallback] Using original: \(photo.url)")
@@ -52,9 +48,6 @@ struct ProgressiveDisplayImageView: View {
         KFImage(URL(string: url))
             .placeholder {
                 thumbnailImageView(url: photo.thumbnailURL)
-            }
-            .onSuccess { _ in
-                onImageLoaded?()
             }
             .retry(maxCount: 2, interval: .seconds(2))
             .cacheOriginalImage()
