@@ -44,11 +44,7 @@ struct MainView: View {
     
     private func cameraAndArchiveHeaderView() -> some View {
         HStack {
-            Button {
-                if cameraConnectionManager.connectionState != .connected {
-                    cameraConnectionManager.showConnectionSheet = true
-                }
-            } label: {
+            Button { } label: {
                 Image(.setting)
                     .resizable()
                     .scaledToFit()

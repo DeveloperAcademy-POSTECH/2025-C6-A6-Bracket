@@ -53,7 +53,7 @@ final class CameraConnectionManager: BaseService, ObservableObject {
                 }
                 
                 self.connectionState = .connected
-                Logger.info("카메라 연결 성공", category: .connection)
+                Logger.info("Camera Connection Succeed", category: .connection)
             } catch {
                 let connectionError = ConnectionError.from(error)
                 self.connectionState = .failed(connectionError)
@@ -80,6 +80,7 @@ final class CameraConnectionManager: BaseService, ObservableObject {
             while !Task.isCancelled {
                 do {
                     try await statusService.getPolling(timeout: .long)
+                    Logger.info("Request polling", category: .connection)
                     
                     if connectionState != .connected {
                         await MainActor.run {
