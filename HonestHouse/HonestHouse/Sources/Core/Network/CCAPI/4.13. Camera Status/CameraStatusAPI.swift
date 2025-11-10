@@ -14,12 +14,12 @@ enum TimeoutType: String {
 }
 
 enum CameraStatusAPI {
-    case getPolliing(TimeoutType)
+    case getPolling(TimeoutType)
     
     var endpoint: String {
         switch self {
-        case .getPolliing(let timeout):
-            return "event/polling?timeout=\(timeout.rawValue)"
+        case .getPolling(let timeout):
+            return "event/polling"
         }
     }
     

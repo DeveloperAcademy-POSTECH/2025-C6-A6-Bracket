@@ -101,10 +101,6 @@ struct ConnectionGuideView: View {
     
     private func connectButton() -> some View {
         Button {
-            if cameraConnectionManager.connectionState != .connecting {
-                cameraConnectionManager.connectionState = .disconnected
-            }
-            
             cameraConnectionManager.connectCamera(ipAddress: BaseURLConstants.cameraIP)
         } label: {
             Text("연결하기")

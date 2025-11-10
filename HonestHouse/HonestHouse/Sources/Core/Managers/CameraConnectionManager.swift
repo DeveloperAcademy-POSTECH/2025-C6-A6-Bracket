@@ -9,13 +9,24 @@ import SwiftUI
 @MainActor
 final class CameraConnectionManager: BaseService, ObservableObject {
     @Published var productName: String = ""
-    @Published var connectionState: ConnectionState = .disconnected
     @Published var showConnectionSheet = false
     
-    private let networkManager: NetworkManager
+    @Published var connectionState: ConnectionState = .disconnected {
+        didSet {
+            handleConnectionStateChange(oldValue: oldValue, newValue: connectionState)
+        }
+    }
     
-    init(networkManager: NetworkManager = .shared) {
+    private let networkManager: NetworkManager
+    private let statusService: CameraStatusServiceType // DIContainer를 사용하지 않고 별도 주입
+    private var pollingTask: Task<Void, Never>?
+    
+    init(
+        networkManager: NetworkManager = .shared,
+        statusService: CameraStatusServiceType = CameraStatusService()
+    ) {
         self.networkManager = networkManager
+        self.statusService = statusService
     }
     
     func connectCamera(ipAddress: String) {
@@ -48,23 +59,62 @@ final class CameraConnectionManager: BaseService, ObservableObject {
     }
     
     func disconnectCamera() {
+        stopConnectionMonitoring()
         connectionState = .disconnected
-    }
-    
-    func checkConnectionStatus() async -> Bool {
-        do {
-            _ = try await getCameraInfo()
-            self.connectionState = .connected
-            return true
-        } catch {
-            self.connectionState = .disconnected
-            return false
-        }
     }
     
     func getCameraInfo() async throws -> CameraInformation.CameraFixedInformationResponse {
         let response = try await request(CameraInformationTarget.getCameraFixedInformation, decoding: CameraInformation.CameraFixedInformationResponse.self)
         
         return response
+    }
+    
+    func startConnectionMonitoring(interval: TimeInterval = 5.0) {
+        pollingTask?.cancel()
+        
+        pollingTask = Task {
+            while !Task.isCancelled {
+                do {
+                    try await statusService.getPolling(timeout: .immediately)
+                    
+                    if connectionState != .connected {
+                        connectionState = .connected
+                        Logger.info("Connection restored", category: .connection)
+                    }
+                } catch {
+                    if connectionState == .connected {
+                        connectionState = .disconnected
+                        Logger.warning("Connection lost", category: .connection)
+                    }
+                }
+                
+                try? await Task.sleep(for: .seconds(interval))
+            }
+        }
+    }
+    
+    func stopConnectionMonitoring() {
+        pollingTask?.cancel()
+        pollingTask = nil
+    }
+    
+    private func handleConnectionStateChange(oldValue: ConnectionState, newValue: ConnectionState) {
+        switch newValue {
+        case .connected:
+            if oldValue != .connected {
+                startConnectionMonitoring()
+                Logger.info("Started monitoring on connection", category: .connection)
+            }
+            
+        case .disconnected, .failed:
+            if oldValue == .connected {
+                stopConnectionMonitoring()
+                showConnectionSheet = true
+                Logger.warning("Stopped monitoring on disconnection", category: .connection)
+            }
+            
+        case .connecting:
+            break
+        }
     }
 }
