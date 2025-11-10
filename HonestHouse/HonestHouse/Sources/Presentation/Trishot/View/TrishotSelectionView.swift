@@ -22,21 +22,6 @@ struct TrishotSelectionView: View {
         }
     }
 
-    private func headerView() -> some View {
-        VStack(spacing: 8) {
-            Text("트라이샷에 사용할 프리셋을 선택하세요")
-                .font(.labelM)
-                .foregroundColor(.g7)
-
-            Text("프리셋 \(vm.targetOrder + 1) 선택")
-                .font(.labelM)
-                .foregroundColor(.yellow1)
-        }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .background(Color.g11)
-    }
-
     private func emptyStateView() -> some View {
         VStack(spacing: 16) {
             Image(systemName: "camera.metering.unknown")
