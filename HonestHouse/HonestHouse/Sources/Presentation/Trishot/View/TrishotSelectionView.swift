@@ -24,7 +24,7 @@ struct TrishotSelectionView: View {
 
     private func trishotItemListView() -> some View {
         ScrollView {
-            LazyVStack(spacing: 20) {
+            LazyVStack(spacing: 32) {
                 ForEach(vm.allPresets) { preset in
                     trishotItemView(preset)
                 }
