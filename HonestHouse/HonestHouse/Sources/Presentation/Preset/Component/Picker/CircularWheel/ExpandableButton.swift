@@ -39,7 +39,8 @@ struct ExpandableButton: View {
                         viewModel.startDragging()
                     }
                     
-                    viewModel.updateDragDistance(value.translation)
+                    // 거리와 각도를 동시에 업데이트
+                    viewModel.updateDragWithAngle(value.translation)
                 }
                 .onEnded { _ in
                     if viewModel.isDragging {

@@ -19,7 +19,7 @@ struct ExpandableCircleView: View {
             .overlay {
                 if vm.isCircleVisible {
                     ExpandableCircle(
-                        isDragging: $vm.isDragging,
+                        viewModel: vm,
                         value: $value,
                         type: .exposure,
                         size: vm.circleSize,

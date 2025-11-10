@@ -49,16 +49,14 @@ enum WheelSettingType {
 
 struct ExpandableCircle: View {
     
-    @State var dragAngle: Double = 0.0
-    
-    @Binding var isDragging: Bool
+    @Bindable var viewModel: CircularWheelViewModel  // ViewModel 추가
     @Binding var value: Int
     
     let type: WheelSettingType
     let size: CGFloat
     let isVisible: Bool
     
-    // 버튼 영역 크기 (제스처에서 제외할 중심 영역)
+    // 버튼 영역 크기 (제스처에서 제외할 중심 영역) - 나중에 사용
     private let buttonExclusionRadius: CGFloat = 30
     
     private var normalizedValue: Double {
@@ -70,8 +68,8 @@ struct ExpandableCircle: View {
     private var endAngle: Angle { .degrees(60) }
     
     private var currentAngle: Angle {
-        if isDragging {
-            return .degrees(dragAngle)
+        if viewModel.isDragging {
+            return .degrees(viewModel.currentAngle)
         }
         return .degrees(-60 + 120 * normalizedValue)
     }
@@ -79,6 +77,8 @@ struct ExpandableCircle: View {
     private var thumbPosition: CGPoint {
         let angle = currentAngle.radians - .pi/2
         let radius = size / 2
+        
+        print("angle: \(angle), radius: \(radius)")
         
         // 로컬 좌표계의 중심 기준으로 계산
         return CGPoint(
@@ -92,30 +92,25 @@ struct ExpandableCircle: View {
             // 원 그리기 (터치 불가)
             Circle()
                 .stroke(type.strokeColor, lineWidth: 4)
-                .allowsHitTesting(false)
             
             // 썸 (터치 불가)
             Circle()
                 .fill(Color.g0)
                 .frame(width: 12, height: 12)
                 .position(thumbPosition)
-                .allowsHitTesting(false)
             
-            // 제스처 영역 - 버튼 중심부 제외한 원형 영역
+            // 제스처 영역 - 원 전체
             Circle()
                 .fill(Color.clear)
-                .contentShape(
-                    Circle()
-                        .trim(from: 0, to: 1)
-                        .stroke(lineWidth: size - buttonExclusionRadius * 2)
-                )
+                .contentShape(Circle())
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { gesture in
+                            print("h")
                             handleArcDrag(gesture: gesture)
                         }
                         .onEnded { _ in
-                            isDragging = false
+                            viewModel.isDragging = false
                         }
                 )
         }
@@ -131,27 +126,24 @@ struct ExpandableCircle: View {
         let deltaX = location.x - localCenter.x
         let deltaY = location.y - localCenter.y
         
-        // 중심으로부터의 거리 계산
-        let distanceFromCenter = sqrt(deltaX * deltaX + deltaY * deltaY)
-        
-        // 버튼 영역(중심부)이면 제스처 무시
-        if distanceFromCenter < buttonExclusionRadius {
-            return
-        }
+        // TODO: 나중에 버튼 제외 로직 추가
+        // let distanceFromCenter = sqrt(deltaX * deltaX + deltaY * deltaY)
+        // if distanceFromCenter < buttonExclusionRadius { return }
         
         // 첫 드래그면 isDragging 활성화
-        if !isDragging {
-            isDragging = true
+        if !viewModel.isDragging {
+            viewModel.isDragging = true
         }
         
         // atan2를 사용해 각도 계산 (라디안)
-        let angleInRadians = atan2(deltaY, deltaX) + .pi/2
+        let angleInRadians = atan2(deltaY, deltaX)
         var angleInDegrees = angleInRadians * 180 / .pi
         
         // -60 ~ 60 범위로 제한 (120도 arc)
         angleInDegrees = max(-60, min(60, angleInDegrees))
         
-        dragAngle = angleInDegrees
+        // ViewModel의 각도 업데이트
+        viewModel.currentAngle = angleInDegrees
         
         // 각도를 값으로 변환
         let normalized = (angleInDegrees + 60) / 120
