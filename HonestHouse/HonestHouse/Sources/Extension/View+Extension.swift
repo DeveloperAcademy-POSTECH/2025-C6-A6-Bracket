@@ -67,4 +67,23 @@ extension View {
             }
         }
     }
+    
+    /*
+    Pinch to zoom
+    Double tap to zoom in and out
+    Drag to pan
+    */
+    func zoomableGesture(
+        minZoomScale: CGFloat = 1.0,
+        maxZoomScale: CGFloat = 3.0,
+        doubleTapZoomScale: CGFloat = 3.0
+    ) -> some View {
+        ZoomableGestureView(
+            minZoomScale: minZoomScale,
+            maxZoomScale: maxZoomScale,
+            doubleTapZoomScale: doubleTapZoomScale
+        ) {
+            self
+        }
+    }
 }
