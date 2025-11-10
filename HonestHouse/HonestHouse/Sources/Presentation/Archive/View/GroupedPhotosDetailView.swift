@@ -31,15 +31,11 @@ struct GroupedPhotosDetailView: View {
 
     private func photoDetailView(photo: Photo) -> some View {
         ZStack(alignment: .topLeading) {
-            VStack(spacing: 0) {
-                Spacer()
-                
-                ProgressiveDisplayImageView(
-                    photo: photo
-                )
-                
-                Spacer()
-            }
+            
+            ProgressiveDisplayImageView(
+                photo: photo
+            )
+            .zoomableGesture()
             
             VStack(spacing: 0) {
                 selectionButtonView(photo: photo)
