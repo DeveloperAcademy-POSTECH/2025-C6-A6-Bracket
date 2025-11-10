@@ -25,8 +25,8 @@ extension Color {
     static let g0: Color = .init(hex: "FFFFFF")     /// FFFFFF
     
     // Semantic Colors
-    static let red1: Color = .init(hex: "FF383C")       // FF383C
-    static let yellow1: Color = .init(hex: "E6FF79")    // E6FF79
+    static let red1: Color = .init(hex: "FF383C")       /// FF383C
+    static let yellow1: Color = .init(hex: "E6FF79")    /// E6FF79
     static let yellow2: Color = .init(hex: "586621")    /// 586621
 }
 
