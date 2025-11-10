@@ -103,12 +103,12 @@ struct ExpandableCircle: View {
     
     var body: some View {
         ZStack {
-            // 원 그리기 (터치 불가)
+            // 원 그리기
             Circle()
                 .stroke(type.strokeColor, lineWidth: 4)
                 .frame(width: viewModel.circleSize, height: viewModel.circleSize)
             
-            // 썸 (터치 불가)
+            // 썸
             Circle()
                 .fill(Color.g0)
                 .frame(width: 12, height: 12)

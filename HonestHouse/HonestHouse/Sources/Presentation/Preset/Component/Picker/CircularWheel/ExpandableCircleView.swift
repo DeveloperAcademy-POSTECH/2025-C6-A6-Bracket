@@ -15,6 +15,7 @@ struct ExpandableCircleView: View {
     @State var value: Int = 0
     
     var body: some View {
+        
         ExpandableButton(viewModel: vm, coordinateSpace: coordinateSpaceName)
             .overlay {
                 if vm.isCircleVisible {
@@ -27,6 +28,9 @@ struct ExpandableCircleView: View {
                 }
             }
             .coordinateSpace(name: coordinateSpaceName)
+        
+        
+        
     }
     
 }
@@ -35,11 +39,11 @@ struct ExpandableCircleView: View {
     ZStack {
         Color.g12
         HStack {
-            ExpandableCircleView(vm: .init(settingType: .mg))
+            ExpandableCircleView(vm: .init(settingType: .mg, isDimmed: .constant(true)))
             Spacer()
-            ExpandableCircleView(vm: .init(settingType: .exposure))
+            ExpandableCircleView(vm: .init(settingType: .exposure, isDimmed: .constant(false)))
             Spacer()
-            ExpandableCircleView(vm: .init(settingType: .temperature))
+            ExpandableCircleView(vm: .init(settingType: .temperature, isDimmed: .constant(false)))
         }
     }
     .preferredColorScheme(.dark)

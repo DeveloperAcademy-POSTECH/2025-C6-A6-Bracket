@@ -55,5 +55,5 @@ struct ExpandableButton: View {
 }
 
 #Preview {
-    ExpandableButton(viewModel: .init(settingType: .exposure), coordinateSpace: "")
+    ExpandableButton(viewModel: .init(settingType: .exposure, isDimmed: .constant(false)), coordinateSpace: "")
 }
