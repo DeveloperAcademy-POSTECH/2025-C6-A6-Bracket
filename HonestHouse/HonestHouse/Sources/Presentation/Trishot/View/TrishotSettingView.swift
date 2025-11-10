@@ -90,7 +90,7 @@ struct TrishotSettingView: View {
     }
     
     private func startButtonView() -> some View {
-        let canStart = vm.activatedPresets.count >= 2
+        let canStart = vm.allSelectedPresets.count == 3
         return Button {
             vm.send(action: .goToTrishotActivation)
         } label: {
