@@ -15,7 +15,7 @@ struct TrishotSelectionView: View {
             Color.g12.ignoresSafeArea(.all)
             trishotItemListView()
         }
-        .navigationBarWithBack(title: "프리셋 \(vm.targetOrder + 1)", showShadow: true) {
+        .navigationBarWithBack(title: "", showShadow: true) {
             vm.send(.popToTrishotSetting)
         } rightView: {
             EmptyView()
