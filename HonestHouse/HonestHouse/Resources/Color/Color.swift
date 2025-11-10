@@ -10,7 +10,7 @@ import SwiftUI
 extension Color {
     
     // Neutral Colors
-    static let g12: Color = .init(hex: "1C1C22")    /// 1C1C22
+    static let g12: Color = .init(hex: "17171C")    /// 17171C
     static let g11: Color = .init(hex: "222229")    /// 222229
     static let g10: Color = .init(hex: "353740")    /// 353740
     static let g9: Color = .init(hex: "4B4C59")     /// 4B4C59
@@ -25,8 +25,9 @@ extension Color {
     static let g0: Color = .init(hex: "FFFFFF")     /// FFFFFF
     
     // Semantic Colors
-    static let red1: Color = .init(hex: "FF383C")       // FF383C
-    static let yellow1: Color = .init(hex: "E6FF79")    // E6FF79
+    static let red1: Color = .init(hex: "FF383C")       /// FF383C
+    static let yellow1: Color = .init(hex: "E6FF79")    /// E6FF79
+    static let yellow2: Color = .init(hex: "586621")    /// 586621
 }
 
 extension Color {
