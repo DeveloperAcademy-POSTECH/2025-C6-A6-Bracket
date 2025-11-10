@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ExpandableCircleView: View {
     
-    @State var vm = CircularWheelViewModel()
+    @State var vm: CircularWheelViewModel
     private let coordinateSpaceName = "circleExpandSpace"
     
     @State var value: Int = 0
@@ -21,7 +21,7 @@ struct ExpandableCircleView: View {
                     ExpandableCircle(
                         viewModel: vm,
                         value: $value,
-                        type: .exposure,
+                        type: vm.settingType,
                         isVisible: vm.isCircleVisible
                     )
                 }
@@ -35,11 +35,11 @@ struct ExpandableCircleView: View {
     ZStack {
         Color.g12
         HStack {
-            ExpandableCircleView()
+            ExpandableCircleView(vm: .init(settingType: .mg))
             Spacer()
-            ExpandableCircleView()
+            ExpandableCircleView(vm: .init(settingType: .exposure))
             Spacer()
-            ExpandableCircleView()
+            ExpandableCircleView(vm: .init(settingType: .temperature))
         }
     }
     .preferredColorScheme(.dark)
