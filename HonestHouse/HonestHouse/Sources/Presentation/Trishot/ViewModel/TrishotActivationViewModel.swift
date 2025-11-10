@@ -45,11 +45,6 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
             return
         }
 
-        guard activatedPresets.count >= 2 else {
-            error = .insufficientPresets
-            return
-        }
-
         currentPresetIndex = 0
         error = nil
 
