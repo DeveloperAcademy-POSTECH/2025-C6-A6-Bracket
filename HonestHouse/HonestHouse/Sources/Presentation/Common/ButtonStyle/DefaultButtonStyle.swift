@@ -27,7 +27,7 @@ struct DefaultButtonStyle: ButtonStyle {
                 .foregroundStyle(Color.g12)
                 .padding(.vertical, 20)
                 .frame(maxWidth: .infinity)
-                .background(Color.g0)
+                .background(Color.yellow1)
                 .clipShape(RoundedRectangle(cornerRadius: 62))
             
         case .deactivated:
@@ -36,7 +36,7 @@ struct DefaultButtonStyle: ButtonStyle {
                 .foregroundStyle(Color.g7)
                 .padding(.vertical, 20)
                 .frame(maxWidth: .infinity)
-                .background(Color.g12)
+                .background(Color.yellow1)
                 .clipShape(RoundedRectangle(cornerRadius: 62))
                 .overlay {
                     RoundedRectangle(cornerRadius: 62).strokeBorder(Color.g10, lineWidth: 1.5)
