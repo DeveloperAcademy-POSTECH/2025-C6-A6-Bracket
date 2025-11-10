@@ -59,9 +59,13 @@ final class NetworkManager {
         let serverTrustManager = ServerTrustManager(
             evaluators: [cameraIP: DisabledTrustEvaluator()]
         )
-        
+
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 10
+        configuration.timeoutIntervalForResource = 20
+
         self.session = Session(
-            configuration: .default,
+            configuration: configuration,
             serverTrustManager: serverTrustManager
         )
     }
