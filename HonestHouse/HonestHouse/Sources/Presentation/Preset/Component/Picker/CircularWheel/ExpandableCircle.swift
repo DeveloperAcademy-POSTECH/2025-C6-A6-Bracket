@@ -53,7 +53,6 @@ struct ExpandableCircle: View {
     @Binding var value: Int
     
     let type: WheelSettingType
-    let size: CGFloat
     let isVisible: Bool
     
     // 버튼 영역 크기 (제스처에서 제외할 중심 영역) - 나중에 사용
@@ -77,10 +76,14 @@ struct ExpandableCircle: View {
     }
     
     private var thumbPosition: CGPoint {
-        let angle = currentAngle.radians - .pi/2
-        let radius = size / 2
+        // currentAngle: 0도 = 12시 방향(위), 양수 = 시계방향
+        // cos/sin: 0도 = 3시 방향(오른쪽), 양수 = 반시계방향
+        // 12시를 0도로 맞추려면 -90도 필요
+        let angle = (currentAngle.degrees - 90) * .pi / 180
+        let radius = viewModel.circleSize / 2
         
-        // 로컬 좌표계의 중심 기준으로 계산
+        // ZStack의 중심은 (circleSize/2, circleSize/2)
+        // 원의 호선 위 좌표 = 중심 + (radius * cos, radius * sin)
         return CGPoint(
             x: radius + radius * cos(angle),
             y: radius + radius * sin(angle)
@@ -92,6 +95,7 @@ struct ExpandableCircle: View {
             // 원 그리기 (터치 불가)
             Circle()
                 .stroke(type.strokeColor, lineWidth: 4)
+                .frame(width: viewModel.circleSize, height: viewModel.circleSize)
             
             // 썸 (터치 불가)
             Circle()
@@ -103,7 +107,7 @@ struct ExpandableCircle: View {
             Circle()
                 .fill(Color.clear)
                 .contentShape(Circle())
-                .gesture(
+                .simultaneousGesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { gesture in
                             handleArcDrag(gesture: gesture)
@@ -113,20 +117,23 @@ struct ExpandableCircle: View {
                         }
                 )
         }
-        .frame(width: size, height: size)
+        .frame(width: viewModel.circleSize, height: viewModel.circleSize)
     }
     
     private func handleArcDrag(gesture: DragGesture.Value) {
-        // 로컬 좌표계의 중심점 (size의 중심)
-        let localCenter = CGPoint(x: size / 2, y: size / 2)
+        // 원 크기가 변하는 중에도 정확한 각도 계산을 위해
+        // 현재 프레임의 중심을 기준으로 계산
+        let center = viewModel.circleSize / 2
         let location = gesture.location
         
-        // 중심에서 터치 위치까지의 상대 위치 계산
-        let deltaX = location.x - localCenter.x
-        let deltaY = location.y - localCenter.y
+        // 중심에서 터치 위치까지의 벡터
+        let deltaX = location.x - center
+        let deltaY = location.y - center
         
-        // TODO: 나중에 버튼 제외 로직 추가
-        // let distanceFromCenter = sqrt(deltaX * deltaX + deltaY * deltaY)
+        // 중심에서의 거리 계산
+        let distanceFromCenter = sqrt(deltaX * deltaX + deltaY * deltaY)
+        
+        // TODO: 나중에 버튼 제외 로직
         // if distanceFromCenter < buttonExclusionRadius { return }
         
         // 첫 드래그면 isDragging 활성화
@@ -134,16 +141,18 @@ struct ExpandableCircle: View {
             viewModel.isDragging = true
         }
         
+        // 거리가 너무 작으면 각도 계산 불안정하므로 최소 거리 적용
+        guard distanceFromCenter > 5 else { return }
+        
         // atan2를 사용해 각도 계산
-        // deltaY: 아래쪽 = 양수, 위쪽 = 음수 이므로 -deltaY로 반전
-        // deltaX: 오른쪽 = 양수, 왼쪽 = 음수
+        // -deltaY: 위쪽을 0도로 만들기 위해 Y축 반전
         let angleInRadians = atan2(deltaX, -deltaY)
         var angleInDegrees = angleInRadians * 180 / .pi
         
         // -60 ~ 60 범위로 제한 (120도 arc)
         angleInDegrees = max(-60, min(60, angleInDegrees))
         
-        // ViewModel의 각도 업데이트
+        // 애니메이션 없이 즉시 업데이트 (빠른 드래그 대응)
         viewModel.currentAngle = angleInDegrees
         
         // 각도를 값으로 변환

@@ -22,7 +22,6 @@ struct ExpandableCircleView: View {
                         viewModel: vm,
                         value: $value,
                         type: .exposure,
-                        size: vm.circleSize,
                         isVisible: vm.isCircleVisible
                     )
                 }

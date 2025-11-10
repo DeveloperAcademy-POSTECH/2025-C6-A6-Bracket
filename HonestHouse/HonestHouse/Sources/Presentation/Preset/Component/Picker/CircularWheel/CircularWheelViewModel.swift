@@ -61,10 +61,8 @@ final class CircularWheelViewModel {
         // 4. -60 ~ 60 범위로 제한 (120도 arc)
         angleInDegrees = max(-60, min(60, angleInDegrees))
         
-        withAnimation(.default) {
-            circleSize = mappedSize
-            currentAngle = angleInDegrees
-        }
+        circleSize = mappedSize
+        currentAngle = angleInDegrees
     }
     
     func endDragging() {

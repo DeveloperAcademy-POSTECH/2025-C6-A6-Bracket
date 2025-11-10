@@ -45,6 +45,7 @@ struct ExpandableButton: View {
                 .onEnded { _ in
                     if viewModel.isDragging {
                         viewModel.endDragging()
+                        print("\(viewModel.circleSize)")
                     } else {
                         viewModel.toggleCircle()
                     }
