@@ -43,7 +43,7 @@ struct TrishotCapsuleView: View {
     }
 
     private func occupiedOverlayView(order: Int) -> some View {
-        Text("프리셋\(order + 1)에 선택됨")
+        Text("Preset \(order + 1)에 선택됨")
             .font(.num5)
             .foregroundColor(Color.g0)
             .shadow(color: Color.black, radius: 20, x: 0, y: 0)

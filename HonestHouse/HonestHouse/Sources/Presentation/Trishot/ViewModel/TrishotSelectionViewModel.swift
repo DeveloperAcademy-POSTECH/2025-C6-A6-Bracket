@@ -66,6 +66,12 @@ final class TrishotSelectionViewModel {
             index != targetOrder && preset.id == presetId
         }
     }
+
+    func getOccupiedOrder(_ presetId: UUID) -> Int? {
+        selectedPresets.enumerated().first { index, preset in
+            index != targetOrder && preset.id == presetId
+        }?.offset
+    }
 }
 
 extension TrishotSelectionViewModel {
