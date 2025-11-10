@@ -23,7 +23,7 @@ struct DefaultButtonStyle: ButtonStyle {
         switch type {
         case .activated:
             configuration.label
-                .font(.labelL)
+                .font(.num3)
                 .foregroundStyle(Color.g12)
                 .padding(.vertical, 20)
                 .frame(maxWidth: .infinity)
@@ -32,7 +32,7 @@ struct DefaultButtonStyle: ButtonStyle {
             
         case .deactivated:
             configuration.label
-                .font(.labelL)
+                .font(.num3)
                 .foregroundStyle(Color.g7)
                 .padding(.vertical, 20)
                 .frame(maxWidth: .infinity)
