@@ -26,14 +26,38 @@ struct TrishotActivationView: View {
     }
     
     private func triCircleListView(_ index: Int) -> some View {
-        VStack(spacing: 40) {
+        VStack(spacing: 32) {
             ForEach(Array(vm.activatedPresets.enumerated()), id: \.element.id) { index, preset in
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(preset.name)
+                        .font(.num4)
+                        .foregroundStyle(Color.g0)
+                    if vm.isCurrentPreset(index) {
+                        activeCapsule(preset: preset, index: index)
+                    } else {
+                        inactiveCapsule(preset: preset, index: index)
+                    }
                 }
             }
         }
+        .screenPadding()
         .animation(.default, value: index)
     }
+
+    private func activeCapsule(preset: Preset, index: Int) -> some View {
+        TrishotCapsuleView(preset: preset, isOccupied: false)
+            .frame(height: 122)
+            .background(Capsule().fill(Color.g11))
+            .overlay(Capsule().stroke(Color.yellow1, lineWidth: 1))
     }
+
+    private func inactiveCapsule(preset: Preset, index: Int) -> some View {
+        TrishotCapsuleView(preset: preset, isOccupied: false)
+            .frame(height: 122)
+            .background(
+                Capsule()
+                    .fill(Color.g11)
+            )
     }
     
     private func deactivateButtonView() -> some View {
