@@ -136,7 +136,6 @@ final class LiveStreamViewModel {
             if let image = frame.image {
                 currentImage = image
                 updateFPS()
-                Logger.debug("Image frame processed: \(image.size.width)x\(image.size.height)", category: .viewModel)
             } else {
                 Logger.warning("Image frame received but UIImage(data:) returned nil", category: .viewModel)
             }

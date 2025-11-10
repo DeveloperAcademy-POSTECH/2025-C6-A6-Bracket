@@ -13,7 +13,10 @@ final class CameraConnectionManager: BaseService, ObservableObject {
     
     @Published var connectionState: ConnectionState = .disconnected {
         didSet {
-            handleConnectionStateChange(oldValue: oldValue, newValue: connectionState)
+            handleConnectionStateChange(
+                oldValue: oldValue,
+                newValue: connectionState
+            )
         }
     }
     
@@ -42,14 +45,15 @@ final class CameraConnectionManager: BaseService, ObservableObject {
         Task {
             do {
                 try await networkManager.initializeAuthentication()
-                self.connectionState = .connected
-                Logger.info("카메라 연결 성공", category: .connection)
                 
                 let cameraInfo = try await getCameraInfo()
-                
+                                
                 if let productName = cameraInfo.productName {
                     self.productName = productName
                 }
+                
+                self.connectionState = .connected
+                Logger.info("카메라 연결 성공", category: .connection)
             } catch {
                 let connectionError = ConnectionError.from(error)
                 self.connectionState = .failed(connectionError)
@@ -69,26 +73,30 @@ final class CameraConnectionManager: BaseService, ObservableObject {
         return response
     }
     
-    func startConnectionMonitoring(interval: TimeInterval = 5.0) {
+    func startConnectionMonitoring() {
         pollingTask?.cancel()
-        
+
         pollingTask = Task {
             while !Task.isCancelled {
                 do {
-                    try await statusService.getPolling(timeout: .immediately)
+                    try await statusService.getPolling(timeout: .long)
                     
                     if connectionState != .connected {
-                        connectionState = .connected
-                        Logger.info("Connection restored", category: .connection)
+                        await MainActor.run {
+                            connectionState = .connected
+                        }
                     }
+
+                    try? await Task.sleep(for: .seconds(5)) // 5초 간격으로 연결 확인
+
                 } catch {
                     if connectionState == .connected {
-                        connectionState = .disconnected
+                        await MainActor.run {
+                            connectionState = .disconnected
+                        }
                         Logger.warning("Connection lost", category: .connection)
                     }
                 }
-                
-                try? await Task.sleep(for: .seconds(interval))
             }
         }
     }
@@ -98,7 +106,10 @@ final class CameraConnectionManager: BaseService, ObservableObject {
         pollingTask = nil
     }
     
-    private func handleConnectionStateChange(oldValue: ConnectionState, newValue: ConnectionState) {
+    private func handleConnectionStateChange(
+        oldValue: ConnectionState,
+        newValue: ConnectionState
+    ) {
         switch newValue {
         case .connected:
             if oldValue != .connected {

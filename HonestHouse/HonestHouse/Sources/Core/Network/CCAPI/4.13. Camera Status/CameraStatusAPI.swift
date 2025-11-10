@@ -18,7 +18,7 @@ enum CameraStatusAPI {
     
     var endpoint: String {
         switch self {
-        case .getPolling(let timeout):
+        case .getPolling:
             return "event/polling"
         }
     }
