@@ -16,22 +16,20 @@ struct ExpandableCircleView: View {
     
     var body: some View {
         ExpandableButton(viewModel: vm, coordinateSpace: coordinateSpaceName)
-            .onPreferenceChange(ButtonFrameKey.self) { frame in
-                // 버튼 중심점 계산
-                let center = CGPoint(
-                    x: frame.midX,
-                    y: frame.midY
-                )
-                vm.updateButtonCenter(center)
-            }
             .overlay {
                 if vm.isCircleVisible {
-                    ExpandableCircle(isDragging: $vm.isDragging, value: $value, type: .exposure, size: vm.circleSize, center: vm.buttonCenter, isVisible: vm.isCircleVisible)
-                        .allowsHitTesting(false)
+                    ExpandableCircle(
+                        isDragging: $vm.isDragging,
+                        value: $value,
+                        type: .exposure,
+                        size: vm.circleSize,
+                        isVisible: vm.isCircleVisible
+                    )
                 }
             }
             .coordinateSpace(name: coordinateSpaceName)
     }
+    
 }
 
 #Preview {
@@ -44,8 +42,6 @@ struct ExpandableCircleView: View {
             Spacer()
             ExpandableCircleView()
         }
-
-        
     }
-        .preferredColorScheme(.dark)
+    .preferredColorScheme(.dark)
 }

@@ -17,7 +17,7 @@ struct ExpandableButton: View {
             
         } label: {
             Text("dd")
-                .background(Color.red)
+                .background(Color.red.opacity(0.3))
         }
         .background(
             GeometryReader { geometry in

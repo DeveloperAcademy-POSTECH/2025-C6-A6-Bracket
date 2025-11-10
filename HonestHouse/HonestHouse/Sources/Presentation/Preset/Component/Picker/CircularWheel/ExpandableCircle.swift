@@ -5,6 +5,7 @@
 //  Created by Subeen on 11/9/25.
 //
 
+import Foundation
 import SwiftUI
 
 enum WheelSettingType {
@@ -48,19 +49,21 @@ enum WheelSettingType {
 
 struct ExpandableCircle: View {
     
-    @State var dragAngle: Double = 0
+    @State var dragAngle: Double = 0.0
     
     @Binding var isDragging: Bool
     @Binding var value: Int
     
     let type: WheelSettingType
     let size: CGFloat
-    let center: CGPoint
     let isVisible: Bool
     
-    private var normalizedValue: Int {
+    // 버튼 영역 크기 (제스처에서 제외할 중심 영역)
+    private let buttonExclusionRadius: CGFloat = 30
+    
+    private var normalizedValue: Double {
         let range = type.range
-        return (value - range.lowerBound) / (range.upperBound - range.lowerBound)
+        return Double(value - range.lowerBound) / Double(range.upperBound - range.lowerBound)
     }
     
     private var startAngle: Angle { .degrees(-60) }
@@ -70,78 +73,94 @@ struct ExpandableCircle: View {
         if isDragging {
             return .degrees(dragAngle)
         }
-        return .degrees(-60 + 120 * Double(normalizedValue))
+        return .degrees(-60 + 120 * normalizedValue)
     }
     
     private var thumbPosition: CGPoint {
         let angle = currentAngle.radians - .pi/2
         let radius = size / 2
+        
+        // 로컬 좌표계의 중심 기준으로 계산
         return CGPoint(
-            x: radius + radius * Foundation.cos(angle),
-            y: radius + radius * Foundation.sin(angle)
+            x: radius + radius * cos(angle),
+            y: radius + radius * sin(angle)
         )
     }
     
     var body: some View {
         ZStack {
+            // 원 그리기 (터치 불가)
             Circle()
                 .stroke(type.strokeColor, lineWidth: 4)
-                .frame(width: size, height: size)
-                .position(center)
-//                .opacity(isVisible ? 1 : 0)
+                .allowsHitTesting(false)
             
+            // 썸 (터치 불가)
             Circle()
                 .fill(Color.g0)
                 .frame(width: 12, height: 12)
                 .position(thumbPosition)
-                .shadow(radius: 5)
+                .allowsHitTesting(false)
             
-            Color.clear
-                .contentShape(Circle())
+            // 제스처 영역 - 버튼 중심부 제외한 원형 영역
+            Circle()
+                .fill(Color.clear)
+                .contentShape(
+                    Circle()
+                        .trim(from: 0, to: 1)
+                        .stroke(lineWidth: size - buttonExclusionRadius * 2)
+                )
                 .gesture(
-                    DragGesture()
+                    DragGesture(minimumDistance: 0)
                         .onChanged { gesture in
                             handleArcDrag(gesture: gesture)
                         }
                         .onEnded { _ in
                             isDragging = false
-//                            isAdjusting = false
                         }
                 )
         }
+        .frame(width: size, height: size)
     }
     
     private func handleArcDrag(gesture: DragGesture.Value) {
-        if !isDragging {
-            isDragging = true
-//            isAdjusting = true
-        }
-        
-        let center = CGPoint(x: size / 2, y: size / 2)
+        // 로컬 좌표계의 중심점 (size의 중심)
+        let localCenter = CGPoint(x: size / 2, y: size / 2)
         let location = gesture.location
         
-        // 중심에서 터치 위치까지의 각도 계산
-        let deltaX = location.x - center.x
-        let deltaY = location.y - center.y
+        // 중심에서 터치 위치까지의 상대 위치 계산
+        let deltaX = location.x - localCenter.x
+        let deltaY = location.y - localCenter.y
+        
+        // 중심으로부터의 거리 계산
+        let distanceFromCenter = sqrt(deltaX * deltaX + deltaY * deltaY)
+        
+        // 버튼 영역(중심부)이면 제스처 무시
+        if distanceFromCenter < buttonExclusionRadius {
+            return
+        }
+        
+        // 첫 드래그면 isDragging 활성화
+        if !isDragging {
+            isDragging = true
+        }
         
         // atan2를 사용해 각도 계산 (라디안)
-        var angleInRadians = Foundation.atan2(deltaY, deltaX) + .pi/2
+        let angleInRadians = atan2(deltaY, deltaX) + .pi/2
         var angleInDegrees = angleInRadians * 180 / .pi
         
         // -60 ~ 60 범위로 제한 (120도 arc)
-        if angleInDegrees < -60 { angleInDegrees = -60 }
-        if angleInDegrees > 60 { angleInDegrees = 60 }
+        angleInDegrees = max(-60, min(60, angleInDegrees))
         
         dragAngle = angleInDegrees
         
         // 각도를 값으로 변환
         let normalized = (angleInDegrees + 60) / 120
         let range = type.range
-        var newValue = range.lowerBound + (range.upperBound - range.lowerBound) * Int(normalized)
+        var newValue = range.lowerBound + Int(normalized * Double(range.upperBound - range.lowerBound))
         
         // 스텝 적용
-//        let step = type.step(for: wheelSize)
-//        newValue = round(newValue / step) * step
+        let step = type.step
+        newValue = Int(round(Double(newValue) / Double(step))) * step
         
         // 값 업데이트
         value = min(max(newValue, range.lowerBound), range.upperBound)
