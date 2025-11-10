@@ -71,39 +71,22 @@ struct TrishotSettingView: View {
 
     /// 프리셋 타이틀
     private func titleView(name: String, order: Int) -> some View {
-        Button {
-            vm.send(action: .goToTrishotSelection(order: order))
-        } label: {
-            HStack(spacing: 4) {
-                Text(name)
-                    .font(.title3)
-                    .foregroundStyle(Color.g0)
-                Image(.chevronRight)
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(Color.g7)
-            }
-        }
+        Text(name)
+            .font(.num4)
+            .foregroundStyle(Color.g0)
     }
     
     /// 프리셋 내용
     private func contentView(_ preset: Preset, _ index: Int) -> some View {
-        let isActivated = vm.isPresetActivated(preset.id)
-        return PresetActivationToggleView(
-            preset: preset,
-            presetNumber: index + 1,
-            isActivated: isActivated,
-            onToggle: {
-                vm.send(action: .togglePreset(preset.id))
-            }
-        )
-        .frame(height: 122)
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 0)
-        .background(Color.g11)
-        .clipShape(RoundedRectangle(cornerRadius: 100))
+        Button {
+            vm.send(action: .goToTrishotSelection(order: index))
+        } label: {
+            TrishotCapsuleView(preset: preset)
+                .frame(height: 122)
+                .frame(maxWidth: .infinity)
+                .background(Color.g11)
+                .clipShape(RoundedRectangle(cornerRadius: 100))
+        }
     }
     
     private func startButtonView() -> some View {
