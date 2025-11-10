@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-enum WheelSettingType {
+enum WheelSettingType: CaseIterable {
     case mg
     case exposure
     case temperature
@@ -43,6 +43,17 @@ enum WheelSettingType {
             return LinearGradient.exposureGradient
         case .temperature:
             return LinearGradient.colorTemperatureGradient
+        }
+    }
+    
+    var rotationAngle: Double {
+        switch self {
+        case .mg:
+            45
+        case .exposure:
+            0.0
+        case .temperature:
+            -45
         }
     }
 }
@@ -117,6 +128,7 @@ struct ExpandableCircle: View {
                         }
                 )
         }
+        .rotationEffect(.degrees(type.rotationAngle))
         .frame(width: viewModel.circleSize, height: viewModel.circleSize)
     }
     
@@ -148,6 +160,10 @@ struct ExpandableCircle: View {
         // -deltaY: 위쪽을 0도로 만들기 위해 Y축 반전
         let angleInRadians = atan2(deltaX, -deltaY)
         var angleInDegrees = angleInRadians * 180 / .pi
+        
+        // 회전 보정: 원이 회전한 만큼 역회전 적용
+        // 예: mg가 45도 회전되어 있으면, 드래그 각도에서 45도를 빼서 실제 thumb 각도 계산
+        angleInDegrees = angleInDegrees - type.rotationAngle
         
         // -60 ~ 60 범위로 제한 (120도 arc)
         angleInDegrees = max(-60, min(60, angleInDegrees))
