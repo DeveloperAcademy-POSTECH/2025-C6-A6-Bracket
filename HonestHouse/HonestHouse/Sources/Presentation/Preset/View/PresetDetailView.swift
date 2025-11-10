@@ -138,7 +138,7 @@ struct PresetDetailView: View {
     private func pickerView(for type: SettingType) -> some View {
         switch type {
         case .cameraMode:
-            NonOptionalWheelPickerView(
+            NonOptionalLinearWheelPickerView(
                 selectedValue: $vm.currentPreset.shootingMode,
                 items: vm.getCameraShootingModeValues(),
                 config: .init(
@@ -149,7 +149,7 @@ struct PresetDetailView: View {
             
         case .aperture:
             if vm.currentPreset.shootingMode == .av {
-                CustomWheelPickerView(
+                LinearWheelPickerView(
                     selectedValue: $vm.currentPreset.aperture,
                     items: vm.getApertureValues(),
                     config: .init(
@@ -162,7 +162,7 @@ struct PresetDetailView: View {
             
         case .shutterSpeed:
             if vm.currentPreset.shootingMode == .tv {
-                CustomWheelPickerView(
+                LinearWheelPickerView(
                     selectedValue: $vm.currentPreset.shutterSpeed,
                     items: vm.getShutterSpeedValues(),
                     config: .init(
@@ -173,7 +173,7 @@ struct PresetDetailView: View {
             }
             
         case .iso:
-            CustomWheelPickerView(
+            LinearWheelPickerView(
                 selectedValue: $vm.currentPreset.iso,
                 items: vm.getISOValues(),
                 config: .init(
@@ -183,7 +183,7 @@ struct PresetDetailView: View {
             )
             
         case .pictureStyle:
-            NonOptionalWheelPickerView(
+            NonOptionalLinearWheelPickerView(
                 selectedValue: $vm.currentPreset.pictureStyle,
                 items: vm.getPictureStyleValues(),
                 config: .init(
@@ -193,17 +193,10 @@ struct PresetDetailView: View {
             )
             
         case .tintMagentaGreen:
-            CustomWheelPickerView(
-                selectedValue: $vm.currentPreset.tintMagentaGreen,
-                items: vm.getTintMagentGreenValues(),
-                config: .init(
-                    spacing: 22,
-                    itemSize: .init(width: 50, height: 24)
-                )
-            )
+            EmptyView()
             
         case .exposure:
-            CustomWheelPickerView(
+            LinearWheelPickerView(
                 selectedValue: $vm.currentPreset.exposureCompensation,
                 items: vm.getExposureCompensationValues(),
                 config: .init(
@@ -213,7 +206,7 @@ struct PresetDetailView: View {
             )
             
         case .colorTemp:
-            CustomWheelPickerView(
+            LinearWheelPickerView(
                 selectedValue: $vm.currentPreset.colorTemperature,
                 items: vm.getColorTemperatureValues(),
                 config: .init(
