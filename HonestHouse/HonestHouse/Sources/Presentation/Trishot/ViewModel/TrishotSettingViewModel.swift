@@ -19,7 +19,6 @@ final class TrishotSettingViewModel {
     private let container: DIContainer
 
     var allSelectedPresets: [Preset] = []
-    var activatedPresets: [Preset] = []
     var error: TrishotError?
     
     init(container: DIContainer) {
@@ -30,15 +29,10 @@ final class TrishotSettingViewModel {
     func loadPresets() {
         do {
             allSelectedPresets = try container.managers.presetManager.fetchSelectedPresets()
-            activatedPresets = try container.managers.presetManager.fetchActivatedPresets()
             error = nil
         } catch {
             handleError(error)
         }
-    }
-
-    func isPresetActivated(_ presetId: UUID) -> Bool {
-        return activatedPresets.contains { $0.id == presetId }
     }
 }
 
