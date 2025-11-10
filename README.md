@@ -1,6 +1,7 @@
 <div align="center">
   
-![finalonepager 001](https://github.com/user-attachments/assets/c3b198d0-9137-4fbd-9893-fb5d0ba87a7c)
+![HonestHouse Bracket Project Banner](https://github.com/user-attachments/assets/4bca99a7-5b37-4c6d-a059-212e9458a096)
+
 
 </div> 
 
@@ -21,12 +22,12 @@
 ## 앱 개요
 
 <br/>
-
+<!-- TODO: 앱 완성되면 목업 디자인 이미지로 수정 예정 /> -->
 <div align="center">
 
 | <img width="100%" src="https://github.com/user-attachments/assets/700a89d7-90f5-4c97-b0c6-472685aee9bd" /> | <img width="100%" src="https://github.com/user-attachments/assets/fc50ce99-efb0-4c73-b0bf-e941b5583c29" /> | <img width="100%" src="https://github.com/user-attachments/assets/ba00c874-c9cb-4acc-829f-5e6356cd9313" /> | <img width="100%" src="https://github.com/user-attachments/assets/4d84fab9-a794-4ebb-9599-5edc4628831b" /> |
 |:---:|:---:|:---:|:---:|
-| **Tri-Shot** | **프리셋 제작** | **카메라를 조작하는 듯한 Ui** | **사진 그룹화** |
+| **Tri-Shot** | **프리셋 제작** | **카메라를 조작하는 듯한 Ui** | **아카이빙** |
 | 원하는 설정으로 촬영 | 카메라 화면을 핸드폰으로 보며 값 저장 | 실제 카메라의 다이얼에서 영감을 얻은 디자인 | Vision과 시간 정보를 이용해 유사한 사진끼리 그룹화 |
 
 </div>
@@ -39,11 +40,11 @@
 
 ### 📸 Tri-Shot - 자동 프리셋 전환
 
-<!-- GIF 추가 시: <img src="assets/tri-shot-demo.gif" width="70%" alt="Tri-Shot Demo" /> -->
+<!-- TODO: 앱 완성되면 녹화하여 수정 예정 /> -->
 ![the-simpsons-homer-simpson](https://github.com/user-attachments/assets/1e85cf71-5aeb-4753-8a22-e0c57aa7e06a)
 
 미리 저장한 3가지 프리셋이 셔터를 누를 때마다 자동으로 전환됩니다.
-```
+```text
 셔터 1회 → 프리셋 A (따뜻한 톤)
 셔터 2회 → 프리셋 B (자연스러운 톤)  
 셔터 3회 → 프리셋 C (차가운 톤)
@@ -56,13 +57,13 @@
 
 <br/>
 
-### 🤖 사진 그룹화
+### 🤖 아카이빙
 
-<!-- GIF 추가 시: <img src="assets/ai-grouping-demo.gif" width="70%" alt="AI Grouping Demo" /> -->
+<!-- TODO: 앱 완성되면 녹화하여 수정 예정 /> -->
 ![the-simpsons-homer-simpson](https://github.com/user-attachments/assets/1e85cf71-5aeb-4753-8a22-e0c57aa7e06a)
 
-Apple Vision Framework를 활용하여 비슷한 사진끼리 자동으로 분류합니다.
-```
+Apple Vision Framework를 활용하여 비슷한 사진끼리 자동으로 분류하고 갤러리에 저장합니다.
+```text
 📐 시각적 유사도
 ⏰ 촬영 시간
 ```
@@ -97,7 +98,7 @@ Apple Vision Framework를 활용하여 비슷한 사진끼리 자동으로 분�
 ---
 
 ## 팀
-
+<!-- TODO: 추후 미모지로 이미지 변경 및 개인 페이지 링크 연결 예정 /> -->
 | [![Sandeul](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크1) | [![Hari](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크2) | [![Ivy](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크3) | [![Minbol](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크4) | [![Rama](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크5) | [![Soop](https://github.com/user-attachments/assets/7159c61b-af06-4281-84f6-d076b30682fc)](링크6) |
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | **양희준(Sandeul)** | **윤하정(Hari)** | **이현주(Ivy)** | **이보민(Minbol)** | **문형근(Rama)** | **한수빈(Soop)** |
