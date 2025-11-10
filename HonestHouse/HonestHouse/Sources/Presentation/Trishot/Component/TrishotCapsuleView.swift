@@ -12,10 +12,13 @@ struct TrishotCapsuleView: View {
     let isOccupied: Bool
     let occupiedOrder: Int?
 
-    private let iconSize: CGFloat = 32
+    private let iconCircleSize: CGFloat = 32
+    private let iconContentSize: CGFloat = 24
     private let iconSpacing: CGFloat = 4
     private let horizontalPadding: CGFloat = 37
     private let verticalPadding: CGFloat = 22
+    
+    private let disabledColor: Color = .g9
 
     init(preset: Preset, isOccupied: Bool = false, occupiedOrder: Int? = nil) {
         self.preset = preset
@@ -48,34 +51,31 @@ struct TrishotCapsuleView: View {
 
     private func firstRowView() -> some View {
         HStack(spacing: 19) {
-            iconWithTextView(icon: pictureStyleIcon, text: preset.pictureStyle.displayValue)
-            iconWithTextView(icon: colorTemperatureIcon, text: preset.displayColorTemperature)
-            iconWithTextView(icon: wbShiftIcon, text: wbShiftText)
+            iconWithTextView(icon: .picturestyleIcon, text: preset.pictureStyle.displayValue, hasValue: hasPictureStyleValue)
+            iconWithTextView(icon: .colortemperatureIcon, text: preset.displayColorTemperature, hasValue: hasColorTemperatureValue)
+            iconWithTextView(icon: .wbshiftIcon, text: wbShiftText, hasValue: hasWbShiftValue)
         }
     }
 
     private func secondRowView() -> some View {
         HStack(spacing: 19) {
             shootingModeWithIsoView()
-            iconWithTextView(icon: exposureIcon, text: preset.displayExposureCompensation)
+            iconWithTextView(icon: .exposureIcon, text: preset.displayExposureCompensation, hasValue: hasExposureValue)
         }
     }
 
     private func shootingModeWithIsoView() -> some View {
         HStack(spacing: 10) {
-            Image(shootingModeIcon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: iconSize, height: iconSize)
+            iconWithCircleBackground(icon: shootingModeIcon, hasValue: true) // Shooting mode는 무조건 true
             HStack(spacing: 8) {
                 if let modeText = shootingModeText {
                     Text(modeText)
                         .font(.num6)
-                        .foregroundColor(isOccupied ? Color.g9 : Color.g0)
+                        .foregroundColor(isOccupied ? disabledColor : Color.g0)
                 }
                 Text(isoText)
                     .font(.num6)
-                    .foregroundColor(isOccupied ? Color.g9 : Color.g0)
+                    .foregroundColor(isOccupied ? disabledColor : Color.g0)
             }
         }
     }
@@ -100,15 +100,43 @@ struct TrishotCapsuleView: View {
         return "ISO:[\(isoValue)]"
     }
 
-    private func iconWithTextView(icon: ImageResource, text: String) -> some View {
+    private func iconWithTextView(icon: ImageResource, text: String, hasValue: Bool) -> some View {
         HStack(spacing: 10) {
-            Image(icon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: iconSize, height: iconSize)
+            iconWithCircleBackground(icon: icon, hasValue: hasValue)
             Text(text)
                 .font(.num6)
-                .foregroundColor(isOccupied ? Color.g9 : Color.g0)
+                .foregroundColor(textColor(hasValue: hasValue))
+        }
+    }
+
+    private func textColor(hasValue: Bool) -> Color {
+        if isOccupied {
+            return disabledColor
+        } else {
+            return hasValue ? Color.g0 : disabledColor
+        }
+    }
+
+    private func iconWithCircleBackground(icon: ImageResource, hasValue: Bool) -> some View {
+        ZStack(alignment: .center) {
+            Circle()
+                .fill(Color.g12)
+                .frame(width: iconCircleSize, height: iconCircleSize)
+
+            Image(icon)
+                .resizable()
+                .renderingMode(.template)
+                .scaledToFit()
+                .frame(width: iconContentSize, height: iconContentSize)
+                .foregroundColor(iconColor(hasValue: hasValue))
+        }
+    }
+
+    private func iconColor(hasValue: Bool) -> Color {
+        if isOccupied {
+            return hasValue ? Color.yellow2 : disabledColor
+        } else {
+            return hasValue ? Color.yellow1 : disabledColor
         }
     }
 
@@ -124,53 +152,31 @@ struct TrishotCapsuleView: View {
         return "\(mgSign)\(mg)"
     }
 
-    private var pictureStyleIcon: ImageResource {
-        if isOccupied {
-            return .picturestyleCircleIconGray
-        }
-        let isAuto = preset.pictureStyle == .auto
-        return isAuto ? .picturestyleCircleIconGray : .picturestyleCircleIconYellow
-    }
-
     private var shootingModeIcon: ImageResource {
-        if isOccupied {
-            switch preset.shootingMode {
-            case .av: return .shootingmodeAVCircleIconGray
-            case .tv: return .shootingmodeTVCircleIconGray
-            case .p: return .shootingmodePCircleIconGray
-            }
-        }
-
         switch preset.shootingMode {
-        case .av: return .shootingmodeAVCircleIconYellow
-        case .tv: return .shootingmodeTVCircleIconYellow
-        case .p: return .shootingmodePCircleIconYellow
+        case .av: return .shootingmodeAVIcon
+        case .tv: return .shootingmodeTVIcon
+        case .p: return .shootingmodePIcon
         }
     }
 
-    private var colorTemperatureIcon: ImageResource {
-        if isOccupied {
-            return .colortemperatureCircleIconGray
-        }
-        let isDefault = preset.colorTemperature == nil || preset.colorTemperature == 5000
-        return isDefault ? .colortemperatureCircleIconGray : .colortemperatureCircleIconYellow
+    private var hasPictureStyleValue: Bool {
+        preset.pictureStyle != .auto
     }
 
-    private var exposureIcon: ImageResource {
-        if isOccupied {
-            return .exposureCircleIconGray
-        }
-        let isDefault = preset.exposureCompensation == nil || preset.exposureCompensation == "+0.0"
-        return isDefault ? .exposureCircleIconGray : .exposureCircleIconYellow
+    private var hasColorTemperatureValue: Bool {
+        guard let colorTemp = preset.colorTemperature else { return false }
+        return colorTemp != 5000
     }
 
-    private var wbShiftIcon: ImageResource {
-        if isOccupied {
-            return .wbshiftCircleIconGray
-        }
-        let ba = preset.tintBlueAmber ?? 0
+    private var hasExposureValue: Bool {
+        guard let exposure = preset.exposureCompensation else { return false }
+        return exposure != "+0.0"
+    }
+
+    private var hasWbShiftValue: Bool {
+        // 현재는 magentaGreen만 사용
         let mg = preset.tintMagentaGreen ?? 0
-        let isDefault = ba == 0 && mg == 0
-        return isDefault ? .wbshiftCircleIconGray : .wbshiftCircleIconYellow
+        return mg != 0
     }
 }
