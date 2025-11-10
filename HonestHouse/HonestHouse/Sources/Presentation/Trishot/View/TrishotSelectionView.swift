@@ -41,7 +41,7 @@ struct TrishotSelectionView: View {
         return VStack(alignment: .leading, spacing: 12) {
             Text(preset.name)
                 .font(.num4)
-                .foregroundStyle(Color.g0)
+                .foregroundStyle(isOccupied ? Color.g9 : Color.g0)
             Button {
                 if !isOccupied {
                     vm.selectPreset(preset.id)
