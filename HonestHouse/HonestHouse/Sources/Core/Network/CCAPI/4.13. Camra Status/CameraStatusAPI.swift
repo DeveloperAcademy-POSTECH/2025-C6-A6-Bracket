@@ -7,10 +7,10 @@
 
 import Foundation
 
-enum TimeoutType {
-    case immediately
-    case short
-    case long
+enum TimeoutType: String {
+    case immediately = "immediately"
+    case short = "short"
+    case long = "long"
 }
 
 enum CameraStatusAPI {
@@ -19,7 +19,7 @@ enum CameraStatusAPI {
     var endpoint: String {
         switch self {
         case .getPolliing(let timeout):
-            return "event/polling?timeout=\(timeout)"
+            return "event/polling?timeout=\(timeout.rawValue)"
         }
     }
     
