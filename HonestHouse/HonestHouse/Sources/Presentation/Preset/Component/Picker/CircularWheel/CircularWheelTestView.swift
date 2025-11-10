@@ -11,9 +11,15 @@ struct CircularWheelTestView: View {
     @State private var isDimmed = false
     
     var body: some View {
-        HStack {
-            ForEach(WheelSettingType.allCases, id: \.self) { item in
-                ExpandableCircleView(vm: .init(settingType: item, isDimmed: $isDimmed))
+        VStack {
+            Spacer()
+            HStack {
+                ForEach(WheelSettingType.allCases, id: \.self) { item in
+                    ExpandableCircleView(vm: .init(settingType: item, isDimmed: $isDimmed))
+                        .frame(maxWidth: .infinity)
+                    
+                }
+                .padding(.bottom, 20)
             }
         }
     }
@@ -21,7 +27,8 @@ struct CircularWheelTestView: View {
 
 #Preview {
     ZStack {
-        Color.g12
+        Color.g12.ignoresSafeArea(.all)
         CircularWheelTestView()
+            
     }
 }

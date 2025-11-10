@@ -56,6 +56,51 @@ enum WheelSettingType: CaseIterable {
             -45
         }
     }
+    
+    // 최소값 텍스트
+    var minValueText: String {
+        switch self {
+        case .mg:
+            return "-8"
+        case .exposure:
+            return "-3.0"
+        case .temperature:
+            return "2500K"
+        }
+    }
+    
+    // 최대값 텍스트
+    var maxValueText: String {
+        switch self {
+        case .mg:
+            return "+8"
+        case .exposure:
+            return "+3.0"
+        case .temperature:
+            return "10000K"
+        }
+    }
+    
+    // 현재 값 포맷
+    func formatValue(_ value: Int) -> String {
+        switch self {
+        case .mg:
+            if value > 0 {
+                return "+\(value)"
+            } else {
+                return "\(value)"
+            }
+        case .exposure:
+            let displayValue = Double(value) / 3.0 // step이 1이면 1/3 단위
+            if displayValue > 0 {
+                return String(format: "+%.1f", displayValue)
+            } else {
+                return String(format: "%.1f", displayValue)
+            }
+        case .temperature:
+            return "\(value)K"
+        }
+    }
 }
 
 struct ExpandableCircle: View {
@@ -101,12 +146,36 @@ struct ExpandableCircle: View {
         )
     }
     
+    // 양끝값 라벨 위치 계산 (원 바깥쪽 30pt)
+    private func labelPosition(for angle: Double) -> CGPoint {
+        let angleInRadians = (angle - 90) * .pi / 180
+        let radius = viewModel.circleSize / 2
+        let labelDistance = radius + 30  // 원 바깥쪽 30pt
+        
+        return CGPoint(
+            x: radius + labelDistance * cos(angleInRadians),
+            y: radius + labelDistance * sin(angleInRadians)
+        )
+    }
+    
     var body: some View {
         ZStack {
             // 원 그리기
             Circle()
                 .stroke(type.strokeColor, lineWidth: 4)
                 .frame(width: viewModel.circleSize, height: viewModel.circleSize)
+            
+            // 최소값 텍스트 (-60도 위치)
+            Text(type.minValueText)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.white)
+                .position(labelPosition(for: -60))
+            
+            // 최대값 텍스트 (+60도 위치)
+            Text(type.maxValueText)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.white)
+                .position(labelPosition(for: 60))
             
             // 썸
             Circle()
@@ -182,5 +251,6 @@ struct ExpandableCircle: View {
         
         // 값 업데이트
         value = min(max(newValue, range.lowerBound), range.upperBound)
+        print("Updated value: \(value), formatted: \(type.formatValue(value))")
     }
 }

@@ -69,8 +69,8 @@ final class CircularWheelViewModel {
         let angleInRadians = atan2(translation.width, -translation.height)  // -height로 방향 반전
         var angleInDegrees = angleInRadians * 180 / .pi
         
-        // 4. -60 ~ 60 범위로 제한 (120도 arc)
-        angleInDegrees = max(-60, min(60, angleInDegrees))
+        // 4. -70 ~ 70 범위로 제한 (140도 arc)
+        angleInDegrees = max(-70, min(70, angleInDegrees))
         
         circleSize = mappedSize
         currentAngle = angleInDegrees

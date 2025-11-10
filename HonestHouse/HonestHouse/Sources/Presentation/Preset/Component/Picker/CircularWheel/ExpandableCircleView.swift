@@ -16,7 +16,7 @@ struct ExpandableCircleView: View {
     
     var body: some View {
         
-        ExpandableButton(viewModel: vm, coordinateSpace: coordinateSpaceName)
+        ExpandableButton(viewModel: vm, coordinateSpace: coordinateSpaceName, value: $value)
             .overlay {
                 if vm.isCircleVisible {
                     ExpandableCircle(

@@ -11,13 +11,20 @@ struct ExpandableButton: View {
     
     @Bindable var viewModel: CircularWheelViewModel
     let coordinateSpace: String
+    @Binding var value: Int  // 현재 값 전달받기
     
     var body: some View {
         Button {
             
         } label: {
-            Text("dd")
-                .background(Color.red.opacity(0.3))
+            Text(viewModel.settingType.formatValue(value))
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(width: 64, height: 64)
+                .background(
+                    Circle()
+                        .fill(Color.white.opacity(0.15))
+                )
         }
         .background(
             GeometryReader { geometry in
@@ -55,5 +62,6 @@ struct ExpandableButton: View {
 }
 
 #Preview {
-    ExpandableButton(viewModel: .init(settingType: .exposure, isDimmed: .constant(false)), coordinateSpace: "")
+    @Previewable @State var value = 0
+    ExpandableButton(viewModel: .init(settingType: .exposure, isDimmed: .constant(false)), coordinateSpace: "", value: $value)
 }
