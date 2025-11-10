@@ -22,23 +22,6 @@ struct TrishotSelectionView: View {
         }
     }
 
-    private func emptyStateView() -> some View {
-        VStack(spacing: 16) {
-            Image(systemName: "camera.metering.unknown")
-                .font(.system(size: 48))
-                .foregroundColor(.g7)
-
-            Text("프리셋이 없습니다")
-                .font(.labelL)
-                .foregroundColor(.g7)
-
-            Text("프리셋을 먼저 생성해주세요")
-                .font(.labelM)
-                .foregroundColor(.g7)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
     private func trishotItemListView() -> some View {
         ScrollView {
             LazyVStack(spacing: 20) {
