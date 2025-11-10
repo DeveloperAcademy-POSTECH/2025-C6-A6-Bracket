@@ -53,14 +53,12 @@ final class CircularWheelViewModel {
         
         // 3. 드래그 방향을 각도로 변환
         // atan2를 사용하여 translation에서 각도 계산
-        let angleInRadians = atan2(translation.height, translation.width)
+        // translation.height: 아래로 = 양수, 위로 = 음수
+        // translation.width: 오른쪽 = 양수, 왼쪽 = 음수
+        let angleInRadians = atan2(translation.width, -translation.height)  // -height로 방향 반전
         var angleInDegrees = angleInRadians * 180 / .pi
         
-        // 4. SwiftUI 좌표계 보정 (오른쪽이 0도, 시계방향이 양수)
-        // 위쪽을 0도로 만들기 위해 90도 빼기
-        angleInDegrees = angleInDegrees - 90
-        
-        // 5. -60 ~ 60 범위로 제한 (120도 arc)
+        // 4. -60 ~ 60 범위로 제한 (120도 arc)
         angleInDegrees = max(-60, min(60, angleInDegrees))
         
         withAnimation(.default) {
@@ -71,10 +69,10 @@ final class CircularWheelViewModel {
     
     func endDragging() {
         isDragging = false
-        // 드래그 종료 시 현재 크기 유지
+        // 드래그 종료 시 현재 크기만 초기화, 각도는 유지
         withAnimation {
             circleSize = minCircleSize
-            currentAngle = 0.0  // 각도도 초기화
+            // currentAngle은 유지하여 thumb 위치 저장
         }
         
         toggleCircle()

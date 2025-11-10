@@ -68,17 +68,17 @@ struct ExpandableCircle: View {
     private var endAngle: Angle { .degrees(60) }
     
     private var currentAngle: Angle {
-        if viewModel.isDragging {
+        // ViewModel의 각도가 설정되어 있으면 항상 사용 (드래그 중이든 아니든)
+        if viewModel.currentAngle != 0.0 {
             return .degrees(viewModel.currentAngle)
         }
+        // 각도가 설정되지 않았으면 value 기반으로 계산
         return .degrees(-60 + 120 * normalizedValue)
     }
     
     private var thumbPosition: CGPoint {
         let angle = currentAngle.radians - .pi/2
         let radius = size / 2
-        
-        print("angle: \(angle), radius: \(radius)")
         
         // 로컬 좌표계의 중심 기준으로 계산
         return CGPoint(
@@ -106,7 +106,6 @@ struct ExpandableCircle: View {
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { gesture in
-                            print("h")
                             handleArcDrag(gesture: gesture)
                         }
                         .onEnded { _ in
@@ -135,8 +134,10 @@ struct ExpandableCircle: View {
             viewModel.isDragging = true
         }
         
-        // atan2를 사용해 각도 계산 (라디안)
-        let angleInRadians = atan2(deltaY, deltaX)
+        // atan2를 사용해 각도 계산
+        // deltaY: 아래쪽 = 양수, 위쪽 = 음수 이므로 -deltaY로 반전
+        // deltaX: 오른쪽 = 양수, 왼쪽 = 음수
+        let angleInRadians = atan2(deltaX, -deltaY)
         var angleInDegrees = angleInRadians * 180 / .pi
         
         // -60 ~ 60 범위로 제한 (120도 arc)
