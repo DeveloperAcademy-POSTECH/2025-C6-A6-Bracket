@@ -8,7 +8,7 @@
 extension ImageOperations {
     /// 저장소 리스트
     struct StorageListResponse: BaseResponse {
-        let url: [String]?
+        let path: [String]?
     }
 }
 
@@ -16,10 +16,10 @@ extension ImageOperations.StorageListResponse {
     typealias EntityType = StorageList
     
     func toEntity() -> StorageList {
-        StorageList(url: url)
+        StorageList(url: path)
     }
     
     static var stub1: ImageOperations.StorageListResponse {
-        .init(url: [""])
+        .init(path: [""])
     }
 }

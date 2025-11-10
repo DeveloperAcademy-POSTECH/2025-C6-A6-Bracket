@@ -107,13 +107,24 @@ final class PhotoSelectionViewModel {
     /// directoryList에서 첫번째 directory가져오기
     func setPresentDirectory(storage: String) async throws {
         try await getDirectoryList(storage: storage)
-        guard
-            let dirUrl = directoryList?.url?.first,
-            let dirName = dirUrl.split(separator: "/").last.map(String.init)
-        else {
+        
+        guard let dirUrl = directoryList?.url?.first else {
             throw ArchiveError.photoLoadingFailed
         }
-        presentDirectory = dirName
+        
+        // "/"로 분리
+        let components = dirUrl.split(separator: "/")
+        
+        // 뒤에서 두 번째부터 끝까지 join
+        guard components.count >= 2 else {
+            throw ArchiveError.photoLoadingFailed
+        }
+        
+        // 뒤에서 두 번째 인덱스부터 끝까지 join
+        let startIndex = components.count - 2
+        let subPath = components[startIndex...].joined(separator: "/")
+        
+        presentDirectory = subPath
     }
     
     /// 새 Chunk 처리: Info 먼저 가져온 후 섹션 구성
@@ -258,15 +269,30 @@ final class PhotoSelectionViewModel {
         hasStartedInitialPrefetch = false
         
         do {
-            // 1. Storage 설정
+            Logger.info("🚀 [fetchAllImages] 시작", category: .viewModel)
+            
+            // 1️⃣ Storage 설정
             try await setPresentStorage()
-            guard let storage = presentStorage else { throw ArchiveError.photoLoadingFailed }
+            Logger.info("📦 [fetchAllImages] setPresentStorage() 완료", category: .viewModel)
             
-            // 2. Directory 설정
+            guard let storage = presentStorage else {
+                Logger.error("❌ presentStorage == nil", category: .viewModel)
+                throw ArchiveError.photoLoadingFailed
+            }
+            Logger.info("✅ [fetchAllImages] Storage: \(storage)", category: .viewModel)
+            
+            // 2️⃣ Directory 설정
             try await setPresentDirectory(storage: storage)
-            guard let directory = presentDirectory else { throw ArchiveError.photoLoadingFailed }
+            Logger.info("📂 [fetchAllImages] setPresentDirectory() 완료", category: .viewModel)
             
-            // 3. Content List 가져오기 (점진적 로딩)
+            guard let directory = presentDirectory else {
+                Logger.error("❌ presentDirectory == nil", category: .viewModel)
+                throw ArchiveError.photoLoadingFailed
+            }
+            Logger.info("✅ [fetchAllImages] Directory: \(directory)", category: .viewModel)
+            
+            // 3️⃣ Content List 가져오기
+            Logger.info("🖼 [fetchAllImages] getContentList() 호출", category: .viewModel)
             try await getContentList(
                 storage: storage,
                 directory: directory,
@@ -275,18 +301,24 @@ final class PhotoSelectionViewModel {
             )
             
         } catch let archiveError as ArchiveError {
+            Logger.error("❌ ArchiveError 발생: \(archiveError.localizedDescription)", category: .viewModel)
             state = .failure(archiveError)
+            
         } catch let ccapiError as CCAPIError {
+            Logger.error("❌ CCAPIError 발생: \(ccapiError.localizedDescription)", category: .viewModel)
             state = .failure(ArchiveError.fromCCAPI(ccapiError))
+            
         } catch let urlError as URLError {
-            // URLError 처리 (스트리밍 중 네트워크 에러)
+            Logger.error("🌐 URLError 발생: \(urlError.localizedDescription)", category: .viewModel)
             let ccapiError = CCAPIError.networkError(urlError)
             state = .failure(.fromCCAPI(ccapiError))
             
         } catch {
+            Logger.error("💥 알 수 없는 오류 발생: \(error.localizedDescription)", category: .viewModel)
             state = .failure(.photoLoadingFailed)
         }
     }
+
     
     /// 특정 사진 선택/해제 토글
     func toggleGridCell(for photo: Photo) {

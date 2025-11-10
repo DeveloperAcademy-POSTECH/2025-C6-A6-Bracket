@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import Kingfisher
 
 @main
 struct HonestHouseApp: App {
@@ -14,6 +15,10 @@ struct HonestHouseApp: App {
     
     @StateObject var container: DIContainer = .init(services: Services(), managers: Managers(viewContext: persistenceController.viewContext))
     @StateObject var cameraConnectionManager = CameraConnectionManager()
+    
+//    init() {
+//        setupKingfisher()
+//    }
     
     var body: some Scene {
         WindowGroup {

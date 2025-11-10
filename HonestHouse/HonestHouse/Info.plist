@@ -11,5 +11,10 @@
 		<string>SFMonoMedium.otf</string>
 		<string>SFMonoSemibold.otf</string>
 	</array>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
 </dict>
 </plist>

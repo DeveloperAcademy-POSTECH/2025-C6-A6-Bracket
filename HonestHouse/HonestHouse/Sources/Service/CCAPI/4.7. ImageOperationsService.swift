@@ -84,8 +84,8 @@ final class ImageOperationsService: BaseService, ImageOperationsServiceType {
     }
     
     private static func mergeResponses(_ responses: [ImageOperations.ContentListResponse]) -> ImageOperations.ContentListResponse {
-        let allUrls = responses.flatMap { $0.url ?? [] }
-        return ImageOperations.ContentListResponse(url: allUrls)
+        let allUrls = responses.flatMap { $0.path ?? [] }
+        return ImageOperations.ContentListResponse(path: allUrls)
     }
     
     private func buildContentListURL(
@@ -95,7 +95,7 @@ final class ImageOperationsService: BaseService, ImageOperationsServiceType {
         kind: String,
         order: String
     ) throws -> URL {
-        let urlString = "\(BaseURLConstants.baseURL)ver100/contents/\(storage)/\(directory)?type=\(type)&kind=\(kind)&order=\(order)"
+        let urlString = "\(BaseURLConstants.baseURL)ver140/contents/\(storage)/\(directory)?type=\(type)&kind=\(kind)&order=\(order)"
         
         guard let url = URL(string: urlString) else {
             throw CCAPIError.invalidURL
