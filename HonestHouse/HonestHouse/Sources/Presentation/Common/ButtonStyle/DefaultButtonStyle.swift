@@ -33,10 +33,10 @@ struct DefaultButtonStyle: ButtonStyle {
         case .deactivated:
             configuration.label
                 .font(.num3)
-                .foregroundStyle(Color.g7)
+                .foregroundStyle(Color.g10)
                 .padding(.vertical, 20)
                 .frame(maxWidth: .infinity)
-                .background(Color.yellow1)
+                .background(Color.g12)
                 .clipShape(RoundedRectangle(cornerRadius: 62))
                 .overlay {
                     RoundedRectangle(cornerRadius: 62).strokeBorder(Color.g10, lineWidth: 1.5)
