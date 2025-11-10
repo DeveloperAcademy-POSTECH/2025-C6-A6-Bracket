@@ -20,6 +20,12 @@ extension LinearGradient {
         endPoint: .bottomTrailing
     )
     
+    static let exposureGradient: LinearGradient = .init(
+        colors: [.init(hex: "FFFFFF")],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
     static let colorTemperatureGradient: LinearGradient = .init(
         colors: [
             .init(hex: "36BCFF"),
