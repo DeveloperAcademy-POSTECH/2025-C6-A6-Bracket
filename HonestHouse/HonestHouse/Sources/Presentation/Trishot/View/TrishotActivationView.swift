@@ -61,7 +61,12 @@ struct TrishotActivationView: View {
     }
     
     private func deactivateButtonView() -> some View {
+        SwipeToDeactivateButton {
+            vm.deactivateTrishot()
+            vm.send(.popToTrishotSetting)
         }
+        .padding(.horizontal, 46)
+        .frame(height: 100)
     }
 }
 
