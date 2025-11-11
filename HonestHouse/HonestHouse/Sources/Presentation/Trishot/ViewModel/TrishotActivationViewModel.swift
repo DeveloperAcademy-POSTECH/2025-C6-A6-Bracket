@@ -118,7 +118,8 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
         guard let addedContents = event.addedcontents, !addedContents.isEmpty else {
             return
         }
-        print("📸 PHOTO CAPTURED 📸")
+
+        Logger.info("PHOTO CAPTURED: \(addedContents.joined(separator: ", "))", category: .network)
 
         Task {
             currentPresetIndex = (currentPresetIndex + 1) % activatedPresets.count
