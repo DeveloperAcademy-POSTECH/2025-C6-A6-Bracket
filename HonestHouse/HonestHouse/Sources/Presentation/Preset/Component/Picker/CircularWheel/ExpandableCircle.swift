@@ -16,11 +16,11 @@ enum WheelSettingType: CaseIterable {
     var range: ClosedRange<Int> {
         switch self {
         case .tintMagentaGreen:
-            return 0...CameraConstants.tintMagentaGreenValues.count
+            return 0...CameraConstants.tintMagentaGreenValues.count - 1
         case .exposureCompensation:
-            return 0...CameraConstants.exposureCompensationValues.count
+            return 0...CameraConstants.exposureCompensationValues.count - 1
         case .colorTemperature:
-            return CameraConstants.colorTemperatureRange
+            return 0...CameraConstants.colorTemperatureValues.count - 1
         }
     }
     
@@ -57,15 +57,43 @@ enum WheelSettingType: CaseIterable {
         }
     }
     
+    // 드래그 가능한 각도 범위
+    var minAngle: Double {
+        switch self {
+        case .tintMagentaGreen:
+            return -15
+        case .exposureCompensation:
+            return -60
+        case .colorTemperature:
+            return -145
+        }
+    }
+    
+    var maxAngle: Double {
+        switch self {
+        case .tintMagentaGreen:
+            return 145
+        case .exposureCompensation:
+            return 60
+        case .colorTemperature:
+            return 15
+        }
+    }
+    
+    // 각도 범위의 크기
+    var angleRange: Double {
+        return maxAngle - minAngle
+    }
+    
     // 최소값 텍스트
     var minValueText: String {
         switch self {
         case .tintMagentaGreen:
-            return "-8"
+            return CameraConstants.tintMagentaGreenValues.first?.description ?? "0"
         case .exposureCompensation:
-            return "-3.0"
+            return CameraConstants.exposureCompensationValues.first?.description ?? "-3.0"
         case .colorTemperature:
-            return "2500K"
+            return CameraConstants.colorTemperatureValues.first?.description ?? "2500K"
         }
     }
     
@@ -73,11 +101,11 @@ enum WheelSettingType: CaseIterable {
     var maxValueText: String {
         switch self {
         case .tintMagentaGreen:
-            return "+8"
+            return CameraConstants.tintMagentaGreenValues.last?.description ?? "0"
         case .exposureCompensation:
-            return "+3.0"
+            return CameraConstants.exposureCompensationValues.last?.description ?? "+3.0"
         case .colorTemperature:
-            return "10000K"
+            return CameraConstants.colorTemperatureValues.last?.description ?? "10000K"
         }
     }
     
@@ -85,20 +113,16 @@ enum WheelSettingType: CaseIterable {
     func formatValue(_ value: Int) -> String {
         switch self {
         case .tintMagentaGreen:
-            if value > 0 {
-                return "+\(value)"
-            } else {
-                return "\(value)"
-            }
+            guard value >= 0 && value < CameraConstants.tintMagentaGreenValues.count else { return "0" }
+            return "\(CameraConstants.tintMagentaGreenValues[value])"
+
         case .exposureCompensation:
-            let displayValue = Double(value) / 3.0 // step이 1이면 1/3 단위
-            if displayValue > 0 {
-                return String(format: "+%.1f", displayValue)
-            } else {
-                return String(format: "%.1f", displayValue)
-            }
+            guard value >= 0 && value < CameraConstants.exposureCompensationValues.count else { return "0" }
+            return CameraConstants.exposureCompensationValues[value]
+
         case .colorTemperature:
-            return "\(value)K"
+            guard value >= 0 && value < CameraConstants.colorTemperatureValues.count else { return "0" }
+            return "\(CameraConstants.colorTemperatureValues[value])K"
         }
     }
 }
@@ -119,16 +143,13 @@ struct ExpandableCircle: View {
         return Double(value - range.lowerBound) / Double(range.upperBound - range.lowerBound)
     }
     
-    private var startAngle: Angle { .degrees(-60) }
-    private var endAngle: Angle { .degrees(60) }
-    
     private var currentAngle: Angle {
         // ViewModel의 각도가 설정되어 있으면 항상 사용 (드래그 중이든 아니든)
         if viewModel.currentAngle != 0.0 {
             return .degrees(viewModel.currentAngle)
         }
         // 각도가 설정되지 않았으면 value 기반으로 계산
-        return .degrees(-60 + 120 * normalizedValue)
+        return .degrees(type.minAngle + type.angleRange * normalizedValue)
     }
     
     private var thumbPosition: CGPoint {
@@ -146,34 +167,12 @@ struct ExpandableCircle: View {
         )
     }
     
-    // 양끝값 라벨 위치 계산 (원 바깥쪽 30pt)
-    private func labelPosition(for angle: Double) -> CGPoint {
-        let angleInRadians = (angle - 90) * .pi / 180
-        let radius = viewModel.circleSize / 2
-        let labelDistance = radius + 30  // 원 바깥쪽 30pt
-        
-        return CGPoint(
-            x: radius + labelDistance * cos(angleInRadians),
-            y: radius + labelDistance * sin(angleInRadians)
-        )
-    }
-    
     var body: some View {
         ZStack {
-            // 원
+            // 원 그리기
             Circle()
                 .stroke(type.strokeColor, lineWidth: 4)
                 .frame(width: viewModel.circleSize, height: viewModel.circleSize)
-            
-            Text(type.minValueText)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.white)
-                .position(labelPosition(for: -60))
-            
-            Text(type.maxValueText)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.white)
-                .position(labelPosition(for: 60))
             
             // 썸
             Circle()
@@ -195,13 +194,10 @@ struct ExpandableCircle: View {
                         }
                 )
         }
-        .rotationEffect(.degrees(type.rotationAngle))
         .frame(width: viewModel.circleSize, height: viewModel.circleSize)
     }
     
     private func handleArcDrag(gesture: DragGesture.Value) {
-        // 원 크기가 변하는 중에도 정확한 각도 계산을 위해
-        // 현재 프레임의 중심을 기준으로 계산
         let center = viewModel.circleSize / 2
         let location = gesture.location
         
@@ -212,9 +208,6 @@ struct ExpandableCircle: View {
         // 중심에서의 거리 계산
         let distanceFromCenter = sqrt(deltaX * deltaX + deltaY * deltaY)
         
-        // TODO: 나중에 버튼 제외 로직
-        // if distanceFromCenter < buttonExclusionRadius { return }
-        
         // 첫 드래그면 isDragging 활성화
         if !viewModel.isDragging {
             viewModel.isDragging = true
@@ -224,22 +217,17 @@ struct ExpandableCircle: View {
         guard distanceFromCenter > 5 else { return }
         
         // atan2를 사용해 각도 계산
-        // -deltaY: 위쪽을 0도로 만들기 위해 Y축 반전
         let angleInRadians = atan2(deltaX, -deltaY)
         var angleInDegrees = angleInRadians * 180 / .pi
         
-        // 회전 보정: 원이 회전한 만큼 역회전 적용
-        // 예: mg가 45도 회전되어 있으면, 드래그 각도에서 45도를 빼서 실제 thumb 각도 계산
-        angleInDegrees = angleInDegrees - type.rotationAngle
+        // 타입별 각도 범위로 제한
+        angleInDegrees = max(type.minAngle, min(type.maxAngle, angleInDegrees))
         
-        // -60 ~ 60 범위로 제한 (120도 arc)
-        angleInDegrees = max(-60, min(60, angleInDegrees))
-        
-        // 애니메이션 없이 즉시 업데이트 (빠른 드래그 대응)
+        // 애니메이션 없이 즉시 업데이트
         viewModel.currentAngle = angleInDegrees
         
         // 각도를 값으로 변환
-        let normalized = (angleInDegrees + 60) / 120
+        let normalized = (angleInDegrees - type.minAngle) / type.angleRange
         let range = type.range
         var newValue = range.lowerBound + Int(normalized * Double(range.upperBound - range.lowerBound))
         

@@ -15,7 +15,7 @@ final class CircularWheelViewModel {
     var circleSize: CGFloat = 100
     var buttonCenter: CGPoint = .zero
     var isDragging: Bool = false
-    var currentAngle: Double = 0.0  // thumb의 현재 각도 (-60 ~ 60 범위)
+    var currentAngle: Double = 100.0  // thumb의 현재 각도 (-60 ~ 60 범위)
     var settingType: WheelSettingType
     
     let minCircleSize: CGFloat = 120
@@ -67,8 +67,8 @@ final class CircularWheelViewModel {
         let angleInRadians = atan2(translation.width, -translation.height)  // -height로 방향 반전
         var angleInDegrees = angleInRadians * 180 / .pi
         
-        // 4. -60 ~ 60 범위로 제한 (120도 arc)
-        angleInDegrees = max(-60, min(60, angleInDegrees))
+        // 4. 범위로 제한
+        angleInDegrees = max(settingType.minAngle, min(settingType.maxAngle, angleInDegrees))
         
         circleSize = mappedSize
         currentAngle = angleInDegrees
