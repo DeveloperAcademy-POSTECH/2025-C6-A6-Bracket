@@ -22,11 +22,11 @@ struct PresetDetailView: View {
                 previewView()
                     .frame(height: 200)
                 
-                VStack(spacing: 25) {
+                VStack(spacing: 52) {
                     shootingModeView()
-                    
-                    // Primary Settings
+
                     primarySettingsView()
+                        
                     
                     if let activePicker = vm.activePicker {
                         pickerView(for: activePicker)
@@ -34,6 +34,7 @@ struct PresetDetailView: View {
                     
                     secondarySettingsSView()
                 }
+                .frame(maxHeight: .infinity)
                 .padding(.horizontal, 20)
                 .padding(.top, 30)
                 
@@ -159,7 +160,6 @@ struct PresetDetailView: View {
                 )
             }
             
-            
         case .shutterSpeed:
             if vm.currentPreset.shootingMode == .tv {
                 LinearWheelPickerView(
@@ -192,68 +192,26 @@ struct PresetDetailView: View {
                 )
             )
             
-        case .tintMagentaGreen:
-            EmptyView()
-            
-        case .exposure:
-            LinearWheelPickerView(
-                selectedValue: $vm.currentPreset.exposureCompensation,
-                items: vm.getExposureCompensationValues(),
-                config: .init(
-                    spacing: 22,
-                    itemSize: .init(width: 60, height: 24)
-                )
-            )
-            
-        case .colorTemp:
-            LinearWheelPickerView(
-                selectedValue: $vm.currentPreset.colorTemperature,
-                items: vm.getColorTemperatureValues(),
-                config: .init(
-                    spacing: 22,
-                    itemSize: .init(width: 50, height: 24)
-                )
-            )
+        default:
+            EmptyView().frame(height: 52)
         }
     }
     
     // Secondary Settings Section
     private func secondarySettingsSView() -> some View {
-        HStack(spacing: 30) {
+        HStack(alignment: .center, spacing: 54) {
             
             // Tint Magenta Green (마젠타-그린)
-            SettingButton(
-                type: .tintMagentaGreen,
-                state: vm.getButtonState(for: .tintMagentaGreen),
-                value: vm.currentPreset.displayTintMagentaGreen,
-                isSelected: vm.activePicker == .tintMagentaGreen,
-                action: {
-                    handleSettingButtonTap(.tintMagentaGreen)
-                }
-            )
+            CircularWheelPickerView(vm: .init(settingType: .tintMagentaGreen, isDimmed: $vm.isDimmed))
+            
             
             // Exposure Compensation (노출 보정)
-            SettingButton(
-                type: .exposure,
-                state: vm.getButtonState(for: .exposure),
-                value: vm.currentPreset.displayExposureCompensation,
-                isSelected: vm.activePicker == .exposure,
-                action: {
-                    handleSettingButtonTap(.exposure)
-                }
-            )
+            CircularWheelPickerView(vm: .init(settingType: .exposureCompensation, isDimmed: $vm.isDimmed))
             
             // Color Temperature (색온도)
-            SettingButton(
-                type: .colorTemp,
-                state: vm.getButtonState(for: .colorTemp),
-                value: vm.currentPreset.displayColorTemperature,
-                isSelected: vm.activePicker == .colorTemp,
-                action: {
-                    handleSettingButtonTap(.colorTemp)
-                }
-            )
+            CircularWheelPickerView(vm: .init(settingType: .colorTemperature, isDimmed: $vm.isDimmed))
         }
+        .frame(maxWidth: .infinity)
     }
     
     private func handleSettingButtonTap(_ type: SettingType){

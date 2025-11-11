@@ -23,6 +23,7 @@ class PresetDetailViewModel {
     var errorMessage: String?
     var showCameraModeSelector: Bool = false
     var activePicker: SettingType?
+    var isDimmed: Bool = false
     
     private var originalPreset: Preset?
     
