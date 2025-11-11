@@ -16,6 +16,6 @@ enum ShootingControlAPI {
     }
     
     func path(with version: VersionType) -> String {
-            return "\(version.description)/\(endpoint)"
+        return "\(version.description)/\(endpoint)"
     }
 }
