@@ -35,7 +35,7 @@ struct PhotoSelectionView: View {
             }
         }
         .task {
-            if vm.entireContentUrls.isEmpty {
+            if vm.allPhotos.isEmpty {
                 await vm.fetchAllImages()
             }
         }
@@ -78,22 +78,52 @@ struct PhotoSelectionView: View {
     
     private func photoSelectionGridView() -> some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 5) {
-                ForEach(vm.entireContentUrls.indices, id: \.self) { index in
-                    let url = vm.entireContentUrls[index]
-                    let photo = Photo(url: url)
-                    SelectionGridCellView(
-                        photo: photo,
-                        isSelected: vm.selectedPhotos.contains(photo),
-                        onTapSelectionGridCell: { vm.toggleGridCell(for: photo) }
-                    )
-                    .environment(vm)
-                    .id(url)
+            LazyVStack(spacing: 20) {
+                ForEach(vm.photoSections) { section in
+                    VStack(spacing: 0) {
+                        sectionHeaderView(section: section)
+
+                        LazyVGrid(columns: columns, spacing: 5) {
+                            ForEach(section.photos) { photo in
+                                SelectionGridCellView(
+                                    photo: photo,
+                                    isSelected: vm.selectedPhotos.contains(photo),
+                                    onTapSelectionGridCell: { vm.toggleGridCell(for: photo) }
+                                )
+                                .environment(vm)
+                                .id(photo.url)
+                            }
+                        }
+                    }
                 }
             }
             .screenPadding()
         }
-        .contentMargins(.bottom, 50, for: .scrollContent)
+        .contentMargins(.bottom, 70, for: .scrollContent)
+    }
+    
+    private func sectionHeaderView(section: PhotoSection) -> some View {
+        HStack {
+            Text(section.dateString)
+                .font(.num6)
+                .foregroundStyle(Color.g0)
+            
+            Spacer()
+            
+            Button {
+                vm.toggleSectionSelection(for: section)
+            } label: {
+                
+                HStack(spacing: 6) {
+                    Text("전체 선택")
+                        .font(.num6)
+                        .foregroundStyle(Color.g0)
+                }
+                Image(vm.isAllSelected(in: section) ? .checkSelectBtnS : .checkUnselectBtnS)
+            }
+        }
+        .padding(.vertical, 15)
+        .background(Color.clear)
     }
     
     private func selectionCompleteButtonView() -> some View {
