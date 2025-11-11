@@ -16,6 +16,10 @@ struct PhotoSelectionDetailView: View {
     @State private var photos: [Photo] = [] // 스냅샷 (vm chunk append시, 무시 목적)
     
     let initialPhoto: Photo
+    
+    private var currentPhoto: Photo {
+        photos.first { $0.url == selectedURL } ?? initialPhoto
+    }
 
     init(initialPhoto: Photo) {
         self.initialPhoto = initialPhoto
@@ -36,30 +40,18 @@ struct PhotoSelectionDetailView: View {
                 photos = vm.allPhotos
             }
         }
-        .navigationBarWithBack(title: "", showShadow: false) {
+        .navigationBarWithBack(title: currentPhoto.detailDateString, showShadow: false) {
             dismiss()
         } rightView: {
-            Text("\(vm.selectedPhotos.count)장")
-                .font(.num4)
-                .foregroundStyle(Color.g0)
+            selectionButtonView(photo: currentPhoto)
         }
     }
 
     private func photoDetailView(photo: Photo) -> some View {
-        ZStack(alignment: .topLeading) {
-            
-            ProgressiveDisplayImageView(
-                photo: photo
-            )
-            .zoomableGesture()
-            
-            VStack(spacing: 0) {
-                selectionButtonView(photo: photo)
-                    .padding(16)
-                
-                Spacer()
-            }
-        }
+        ProgressiveDisplayImageView(
+            photo: photo
+        )
+        .zoomableGesture()
         .task {
             // 현재 사진이 나타날 때 좌우 1장씩 prefetch
             vm.prefetchAdjacentPhotos(current: photo)
@@ -72,14 +64,14 @@ struct PhotoSelectionDetailView: View {
         } label: {
             Group {
                 if vm.selectedPhotos.contains(photo) {
-                    Image(.checkSelectBtnM)
+                    Image(.checkSelectBtnS)
                         .resizable()
                 } else {
-                    Image(.checkUnselectBtnM)
+                    Image(.checkUnselectBtnS)
                         .resizable()
                 }
             }
-            .frame(width: 30, height: 30)
+            .frame(width: 24, height: 24)
         }
     }
 }

@@ -41,7 +41,7 @@ struct NavigationBarWithBackButton<RightContent: View>: ViewModifier {
             }
         
             // Navigation Bar
-            Group {
+            ZStack(alignment: .center) {
                 HStack {
                     Spacer()
                     // Center - Title
