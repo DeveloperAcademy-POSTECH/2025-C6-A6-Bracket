@@ -24,7 +24,7 @@ struct ExpandableButton: View {
                 .background(
                     Circle()
                         .fill(Color.white.opacity(0.15))
-                )
+            .buttonStyle(PresetDetailSettingButtonStyle(.activated))
         }
         .background(
             GeometryReader { geometry in
