@@ -25,7 +25,7 @@ struct DefaultButtonStyle: ButtonStyle {
             configuration.label
                 .font(.num3)
                 .foregroundStyle(Color.g12)
-                .padding(.vertical, 20)
+                .padding(.vertical, 15.5)
                 .frame(maxWidth: .infinity)
                 .background(Color.yellow1)
                 .clipShape(RoundedRectangle(cornerRadius: 62))
@@ -33,8 +33,8 @@ struct DefaultButtonStyle: ButtonStyle {
         case .deactivated:
             configuration.label
                 .font(.num3)
-                .foregroundStyle(Color.g10)
-                .padding(.vertical, 20)
+                .foregroundStyle(Color.g9)
+                .padding(.vertical, 15.5)
                 .frame(maxWidth: .infinity)
                 .background(Color.g12)
                 .clipShape(RoundedRectangle(cornerRadius: 62))
