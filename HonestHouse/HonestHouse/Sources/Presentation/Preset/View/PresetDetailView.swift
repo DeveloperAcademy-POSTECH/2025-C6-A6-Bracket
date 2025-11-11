@@ -20,25 +20,7 @@ struct PresetDetailView: View {
             
             VStack(spacing: 0) {
                 previewView()
-                    .frame(height: 200)
-                
-                VStack(spacing: 52) {
-                    shootingModeView()
-
-                    primarySettingsView()
-                        
-                    
-                    if let activePicker = vm.activePicker {
-                        pickerView(for: activePicker)
-                    }
-                    
-                    secondarySettingsSView()
-                }
-                .frame(maxHeight: .infinity)
-                .padding(.horizontal, 20)
-                .padding(.top, 30)
-                
-                Spacer()
+                settingsView()
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -57,9 +39,23 @@ struct PresetDetailView: View {
     }
     
     private func previewView() -> some View {
-        ZStack {
-            LiveStreamView(vm: LiveStreamViewModel(container: vm.container))
+        LiveStreamView(vm: LiveStreamViewModel(container: vm.container))
+            .frame(height: 274)
+    }
+    
+    private func settingsView() -> some View {
+        VStack(spacing: 52) {
+            shootingModeView()
+            primarySettingsView()
+            
+            if let activePicker = vm.activePicker {
+                pickerView(for: activePicker)
+            }
+            secondarySettingsSView()
         }
+        .frame(maxHeight: .infinity)
+        .padding(.horizontal, 20)
+        .padding(.top, 30)
     }
     
     // Camera Mode Section
