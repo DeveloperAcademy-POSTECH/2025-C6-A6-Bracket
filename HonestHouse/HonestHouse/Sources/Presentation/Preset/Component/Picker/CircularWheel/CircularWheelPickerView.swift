@@ -15,8 +15,8 @@ struct CircularWheelPickerView: View {
     @State var value: Int = 0
     
     var body: some View {
-        
-        ExpandableButton(viewModel: vm, coordinateSpace: coordinateSpaceName, value: $value)
+       
+        ExpandableButton(viewModel: vm, value: $value, coordinateSpace: coordinateSpaceName)
             .overlay {
                 if vm.isCircleVisible {
                     ExpandableCircle(
@@ -28,9 +28,6 @@ struct CircularWheelPickerView: View {
                 }
             }
             .coordinateSpace(name: coordinateSpaceName)
-        
-        
-        
     }
     
 }
