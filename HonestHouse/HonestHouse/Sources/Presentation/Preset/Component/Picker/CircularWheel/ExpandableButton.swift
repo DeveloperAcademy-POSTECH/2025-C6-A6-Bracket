@@ -52,7 +52,6 @@ struct ExpandableButton: View {
                 .onEnded { _ in
                     if viewModel.isDragging {
                         viewModel.endDragging()
-                        print("\(viewModel.circleSize)")
                     } else {
                         viewModel.toggleCircle()
                     }
@@ -63,5 +62,5 @@ struct ExpandableButton: View {
 
 #Preview {
     @Previewable @State var value = 0
-    ExpandableButton(viewModel: .init(settingType: .exposure, isDimmed: .constant(false)), coordinateSpace: "", value: $value)
+    ExpandableButton(viewModel: .init(settingType: .exposureCompensation, isDimmed: .constant(false)), coordinateSpace: "", value: $value)
 }

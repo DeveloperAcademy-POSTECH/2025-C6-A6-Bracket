@@ -9,13 +9,14 @@ import SwiftUI
 
 @Observable
 final class CircularWheelViewModel {
+    @ObservationIgnored @Binding var isDimmed: Bool
+    
     var isCircleVisible: Bool = false
     var circleSize: CGFloat = 100
     var buttonCenter: CGPoint = .zero
     var isDragging: Bool = false
     var currentAngle: Double = 0.0  // thumb의 현재 각도 (-60 ~ 60 범위)
     var settingType: WheelSettingType
-    @ObservationIgnored @Binding var isDimmed: Bool
     
     let minCircleSize: CGFloat = 120
     let maxCircleSize: CGFloat = 370
@@ -29,26 +30,23 @@ final class CircularWheelViewModel {
     func toggleCircle() {
         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
             if isDragging {
-                // 드래그 중이면 토글하지 않음
                 return
             }
             
             if isCircleVisible {
-                // 원이 보이는 상태면 숨기기
                 isCircleVisible = false
-                isDimmed = false  // dim 비활성화
+                isDimmed = false
             } else {
-                // 원이 안 보이면 표시하고 기본 크기로 설정
                 isCircleVisible = true
                 circleSize = minCircleSize
-                isDimmed = true  // dim 활성화
+                isDimmed = true
             }
         }
     }
     
     func startDragging() {
         isDragging = true
-        isDimmed = true  // 원이 보이면 dim 활성화
+        isDimmed = true
         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
             isCircleVisible = true
             circleSize = minCircleSize
@@ -69,8 +67,8 @@ final class CircularWheelViewModel {
         let angleInRadians = atan2(translation.width, -translation.height)  // -height로 방향 반전
         var angleInDegrees = angleInRadians * 180 / .pi
         
-        // 4. -70 ~ 70 범위로 제한 (140도 arc)
-        angleInDegrees = max(-70, min(70, angleInDegrees))
+        // 4. -60 ~ 60 범위로 제한 (120도 arc)
+        angleInDegrees = max(-60, min(60, angleInDegrees))
         
         circleSize = mappedSize
         currentAngle = angleInDegrees
@@ -78,13 +76,12 @@ final class CircularWheelViewModel {
     
     func endDragging() {
         isDragging = false
-        isDimmed = false  // dim 비활성화
-        // 드래그 종료 시 현재 크기만 초기화, 각도는 유지
+        isDimmed = false
+
         withAnimation {
             circleSize = minCircleSize
             // currentAngle은 유지하여 thumb 위치 저장
         }
-        
         toggleCircle()
     }
     

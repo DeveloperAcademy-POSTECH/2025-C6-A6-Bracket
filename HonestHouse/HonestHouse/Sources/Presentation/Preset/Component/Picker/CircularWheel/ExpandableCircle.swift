@@ -9,50 +9,50 @@ import Foundation
 import SwiftUI
 
 enum WheelSettingType: CaseIterable {
-    case mg
-    case exposure
-    case temperature
+    case tintMagentaGreen
+    case exposureCompensation
+    case colorTemperature
     
     var range: ClosedRange<Int> {
         switch self {
-        case .mg:
+        case .tintMagentaGreen:
             return 0...CameraConstants.tintMagentaGreenValues.count
-        case .exposure:
+        case .exposureCompensation:
             return 0...CameraConstants.exposureCompensationValues.count
-        case .temperature:
+        case .colorTemperature:
             return CameraConstants.colorTemperatureRange
         }
     }
     
     var step: Int {
         switch self {
-        case .mg:
+        case .tintMagentaGreen:
             return 1
-        case .exposure:
+        case .exposureCompensation:
             return CameraConstants.exposureCompensationStep
-        case .temperature:
+        case .colorTemperature:
             return CameraConstants.colorTemperatureStep
         }
     }
     
     var strokeColor: LinearGradient {
         switch self {
-        case .mg:
+        case .tintMagentaGreen:
             return LinearGradient.magentaGreenGradient
-        case .exposure:
+        case .exposureCompensation:
             return LinearGradient.exposureGradient
-        case .temperature:
+        case .colorTemperature:
             return LinearGradient.colorTemperatureGradient
         }
     }
     
     var rotationAngle: Double {
         switch self {
-        case .mg:
+        case .tintMagentaGreen:
             45
-        case .exposure:
+        case .exposureCompensation:
             0.0
-        case .temperature:
+        case .colorTemperature:
             -45
         }
     }
@@ -60,11 +60,11 @@ enum WheelSettingType: CaseIterable {
     // 최소값 텍스트
     var minValueText: String {
         switch self {
-        case .mg:
+        case .tintMagentaGreen:
             return "-8"
-        case .exposure:
+        case .exposureCompensation:
             return "-3.0"
-        case .temperature:
+        case .colorTemperature:
             return "2500K"
         }
     }
@@ -72,11 +72,11 @@ enum WheelSettingType: CaseIterable {
     // 최대값 텍스트
     var maxValueText: String {
         switch self {
-        case .mg:
+        case .tintMagentaGreen:
             return "+8"
-        case .exposure:
+        case .exposureCompensation:
             return "+3.0"
-        case .temperature:
+        case .colorTemperature:
             return "10000K"
         }
     }
@@ -84,20 +84,20 @@ enum WheelSettingType: CaseIterable {
     // 현재 값 포맷
     func formatValue(_ value: Int) -> String {
         switch self {
-        case .mg:
+        case .tintMagentaGreen:
             if value > 0 {
                 return "+\(value)"
             } else {
                 return "\(value)"
             }
-        case .exposure:
+        case .exposureCompensation:
             let displayValue = Double(value) / 3.0 // step이 1이면 1/3 단위
             if displayValue > 0 {
                 return String(format: "+%.1f", displayValue)
             } else {
                 return String(format: "%.1f", displayValue)
             }
-        case .temperature:
+        case .colorTemperature:
             return "\(value)K"
         }
     }
@@ -160,18 +160,16 @@ struct ExpandableCircle: View {
     
     var body: some View {
         ZStack {
-            // 원 그리기
+            // 원
             Circle()
                 .stroke(type.strokeColor, lineWidth: 4)
                 .frame(width: viewModel.circleSize, height: viewModel.circleSize)
             
-            // 최소값 텍스트 (-60도 위치)
             Text(type.minValueText)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white)
                 .position(labelPosition(for: -60))
             
-            // 최대값 텍스트 (+60도 위치)
             Text(type.maxValueText)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white)
@@ -251,6 +249,5 @@ struct ExpandableCircle: View {
         
         // 값 업데이트
         value = min(max(newValue, range.lowerBound), range.upperBound)
-        print("Updated value: \(value), formatted: \(type.formatValue(value))")
     }
 }

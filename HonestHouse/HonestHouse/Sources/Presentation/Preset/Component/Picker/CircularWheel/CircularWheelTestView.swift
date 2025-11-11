@@ -15,7 +15,7 @@ struct CircularWheelTestView: View {
             Spacer()
             HStack {
                 ForEach(WheelSettingType.allCases, id: \.self) { item in
-                    ExpandableCircleView(vm: .init(settingType: item, isDimmed: $isDimmed))
+                    CircularWheelPickerView(vm: .init(settingType: item, isDimmed: $isDimmed))
                         .frame(maxWidth: .infinity)
                     
                 }
