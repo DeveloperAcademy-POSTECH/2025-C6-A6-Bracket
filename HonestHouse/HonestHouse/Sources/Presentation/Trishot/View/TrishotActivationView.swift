@@ -25,6 +25,12 @@ struct TrishotActivationView: View {
             // TODO: Custom Alert(카메라로 촬영을 시작해보세요) 연결
             vm.activateTrishot()
         }
+        .onAppear {
+            NavigationSwipeBackControl.disableSwipeBack()
+        }
+        .onDisappear {
+            NavigationSwipeBackControl.enableSwipeBack()
+        }
         .navigationBarBackButtonHidden(true)
     }
     
