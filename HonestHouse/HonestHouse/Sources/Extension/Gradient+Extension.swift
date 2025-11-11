@@ -12,12 +12,11 @@ extension LinearGradient {
     static let magentaGreenGradient: LinearGradient = .init(
         colors: [
             .init(hex: "FF5CC6"),
-//            .init(hex: "FFFFFF"),
             .init(hex: "FFFFFF"),
             .init(hex: "59FF6D")
         ],
-        startPoint: .leading,
-        endPoint: .trailing
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
     )
     
     static let exposureGradient: LinearGradient = .init(
@@ -29,11 +28,10 @@ extension LinearGradient {
     static let colorTemperatureGradient: LinearGradient = .init(
         colors: [
             .init(hex: "36BCFF"),
-//            .init(hex: "FFFFFF"),
             .init(hex: "FFFFFF"),
             .init(hex: "FFCD38"),
         ],
-        startPoint: .leading,
-        endPoint: .trailing
+        startPoint: .bottomLeading,
+        endPoint: .topTrailing
     )
 }
