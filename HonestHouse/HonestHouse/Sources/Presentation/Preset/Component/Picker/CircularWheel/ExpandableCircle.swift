@@ -178,12 +178,63 @@ struct ExpandableCircle: View {
         )
     }
     
+    // 양끝값 라벨 위치 계산 (원 바깥쪽 30pt)
+    private func labelPosition(for angle: Double) -> CGPoint {
+        let angleInRadians = (angle - 90) * .pi / 180
+        let radius = viewModel.circleSize / 2
+        let labelDistance = radius + 30  // 원 바깥쪽 30pt
+        
+        return CGPoint(
+            x: radius + labelDistance * cos(angleInRadians),
+            y: radius + labelDistance * sin(angleInRadians)
+        )
+    }
+    
+    // 틱마크 개수 계산
+    private var tickCount: Int {
+        let range = type.range
+        let step = type.step
+        return (range.upperBound - range.lowerBound) / step + 1
+    }
+    
+    // 특정 인덱스의 각도 계산
+    private func angleForTick(at index: Int) -> Double {
+        let normalized = Double(index) / Double(max(tickCount - 1, 1))
+        return type.minAngle + type.angleRange * normalized
+    }
+    
+    // 특정 인덱스의 값 계산
+    private func valueForTick(at index: Int) -> Int {
+        let range = type.range
+        return range.lowerBound + index * type.step
+    }
+    
     var body: some View {
         ZStack {
             // 원 그리기
             Circle()
                 .stroke(type.strokeColor, lineWidth: 4)
                 .frame(width: viewModel.circleSize, height: viewModel.circleSize)
+            
+            // 틱마크와 값 텍스트
+            ForEach(0..<tickCount, id: \.self) { index in
+                let angle = angleForTick(at: index)
+                let tickValue = valueForTick(at: index)
+                let formattedValue = type.formatValue(tickValue)
+                
+                // 틱마크 (작은 선)
+                Rectangle()
+                    .fill(Color.white.opacity(0.6))
+                    .frame(width: 1, height: 8)
+                    .offset(y: -viewModel.circleSize / 2 + 4)
+                    .rotationEffect(.degrees(angle + 90))
+                
+                // 값 텍스트
+                Text(formattedValue)
+                    .font(.num6)
+                    .foregroundColor(.white)
+                    .position(labelPosition(for: angle))
+            }
             
             // 썸
             Circle()
@@ -205,7 +256,6 @@ struct ExpandableCircle: View {
                         }
                 )
         }
-//        .rotationEffect(.degrees(type.rotationAngle))
         .frame(width: viewModel.circleSize, height: viewModel.circleSize)
     }
     
