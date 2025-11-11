@@ -19,10 +19,12 @@ protocol ImageOperationsServiceType {
     
     /// contentList(이미지 리스트) 조회
     func getContentList(storage: String, directory: String, type: String, order: String, onProgress: @escaping (ImageOperations.ContentListResponse) -> Void) async throws -> ImageOperations.ContentListResponse
+    
+    /// contentInfo(이미지 정보) 조회
+    func getContentInfo(storage: String, directory: String, fileName: String) async throws -> ImageOperations.ContentInfoResponse
 }
 
 final class ImageOperationsService: BaseService, ImageOperationsServiceType {
-    
     private let streamDownloadService = StreamDownloadService.shared
     
     func getStorageList() async throws -> ImageOperations.StorageListResponse {
@@ -75,6 +77,12 @@ final class ImageOperationsService: BaseService, ImageOperationsServiceType {
         return Self.mergeResponses(allResponses)
     }
     
+    func getContentInfo(storage: String, directory: String, fileName: String) async throws -> ImageOperations.ContentInfoResponse {
+        let response = try await request(ImageOperationsTarget.getContentInfo(storage, directory, fileName), decoding: ImageOperations.ContentInfoResponse.self)
+        
+        return response
+    }
+    
     private static func mergeResponses(_ responses: [ImageOperations.ContentListResponse]) -> ImageOperations.ContentListResponse {
         let allUrls = responses.flatMap { $0.url ?? [] }
         return ImageOperations.ContentListResponse(url: allUrls)
@@ -107,6 +115,10 @@ final class StubImageOperationsService: ImageOperationsServiceType {
     }
     
     func getContentList(storage: String, directory: String, type: String, order: String, onProgress: @escaping (ImageOperations.ContentListResponse) -> Void) async throws -> ImageOperations.ContentListResponse {
+        return .stub1
+    }
+    
+    func getContentInfo(storage: String, directory: String, fileName: String) async throws -> ImageOperations.ContentInfoResponse {
         return .stub1
     }
 }
