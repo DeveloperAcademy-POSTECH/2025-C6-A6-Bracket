@@ -119,7 +119,7 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
             return
         }
 
-        Logger.info("PHOTO CAPTURED: \(addedContents.joined(separator: ", "))", category: .network)
+        Logger.info("PHOTO CAPTURED: \(addedContents.joined(separator: ", "))", category: .trishot)
 
         Task {
             currentPresetIndex = (currentPresetIndex + 1) % activatedPresets.count

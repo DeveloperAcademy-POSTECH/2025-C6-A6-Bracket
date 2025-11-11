@@ -46,7 +46,7 @@ final class EventMonitorService: StreamService, EventMonitorServiceType {
                     await self.parser.appendChunk(data)
                     let events = await self.parser.extractEvents()
                     if !events.isEmpty {
-                        Logger.debug("Parsed \(events.count) event(s)", category: .network)
+                        Logger.debug("Parsed \(events.count) event(s)", category: .eventMonitor)
                         await MainActor.run {
                             for event in events {
                                 onEvent(event)
