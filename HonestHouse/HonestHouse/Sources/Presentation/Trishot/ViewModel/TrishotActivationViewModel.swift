@@ -74,10 +74,6 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
     private func loadActivatedPresets() {
         do {
             activatedPresets = try container.managers.presetManager.fetchActivatedPresets()
-            // 프리셋 이름 확인용 출력
-            for preset in activatedPresets {
-                print(preset.name)
-            }
         } catch {
             handleError(error)
         }
