@@ -26,15 +26,15 @@ final class PhotoSelectionViewModel {
     var presentStorage: String?
     var presentDirectory: String?
     
-    var entireContentUrls: [String] = []
+    var allPhotos: [Photo] = []
+    var photoSections: [PhotoSection] = []  // 날짜별 섹션
     var selectedPhotos: Set<Photo> = []
+    
+    private var photosByDate: [String: [Photo]] = [:]  // 날짜별 임시 저장소
+    private var processedUrls: Set<String> = []
     
     private var hasStartedInitialPrefetch = false
     private var hasSetSuccessState = false
-    
-    var allPhotos: [Photo] {
-        entireContentUrls.map { Photo(url: $0) }
-    }
     
     init(container: DIContainer) {
         self.container = container
@@ -61,35 +61,35 @@ final class PhotoSelectionViewModel {
     
     /// contentListResponse를 받아와서 contentList로 변환
     func getContentList(storage: String, directory: String, type: String, order: String) async throws {
-        let response = try await container.services.imageOperationsService.getContentList(
+        let contentListResponse = try await container.services.imageOperationsService.getContentList(
             storage: storage,
             directory: directory,
             type: type,
             order: order,
             onProgress: { [weak self] response in
-                
                 guard let self = self else { return }
                 
                 self.contentList = response.toEntity()
-                self.entireContentUrls = self.contentList?.url ?? []
+                let newUrls = self.contentList?.url ?? []
                 
-                // 첫 chunk에서만 state를 .success로 설정
-                if !self.hasSetSuccessState {
-                    self.hasSetSuccessState = true
-                    self.state = .success(self.entireContentUrls)
-                }
+                // 기존에 없는 URL만 추출
+                let existingUrls = Set(self.processedUrls)
+                let uniqueNewUrls = newUrls.filter { !existingUrls.contains($0) }
                 
-                // 첫 100장 도착 시 prefetch 시작 (한 번만)
-                if !self.hasStartedInitialPrefetch && self.entireContentUrls.count >= 100 {
-                    self.hasStartedInitialPrefetch = true
-                    let photos = self.entireContentUrls.map { Photo(url: $0) }
-                    self.container.managers.imagePrefetchManager.startInitialPrefetch(photos: photos, count: 50)
+                // ContentInfo 가져온 후 섹션 구성
+                Task {
+                    await self.handleNewChunk(urls: uniqueNewUrls)
                 }
             }
         )
         
-        contentList = response.toEntity()
-        entireContentUrls = contentList?.url ?? []
+        contentList = contentListResponse.toEntity()
+    }
+    
+    /// contentInfoResponse를 받아와서 contentInfo로 변환
+    func getContentInfo(storage: String, directory: String, fileName: String) async throws -> ContentInfo {
+        let contentInfoResponse = try await container.services.imageOperationsService.getContentInfo(storage: storage, directory: directory, fileName: fileName)
+        return contentInfoResponse.toEntity()
     }
     
     /// storageList에서 첫번째 storage 가져오기
@@ -116,10 +116,144 @@ final class PhotoSelectionViewModel {
         presentDirectory = dirName
     }
     
+    /// 새 Chunk 처리: Info 먼저 가져온 후 섹션 구성
+    private func handleNewChunk(urls: [String]) async {
+        guard !urls.isEmpty else { return }
+        
+        // 중복 방지
+        let uniqueUrls = urls.filter { !processedUrls.contains($0) }
+        uniqueUrls.forEach { processedUrls.insert($0) }
+        
+        // ContentInfo 배치 처리
+        await fetchContentInfoBatch(urls: uniqueUrls)
+        
+        // Prefetch 시작 (첫 100장 도착 시)
+        if !hasStartedInitialPrefetch && allPhotos.count >= 100 {
+            hasStartedInitialPrefetch = true
+            container.managers.imagePrefetchManager.startInitialPrefetch(
+                photos: allPhotos, count: 50
+            )
+        }
+    }
+    
+    /// ContentInfo 배치 처리 (동시 요청 수 제한)
+    private func fetchContentInfoBatch(urls: [String]) async {
+        let batchSize = 10
+        
+        // 100개를 batchSize씩 나눠서 순차 처리
+        for i in stride(from: 0, to: urls.count, by: batchSize) {
+            let end = min(i + batchSize, urls.count)
+            let batch = Array(urls[i..<end])
+            
+            await processBatch(batch)
+            
+            // 배치 간 짧은 지연 (네트워크 부하 방지)
+            try? await Task.sleep(nanoseconds: 50_000_000) // 0.05초
+        }
+    }
+    
+    /// 배치 병렬 처리
+    private func processBatch(_ urls: [String]) async {
+        await withTaskGroup(of: Photo?.self) { group in
+            for url in urls {
+                group.addTask {
+                    do {
+                        guard let storage = await self.presentStorage,
+                              let directory = await self.presentDirectory,
+                              let fileName = url.split(separator: "/").last.map(String.init) else {
+                            return nil
+                        }
+                        
+                        let contentInfo = try await self.getContentInfo(
+                            storage: storage,
+                            directory: directory,
+                            fileName: fileName
+                        )
+                        
+                        return Photo(
+                            url: url,
+                            dateInfo: contentInfo.dateInfo
+                        )
+                    } catch {
+                        print("ContentInfo 가져오기 실패: \(url), \(error)")
+                        // 실패한 경우 날짜 없이 Photo 생성
+                        return Photo(url: url, dateInfo: nil)
+                    }
+                }
+            }
+            
+            // 결과 수집
+            var newPhotos: [Photo] = []
+            for await photo in group {
+                if let photo = photo {
+                    newPhotos.append(photo)
+                }
+            }
+            
+            // allPhotos에 추가
+            self.allPhotos.append(contentsOf: newPhotos)
+            
+            // 섹션 업데이트 (기존 섹션에 추가 or 새 섹션 생성)
+            self.updatePhotoSections(with: newPhotos)
+            
+            // 첫 chunk에서만 state를 .success로 설정
+            if !self.hasSetSuccessState && !self.photoSections.isEmpty {
+                self.hasSetSuccessState = true
+                self.state = .success([])
+            }
+        }
+    }
+    
+    /// 섹션 업데이트: 같은 날짜면 추가, 다른 날짜면 새 섹션 생성
+    private func updatePhotoSections(with newPhotos: [Photo]) {
+        // 1. 날짜별로 Photo 분류
+        for photo in newPhotos {
+            // 날짜 정보가 없으면 스킵
+            guard photo.dateInfo != nil else { continue }
+            
+            let dateKey = photo.dateKey
+            
+            // 중복 체크
+            if let existingPhotos = photosByDate[dateKey],
+               existingPhotos.contains(where: { $0.url == photo.url }) {
+                continue
+            }
+            
+            // 같은 날짜면 추가
+            photosByDate[dateKey, default: []].append(photo)
+        }
+        
+        // 2. 각 날짜의 Photo들을 시간순으로 정렬
+        for dateKey in photosByDate.keys {
+            photosByDate[dateKey]?.sort { photo1, photo2 in
+                guard let date1 = photo1.dateInfo,
+                      let date2 = photo2.dateInfo else {
+                    return false
+                }
+                return date1 > date2  // 최신순 (내림차순)
+            }
+        }
+        
+        // 3. 섹션 재구성 (최신순 정렬)
+        let sortedDateKeys = photosByDate.keys.sorted(by: >)
+        
+        photoSections = sortedDateKeys.compactMap { dateKey in
+            guard let photos = photosByDate[dateKey],
+                  !photos.isEmpty,
+                  let firstDate = photos.first?.dateInfo else {
+                return nil
+            }
+            
+            return PhotoSection(date: firstDate, photos: photos)
+        }
+    }
+    
     /// 점진적 로딩으로 모든 이미지 가져오기
     func fetchAllImages() async {
         state = .loading()
-        entireContentUrls.removeAll()
+        allPhotos.removeAll()
+        photoSections.removeAll()
+        photosByDate.removeAll()
         hasSetSuccessState = false
         hasStartedInitialPrefetch = false
         
@@ -154,6 +288,7 @@ final class PhotoSelectionViewModel {
         }
     }
     
+    /// 특정 사진 선택/해제 토글
     func toggleGridCell(for photo: Photo) {
         if selectedPhotos.contains(photo) {
             selectedPhotos.remove(photo)
@@ -162,8 +297,21 @@ final class PhotoSelectionViewModel {
         }
     }
     
+    /// 특정 섹션의 모든 사진 선택/해제 토글
+    func toggleSectionSelection(for section: PhotoSection) {
+        if isAllSelected(in: section) {
+            section.photos.forEach { selectedPhotos.remove($0) }
+        } else {
+            section.photos.forEach { selectedPhotos.insert($0) }
+        }
+    }
+    
+    /// 특정 섹션의 모든 사진이 선택되었는지 확인
+    func isAllSelected(in section: PhotoSection) -> Bool {
+        !section.photos.isEmpty && section.photos.allSatisfy { selectedPhotos.contains($0) }
+    }
+    
     func goToGroupedPhotos() {
-        // 초기 prefetch 중단 (리소스 절약)
         container.managers.imagePrefetchManager.cancelSelectionPartPrefetch()
         container.navigationRouter.push(to: .groupedPhotos(Array(selectedPhotos)))
     }
