@@ -70,9 +70,7 @@ struct PhotoSelectionView: View {
             }
         }
         .navigationBarWithBack(title: "", showShadow: true, rightView: {
-            Text("\(vm.selectedPhotos.count)장")
-                .font(.num4)
-                .foregroundStyle(Color.g0)
+            EmptyView()
         })
     }
     
@@ -136,7 +134,7 @@ struct PhotoSelectionView: View {
                 Button {
                     vm.goToGroupedPhotos()
                 } label: {
-                    Text("완료")
+                    Text("\(vm.selectedPhotos.count)장 분류하러 가기")
                 }
                 .buttonStyle(DefaultButtonStyle(vm.selectedPhotos.isEmpty ? .deactivated : .activated))
                 .screenPadding()
