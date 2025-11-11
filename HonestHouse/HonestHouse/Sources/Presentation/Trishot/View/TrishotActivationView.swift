@@ -22,6 +22,7 @@ struct TrishotActivationView: View {
             .safeAreaPadding(.all, 0)
         }
         .task {
+            // TODO: Custom Alert(카메라로 촬영을 시작해보세요) 연결
             vm.activateTrishot()
         }
         .navigationBarBackButtonHidden(true)
