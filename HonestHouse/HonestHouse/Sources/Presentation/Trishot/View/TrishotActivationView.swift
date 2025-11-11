@@ -14,10 +14,12 @@ struct TrishotActivationView: View {
         ZStack {
             Color.g12.ignoresSafeArea(.all)
             VStack(alignment: .center) {
+                Spacer()
                 triCircleListView(vm.currentPresetIndex)
                 Spacer()
                 deactivateButtonView()
             }
+            .safeAreaPadding(.all, 0)
         }
         .task {
             vm.activateTrishot()
