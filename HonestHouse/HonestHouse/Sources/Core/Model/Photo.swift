@@ -12,6 +12,7 @@ struct Photo: Identifiable, SelectableItem {
     let id = UUID()
     var url: String
     var mediaType: MediaType
+    var dateInfo: Date?
     
     var thumbnailURL: String {
         "\(url)?kind=thumbnail"
@@ -21,8 +22,28 @@ struct Photo: Identifiable, SelectableItem {
         "\(url)?kind=display"
     }
     
-    init(url: String) {
+    // 날짜 키
+    var dateKey: String {
+        guard let date = dateInfo else { return "Unknown" }
+        return DateFormatter.dateKeyFormatter.string(from: date)
+    }
+    
+    // 섹션 헤더용 날짜 문자열
+    var sectionDateString: String {
+        guard let date = dateInfo else { return "날짜 없음" }
+        return DateFormatter.displayDateFormatter.string(from: date)
+    }
+    
+    // DetailView 네비게이션 title 날짜 문자열
+    var detailDateString: String {
+        guard let date = dateInfo else { return "날짜 없음" }
+        return DateFormatter.detailDateTimeFormatter.string(from: date)
+    }
+    
+    init(url: String, dateInfo: Date? = nil) {
         self.url = url
+        self.dateInfo = dateInfo
+        
         let fileExtension = (url as NSString).pathExtension.lowercased()
         switch fileExtension {
         case "jpeg":
