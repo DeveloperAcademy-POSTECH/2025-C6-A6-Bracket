@@ -13,6 +13,17 @@ enum WheelSettingType: CaseIterable {
     case exposureCompensation
     case colorTemperature
     
+    var icon: Image {
+        switch self {
+        case .tintMagentaGreen:
+            return Image(.colortemperatureIcon) // TODO: - tint 로 변경
+        case .exposureCompensation:
+            return Image(.exposureIcon)
+        case .colorTemperature:
+            return Image(.colortemperatureIcon)
+        }
+    }
+    
     var range: ClosedRange<Int> {
         switch self {
         case .tintMagentaGreen:
@@ -194,6 +205,7 @@ struct ExpandableCircle: View {
                         }
                 )
         }
+//        .rotationEffect(.degrees(type.rotationAngle))
         .frame(width: viewModel.circleSize, height: viewModel.circleSize)
     }
     
