@@ -43,15 +43,25 @@ struct PhotoSelectionDetailView: View {
         .navigationBarWithBack(title: currentPhoto.detailDateString, showShadow: false) {
             dismiss()
         } rightView: {
-            selectionButtonView(photo: currentPhoto)
+            EmptyView()
         }
     }
 
     private func photoDetailView(photo: Photo) -> some View {
-        ProgressiveDisplayImageView(
-            photo: photo
-        )
-        .zoomableGesture()
+        ZStack(alignment: .topTrailing) {
+            
+            ProgressiveDisplayImageView(
+                photo: photo
+            )
+            .zoomableGesture()
+            
+            VStack(spacing: 0) {
+                selectionButtonView(photo: photo)
+                    .padding(16)
+                
+                Spacer()
+            }
+        }
         .task {
             // 현재 사진이 나타날 때 좌우 1장씩 prefetch
             vm.prefetchAdjacentPhotos(current: photo)
@@ -64,14 +74,14 @@ struct PhotoSelectionDetailView: View {
         } label: {
             Group {
                 if vm.selectedPhotos.contains(photo) {
-                    Image(.checkSelectBtnS)
+                    Image(.checkSelectBtnM)
                         .resizable()
                 } else {
-                    Image(.checkUnselectBtnS)
+                    Image(.checkUnselectBtnM)
                         .resizable()
                 }
             }
-            .frame(width: 24, height: 24)
+            .frame(width: 30, height: 30)
         }
     }
 }

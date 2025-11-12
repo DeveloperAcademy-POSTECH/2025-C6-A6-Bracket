@@ -12,17 +12,29 @@ struct GroupedPhotosDetailView: View {
     @Environment(GroupedPhotosViewModel.self) var vm
     @Environment(\.dismiss) private var dismiss
     
+    @State private var selectedPhoto: Photo
+    
     let groupedPhotos: SimilarPhotoGroup
+    
+    private var currentPosition: String {
+        let index = groupedPhotos.photos.firstIndex(of: selectedPhoto) ?? 0
+        return "\(index + 1)/\(groupedPhotos.photos.count)"
+    }
+    
+    init(groupedPhotos: SimilarPhotoGroup) {
+        self.groupedPhotos = groupedPhotos
+        self._selectedPhoto = State(initialValue: groupedPhotos.photos.first!)
+    }
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedPhoto) {
             ForEach(groupedPhotos.photos) { photo in
                 photoDetailView(photo: photo)
                     .tag(photo)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .navigationBarWithBack(title: "", showShadow: false) {
+        .navigationBarWithBack(title: "\(currentPosition)", showShadow: false) {
             dismiss()
         } rightView: {
             EmptyView()
@@ -30,7 +42,7 @@ struct GroupedPhotosDetailView: View {
     }
 
     private func photoDetailView(photo: Photo) -> some View {
-        ZStack(alignment: .topLeading) {
+        ZStack(alignment: .topTrailing) {
             
             ProgressiveDisplayImageView(
                 photo: photo
