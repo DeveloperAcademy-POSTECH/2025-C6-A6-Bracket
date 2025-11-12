@@ -34,8 +34,10 @@ enum LogCategory: String {
     case ui = "UI"
     case viewModel = "ViewModel"
     case coreData = "CoreData"
+    case eventMonitor = "EventMonitor"
+    case trishot = "Trishot"
     case general = "General"
-    
+
     var osLog: OSLog {
         OSLog(subsystem: Bundle.main.bundleIdentifier ?? "com.app.honestHouse", category: self.rawValue)
     }

@@ -64,10 +64,6 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
     private func loadActivatedPresets() {
         do {
             activatedPresets = try container.managers.presetManager.fetchActivatedPresets()
-            // 프리셋 이름 확인용 출력
-            for preset in activatedPresets {
-                print(preset.name)
-            }
         } catch {
             handleError(error)
         }
@@ -112,7 +108,8 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
         guard let addedContents = event.addedcontents, !addedContents.isEmpty else {
             return
         }
-        print("📸 PHOTO CAPTURED 📸")
+
+        Logger.info("PHOTO CAPTURED: \(addedContents.joined(separator: ", "))", category: .trishot)
 
         Task {
             currentPresetIndex = (currentPresetIndex + 1) % activatedPresets.count
