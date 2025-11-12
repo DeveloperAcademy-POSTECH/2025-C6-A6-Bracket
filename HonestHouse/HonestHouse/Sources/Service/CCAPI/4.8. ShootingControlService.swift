@@ -8,16 +8,16 @@
 import Foundation
 
 protocol ShootingControlServiceType {
-    func ignoreShootingMode(with: VersionType, request: ShootingControl.IgnoreShootingModeRequest) async throws
+    func ignoreShootingMode(request: ShootingControl.IgnoreShootingModeRequest) async throws
 }
 
 final class ShootingControlService: BaseService, ShootingControlServiceType {
-    func ignoreShootingMode(with version: VersionType, request: ShootingControl.IgnoreShootingModeRequest) async throws {
+    func ignoreShootingMode(request: ShootingControl.IgnoreShootingModeRequest) async throws {
         try await self.request(ShootingControlTarget.ignoreShootingMode(request))
     }
 }
 
 final class StubShootingControlService: ShootingControlServiceType {
-    func ignoreShootingMode(with: VersionType, request: ShootingControl.IgnoreShootingModeRequest) async throws {
+    func ignoreShootingMode(request: ShootingControl.IgnoreShootingModeRequest) async throws {
     }
 }
