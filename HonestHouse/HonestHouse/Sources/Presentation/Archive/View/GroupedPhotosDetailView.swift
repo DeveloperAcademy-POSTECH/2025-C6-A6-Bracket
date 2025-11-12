@@ -28,23 +28,26 @@ struct GroupedPhotosDetailView: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            TabView(selection: $selectedPhoto) {
-                ForEach(groupedPhotos.photos) { photo in
-                    photoDetailView(photo: photo)
-                        .tag(photo.url)
-                }
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
+            photoGroupTabView()
             
             selectionButtonView(photo: selectedPhoto)
                 .padding(.trailing, 16)
-            
         }
         .navigationBarWithBack(title: "\(currentPosition)", showShadow: false) {
             dismiss()
         } rightView: {
             EmptyView()
         }
+    }
+    
+    private func photoGroupTabView() -> some View {
+        TabView(selection: $selectedPhoto) {
+            ForEach(groupedPhotos.photos) { photo in
+                photoDetailView(photo: photo)
+                    .tag(photo.url)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
     }
     
     private func photoDetailView(photo: Photo) -> some View {

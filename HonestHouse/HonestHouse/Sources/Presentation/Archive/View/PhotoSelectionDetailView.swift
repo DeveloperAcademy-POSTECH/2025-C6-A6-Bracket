@@ -28,18 +28,7 @@ struct PhotoSelectionDetailView: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            TabView(selection: $selectedURL) {
-                ForEach(photos) { photo in
-                    photoDetailView(photo: photo)
-                        .tag(photo.url)
-                }
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .task {
-                if photos.isEmpty {
-                    photos = vm.allPhotos
-                }
-            }
+            photoTabView()
             
             selectionButtonView(photo: currentPhoto)
                 .padding(.trailing, 16)
@@ -49,6 +38,21 @@ struct PhotoSelectionDetailView: View {
             dismiss()
         } rightView: {
             EmptyView()
+        }
+    }
+    
+    private func photoTabView() -> some View {
+        TabView(selection: $selectedURL) {
+            ForEach(photos) { photo in
+                photoDetailView(photo: photo)
+                    .tag(photo.url)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .task {
+            if photos.isEmpty {
+                photos = vm.allPhotos
+            }
         }
     }
 

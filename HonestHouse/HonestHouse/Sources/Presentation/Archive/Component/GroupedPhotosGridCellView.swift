@@ -15,26 +15,43 @@ struct GroupedPhotosGridCellView: View {
     
     var body: some View {
         if let firstPhoto = group.photos.first {
-            ZStack(alignment: .topTrailing) {
-                ZStack(alignment: .bottomLeading) {
-                    NavigationLink(destination: GroupedPhotosDetailView(groupedPhotos: group).environment(vm)) {
-                        CachedGridCellImageView(url: firstPhoto.displayURL, originalURL: firstPhoto.url)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .strokeBorder(vm.hasSelectedPhotoInGroup(in: group) ? Color.yellow1 : Color.clear, lineWidth: 1.5)
-                            )
-                    }
-                    
-                    selectNumBadge()
-                        .padding(8)
-                }
+            NavigationLink {
+                destinationView()
+            } label: {
+                thumbnailView(for: firstPhoto)
+            }
+        }
+    }
+    
+    private func destinationView() -> some View {
+        GroupedPhotosDetailView(groupedPhotos: group)
+            .environment(vm)
+    }
+    
+    private func thumbnailView(for photo: Photo) -> some View {
+        CachedGridCellImageView(url: photo.displayURL, originalURL: photo.url)
+            .overlay {
+                thumbnailBorder()
+            }
+            .overlay(alignment: .bottomLeading) {
+                selectNumBadge()
+                    .padding(8)
+            }
+            .overlay(alignment: .topTrailing) {
                 if group.isExtra {
                     extraGroupBadge()
                         .padding(8)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 8))
-        }
+    }
+    
+    private func thumbnailBorder() -> some View {
+        RoundedRectangle(cornerRadius: 8)
+            .strokeBorder(
+                vm.hasSelectedPhotoInGroup(in: group) ? Color.yellow1 : Color.clear,
+                lineWidth: 1.5
+            )
     }
     
     private func selectNumBadge() -> some View {
