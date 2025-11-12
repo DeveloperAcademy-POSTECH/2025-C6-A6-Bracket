@@ -126,11 +126,11 @@ enum WheelSettingType: CaseIterable {
         case .tintMagentaGreen:
             guard value >= 0 && value < CameraConstants.tintMagentaGreenValues.count else { return "0" }
             return "\(CameraConstants.tintMagentaGreenValues[value])"
-
+            
         case .exposureCompensation:
             guard value >= 0 && value < CameraConstants.exposureCompensationValues.count else { return "0" }
             return CameraConstants.exposureCompensationValues[value]
-
+            
         case .colorTemperature:
             guard value >= 0 && value < CameraConstants.colorTemperatureValues.count else { return "0" }
             return "\(CameraConstants.colorTemperatureValues[value])K"
@@ -141,17 +141,18 @@ enum WheelSettingType: CaseIterable {
 struct ExpandableCircle: View {
     
     @Bindable var viewModel: CircularWheelViewModel  // ViewModel 추가
-    @Binding var value: Int
+    @Binding var index: Int
     
     let type: WheelSettingType
     let isVisible: Bool
+//    var circleSize: CircleSize
     
     // 버튼 영역 크기 (제스처에서 제외할 중심 영역) - 나중에 사용
     private let buttonExclusionRadius: CGFloat = 30
     
     private var normalizedValue: Double {
         let range = type.range
-        return Double(value - range.lowerBound) / Double(range.upperBound - range.lowerBound)
+        return Double(index - range.lowerBound) / Double(range.upperBound - range.lowerBound)
     }
     
     private var currentAngle: Angle {
@@ -209,6 +210,10 @@ struct ExpandableCircle: View {
         return range.lowerBound + index * type.step
     }
     
+//    mutating private func getCircleSize() {
+//        circleSize = viewModel.checkCircleSize()
+//    }
+    
     var body: some View {
         ZStack {
             // 원 그리기
@@ -216,24 +221,38 @@ struct ExpandableCircle: View {
                 .stroke(type.strokeColor, lineWidth: 4)
                 .frame(width: viewModel.circleSize, height: viewModel.circleSize)
             
-            // 틱마크와 값 텍스트
+            
+            
+//            switch type {
+//            case .tintMagentaGreen:
+//                tintMagentaGreenTextView()
+//            case .exposureCompensation:
+//                EmptyView()
+//            case .colorTemperature:
+//                EmptyView()
+//            }
+            
+//             틱마크와 값 텍스트
             ForEach(0..<tickCount, id: \.self) { index in
                 let angle = angleForTick(at: index)
                 let tickValue = valueForTick(at: index)
                 let formattedValue = type.formatValue(tickValue)
                 
+                // TODO: 삭제
                 // 틱마크 (작은 선)
-                Rectangle()
-                    .fill(Color.white.opacity(0.6))
-                    .frame(width: 1, height: 8)
-                    .offset(y: -viewModel.circleSize / 2 + 4)
-                    .rotationEffect(.degrees(angle + 90))
-                
+//                Rectangle()
+//                    .fill(Color.white.opacity(0.6))
+//                    .frame(width: 1, height: 8)
+//                    .offset(y: -viewModel.circleSize / 2 + 4)
+//                    .rotationEffect(.degrees(angle + 90))
+//                
                 // 값 텍스트
                 Text(formattedValue)
                     .font(.num6)
-                    .foregroundColor(.white)
+                    .foregroundColor(index == index ? Color.g0 : Color.yellow1)
                     .position(labelPosition(for: angle))
+                    .rotationEffect(.degrees(angle - 120))
+                
             }
             
             // 썸
@@ -250,6 +269,7 @@ struct ExpandableCircle: View {
                     DragGesture(minimumDistance: 0)
                         .onChanged { gesture in
                             handleArcDrag(gesture: gesture)
+                            viewModel.checkCircleSize()
                         }
                         .onEnded { _ in
                             viewModel.isDragging = false
@@ -258,6 +278,61 @@ struct ExpandableCircle: View {
         }
         .frame(width: viewModel.circleSize, height: viewModel.circleSize)
     }
+    
+    @ViewBuilder
+    private func tintMagentaGreenTextView() -> some View {
+        ForEach(0..<tickCount, id: \.self) { tickIndex in
+            let angle = angleForTick(at: tickIndex)
+            let tickValue = valueForTick(at: tickIndex)
+            let formattedValue = type.formatValue(tickValue)
+            
+            switch viewModel.circleSizeType {
+            case .small:
+                if (Int(formattedValue) ?? 0) % 3 == 0 {
+                    Text(formattedValue)
+                        .font(.num6)
+                        .foregroundStyle(Color.g0)
+                        .position(labelPosition(for: angle))
+                        .rotationEffect(.degrees(angle - 120))
+                }
+                
+            case .medium:
+                if (Int(formattedValue) ?? 0) % 3 == 0 {
+                    Text(formattedValue)
+                        .font(.num6)
+                        .foregroundStyle(Color.g0)
+                        .position(labelPosition(for: angle))
+                        .rotationEffect(.degrees(angle - 120))
+                } else {
+                    Text(formattedValue)
+                        .font(.num6)
+                        .foregroundStyle(Color.g7)
+                        .position(labelPosition(for: angle))
+                        .rotationEffect(.degrees(angle - 120))
+                }
+            case .large:
+                Text(formattedValue)
+                    .font(.num6)
+                    .foregroundStyle(Color.g0)
+                    .position(labelPosition(for: angle))
+                    .rotationEffect(.degrees(angle - 120))
+            }
+            
+            if index == tickIndex {
+                Text(formattedValue)
+                    .foregroundStyle(Color.yellow1)
+                    .font(.num6)
+                    .position(labelPosition(for: angle))
+                    .rotationEffect(.degrees(angle - 90))
+            }
+            
+//            Text(formattedValue)
+//                .font(.num6)
+//                .foregroundColor(index == tickIndex ? Color.g0 : Color.yellow1)
+                
+        }
+    }
+    
     
     private func handleArcDrag(gesture: DragGesture.Value) {
         let center = viewModel.circleSize / 2
@@ -298,6 +373,6 @@ struct ExpandableCircle: View {
         newValue = Int(round(Double(newValue) / Double(step))) * step
         
         // 값 업데이트
-        value = min(max(newValue, range.lowerBound), range.upperBound)
+        index = min(max(newValue, range.lowerBound), range.upperBound)
     }
 }

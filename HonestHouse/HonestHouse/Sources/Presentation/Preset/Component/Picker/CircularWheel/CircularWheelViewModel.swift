@@ -53,7 +53,7 @@ final class CircularWheelViewModel {
         }
     }
     
-    func updateDragWithAngle(_ translation: CGSize) {
+    func updateDragWithAngle(_ translation: CGSize) -> Int {
         // 1. 드래그 거리 계산 (피타고라스 정리)
         let distance = sqrt(pow(translation.width, 2) + pow(translation.height, 2))
         
@@ -72,6 +72,26 @@ final class CircularWheelViewModel {
         
         circleSize = mappedSize
         currentAngle = angleInDegrees
+        
+        // 5. 각도를 인덱스로 변환하여 반환
+        return indexFromAngle(angleInDegrees)
+    }
+    
+    // 각도를 인덱스로 변환하는 함수
+    private func indexFromAngle(_ angle: Double) -> Int {
+        // 각도를 0.0~1.0 범위로 정규화
+        let normalized = (angle - settingType.minAngle) / settingType.angleRange
+        
+        // 정규화된 값을 range 범위로 변환
+        let range = settingType.range
+        var value = range.lowerBound + Int(normalized * Double(range.upperBound - range.lowerBound))
+        
+        // step 단위로 스냅
+        let step = settingType.step
+        value = Int(round(Double(value) / Double(step))) * step
+        
+        // 최종 범위 제한
+        return min(max(value, range.lowerBound), range.upperBound)
     }
     
     func endDragging() {

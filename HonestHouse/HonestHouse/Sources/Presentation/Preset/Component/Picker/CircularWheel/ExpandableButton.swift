@@ -35,8 +35,8 @@ struct ExpandableButton: View {
             )
             .simultaneousGesture(
                 DragGesture(minimumDistance: 0)
-                    .onChanged { value in
-                        if value.translation == .zero {
+                    .onChanged { dragValue in
+                        if dragValue.translation == .zero {
                             return
                         }
                         
@@ -44,8 +44,9 @@ struct ExpandableButton: View {
                             viewModel.startDragging()
                         }
                         
-                        // 거리와 각도를 동시에 업데이트
-                        viewModel.updateDragWithAngle(value.translation)
+                        // 거리와 각도를 동시에 업데이트하고, 계산된 인덱스를 받아서 value 업데이트
+                        let newIndex = viewModel.updateDragWithAngle(dragValue.translation)
+                        value = newIndex
                     }
                     .onEnded { _ in
                         if viewModel.isDragging {
