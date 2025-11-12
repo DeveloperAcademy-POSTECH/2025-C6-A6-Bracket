@@ -38,12 +38,8 @@ struct GroupedPhotosView: View {
             switch vm.savingState {
             case .idle:
                 Color.clear
-            case .loading(let progress):
-                if let progress = progress {
-                    savingProgressView(progress: progress)
-                } else {
-                    ProgressView()
-                }
+            case .loading:
+                savingProgressView()
             case .success:
                 successSavingView()
             case .failure:
@@ -61,7 +57,7 @@ struct GroupedPhotosView: View {
         .onChange(of: vm.savingState) { _, newState in
             switch newState {
             case .success:
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     vm.goToMain()
                 }
             case .failure(let error):
@@ -133,7 +129,7 @@ struct GroupedPhotosView: View {
                 Button {
                     vm.saveSelectedPhotos()
                 } label: {
-                    Text("저장")
+                    Text("\(vm.selectedPhotosInGroup.count)장 사진에 저장")
                 }
                 .buttonStyle(DefaultButtonStyle(vm.selectedPhotosInGroup.isEmpty ? .deactivated : .activated))
                 .screenPadding()
@@ -142,18 +138,19 @@ struct GroupedPhotosView: View {
         .ignoresSafeArea(edges: .bottom)
     }
     
-    private func savingProgressView(progress: Double) -> some View {
+    private func savingProgressView() -> some View {
         ZStack {
             Color.black.opacity(0.8)
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
-                Text("\(Int(progress * 100))%")
+                Text("\(vm.savingProgress.current)/\(vm.savingProgress.total)")
                     .font(.num2)
                     .foregroundColor(.white)
 
                 // 프로그레스 바
-                ProgressView(value: progress, total: 1.0)
+                ProgressView(value: Double(vm.savingProgress.current),
+                             total: Double(vm.savingProgress.total))
                     .progressViewStyle(LinearProgressViewStyle(tint: Color.yellow1))
                     .frame(maxWidth: .infinity)
             }
@@ -171,9 +168,10 @@ struct GroupedPhotosView: View {
                     .resizable()
                     .frame(width: 40, height: 40)
                 
-                Text("앨범에 저장되었습니다!")
+                Text("사진의 Bracket앨범에\n저장되었습니다!")
                     .font(.num2)
                     .foregroundStyle(.white)
+                    .multilineTextAlignment(.center)
             }
         }
     }

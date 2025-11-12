@@ -180,7 +180,7 @@ final class VisionManager: VisionManagerType {
         return SimilarPhotoGroup(
             photos: photos,
             averageDistance: avgDistance,
-            confidence: confidence
+            confidence: confidence, isExtra: false
         )
     }
     
@@ -204,13 +204,13 @@ final class VisionManager: VisionManagerType {
         return SimilarPhotoGroup(
             photos: extraPhotos,
             averageDistance: 0.0,
-            confidence: 0.0
+            confidence: 0.0, isExtra: true
         )
     }
 }
 
 final class StubVisionManager: VisionManagerType {
     func analyzeImages(_ photos: [Photo], threshold: Float) async throws -> [SimilarPhotoGroup] {
-        return [.init(photos: [], averageDistance: 0, confidence: 0)]
+        return [.init(photos: [], averageDistance: 0, confidence: 0, isExtra: true)]
     }
 }

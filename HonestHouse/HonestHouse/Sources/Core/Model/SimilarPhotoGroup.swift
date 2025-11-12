@@ -12,4 +12,5 @@ struct SimilarPhotoGroup: Identifiable, Equatable, Hashable {
     let photos: [Photo]
     let averageDistance: Float
     let confidence: Float
+    let isExtra: Bool
 }
