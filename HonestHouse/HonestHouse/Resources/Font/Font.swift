@@ -20,15 +20,15 @@ extension Font {
     static let body1: Font = .custom("Pretendard-SemiBold", size: 16)   /// Pretendard SemiBold 16 140%
     static let body2: Font = .custom("Pretendard-SemiBold", size: 14)   /// Pretendard SemiBold 14 140%
  
-    static let captionL: Font = .custom("Pretendard-Regular", size: 16) /// Pretendard Regular 16
+    static let captionL: Font = .custom("Pretendard-Regular", size: 16) /// Pretendard Regular 16 140%
     static let captionM: Font = .custom("Pretendard-Regular", size: 14) /// Pretendard Regular 14 140%
  
-    static let num1: Font = .custom("SFMono-Semibold", size: 20)         /// SF Mono SemiBold 20  130%
-    static let num2: Font = .custom("SFMono-Semibold", size: 18)         /// SF Mono SemiBold 18  130%
-    static let num3: Font = .custom("SFMono-Semibold", size: 16)         /// SF Mono Semibold 16  130%
-    static let num4: Font = .custom("SFMono-Medium", size: 16)           /// SF Mono Medium 16  130%
-    static let num5: Font = .custom("SFMono-Semibold", size: 14)         /// SF Mono Semibold 14  130%
-    static let num6: Font = .custom("SFMono-Medium", size: 14)           /// SF Mono Medium 14  130%
+    static let num1: Font = .custom("SFMono-Semibold", size: 20)         /// SF Mono SemiBold 20  150%
+    static let num2: Font = .custom("SFMono-Semibold", size: 18)         /// SF Mono SemiBold 18  150%
+    static let num3: Font = .custom("SFMono-Semibold", size: 16)         /// SF Mono Semibold 16  150%
+    static let num4: Font = .custom("SFMono-Medium", size: 16)           /// SF Mono Medium 16  150%
+    static let num5: Font = .custom("SFMono-Semibold", size: 14)         /// SF Mono Semibold 14  150%
+    static let num6: Font = .custom("SFMono-Medium", size: 14)           /// SF Mono Medium 14  150%
     static let num7: Font = .custom("SFMono-Semibold", size: 12)         /// SF Mono Semibold 12  130%
 }
 
