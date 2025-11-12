@@ -44,7 +44,7 @@ struct GroupedPhotosDetailView: View {
         TabView(selection: $selectedPhoto) {
             ForEach(groupedPhotos.photos) { photo in
                 photoDetailView(photo: photo)
-                    .tag(photo.url)
+                    .tag(photo)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
