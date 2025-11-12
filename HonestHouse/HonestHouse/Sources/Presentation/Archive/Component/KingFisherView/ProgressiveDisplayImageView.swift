@@ -59,7 +59,7 @@ struct ProgressiveDisplayImageView: View {
     private func thumbnailImageView(url: String) -> some View {
         KFImage(URL(string: url))
             .placeholder {
-                Color.g10
+                Color.g11
                     .frame(maxWidth: .infinity)
                     .aspectRatio(3/2, contentMode: .fit)
             }

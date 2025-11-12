@@ -1,5 +1,5 @@
 //
-//  PhotoSelectionSkeletonView.swift
+//  GroupedPhotosSkeletonView.swift
 //  HonestHouse
 //
 //  Created by 이현주 on 11/4/25.
@@ -7,17 +7,17 @@
 
 import SwiftUI
 
-struct PhotoSelectionSkeletonView: View {
-    let columnCount: Int = 3
+struct GroupedPhotosSkeletonView: View {
+    let columnCount: Int = 2
 
     var columns: [GridItem] {
-        Array(repeating: GridItem(.flexible(), spacing: 5), count: columnCount)
+        Array(repeating: GridItem(.flexible(), spacing: 9), count: columnCount)
     }
 
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 5) {
-                ForEach(0..<50, id: \.self) { _ in
+            LazyVGrid(columns: columns, spacing: 9) {
+                ForEach(0..<30, id: \.self) { _ in
                     skeletonCell()
                 }
             }
@@ -28,11 +28,11 @@ struct PhotoSelectionSkeletonView: View {
 
     private func skeletonCell() -> some View {
         RoundedRectangle(cornerRadius: 8)
-            .fill(Color.g10)
+            .fill(Color.g11)
             .aspectRatio(3/2, contentMode: .fit)
     }
 }
 
 #Preview {
-    PhotoSelectionSkeletonView()
+    GroupedPhotosSkeletonView()
 }
