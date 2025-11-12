@@ -14,7 +14,7 @@ struct Config {
 
 
 // TODO: 데이터 옵셔널 케이스 처리해서 하나로 합칠 예정
-struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashable & Sendable {
+struct LinearWheelPickerView<SelectionValue>: View where SelectionValue: Hashable & Sendable {
 
     @Binding var selectedValue: SelectionValue?
     let items: [SelectionValue]
@@ -22,13 +22,14 @@ struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashabl
     
     var body: some View {
         VStack(spacing: 0) {
-            CustomWheelPicker(
+            LinearWheelPicker(
                 items: items,
                 selection: $selectedValue,
                 config: config
             ) { value in
                 
                 if let value = value {
+                    
                     Text("\(value)")
                         .font(.num4)
                         .foregroundStyle(value == selectedValue ? Color.yellow1 : Color.g0)
@@ -76,7 +77,7 @@ struct CustomWheelPickerView<SelectionValue>: View where SelectionValue: Hashabl
     }
 }
 
-struct NonOptionalWheelPickerView<SelectionValue>: View
+struct NonOptionalLinearWheelPickerView<SelectionValue>: View
 where SelectionValue: Hashable & Sendable {
     @Binding var selectedValue: SelectionValue  // Non-Optional
     let items: [SelectionValue]
@@ -84,7 +85,7 @@ where SelectionValue: Hashable & Sendable {
     
     var body: some View {
         // Optional로 변환해서 기존 CustomWheelPickerView 재사용
-        CustomWheelPickerView(
+        LinearWheelPickerView(
             selectedValue: Binding(
                 get: { self.selectedValue },
                 set: { self.selectedValue = $0 ?? self.selectedValue }
@@ -96,11 +97,11 @@ where SelectionValue: Hashable & Sendable {
 }
 
 #Preview("Double") {
-    CustomWheelPickerView(selectedValue: .constant("1.0"), items: CameraConstants.apertureValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+    LinearWheelPickerView(selectedValue: .constant("1.0"), items: CameraConstants.apertureValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
 
 }
 
 
 #Preview("Int") {
-    CustomWheelPickerView(selectedValue: .constant(1), items: CameraConstants.tintMagentaGreenValues    , config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+    LinearWheelPickerView(selectedValue: .constant(1), items: CameraConstants.tintMagentaGreenValues    , config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
 }
