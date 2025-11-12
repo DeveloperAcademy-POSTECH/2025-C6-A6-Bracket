@@ -7,6 +7,23 @@
 
 import SwiftUI
 
+enum CircleSizeType {
+    case small
+    case medium
+    case large
+    
+    var size: Double {
+        switch self {
+        case .small:
+            120
+        case .medium:
+            260
+        case .large:
+            370
+        }
+    }
+}
+
 @Observable
 final class CircularWheelViewModel {
     @ObservationIgnored @Binding var isDimmed: Bool
@@ -17,6 +34,7 @@ final class CircularWheelViewModel {
     var isDragging: Bool = false
     var currentAngle: Double = 100.0  // thumb의 현재 각도 (-60 ~ 60 범위)
     var settingType: WheelSettingType
+    var circleSizeType: CircleSizeType = .small
     
     let minCircleSize: CGFloat = 120
     let maxCircleSize: CGFloat = 370
@@ -107,5 +125,19 @@ final class CircularWheelViewModel {
     
     func updateButtonCenter(_ center: CGPoint) {
         buttonCenter = center
+    }
+    
+    func checkCircleSize() {
+        if circleSize >= CircleSizeType.small.size && circleSize < CircleSizeType.medium.size {
+            self.circleSizeType = .small
+        }
+        
+        if circleSize >= CircleSizeType.medium.size && circleSize < CircleSizeType.large.size {
+            self.circleSizeType = .medium
+        }
+        
+        if circleSize >= CircleSizeType.large.size {
+            self.circleSizeType = .large
+        }
     }
 }
