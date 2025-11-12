@@ -27,18 +27,23 @@ struct PhotoSelectionDetailView: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedURL) {
-            ForEach(photos) { photo in
-                photoDetailView(photo: photo)
-                    .tag(photo.url)
+        ZStack(alignment: .topTrailing) {
+            TabView(selection: $selectedURL) {
+                ForEach(photos) { photo in
+                    photoDetailView(photo: photo)
+                        .tag(photo.url)
+                }
             }
-        }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        .task {
-            // 진입 시 현재 photos 스냅샷 저장 (chunk 변경 무시)
-            if photos.isEmpty {
-                photos = vm.allPhotos
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .task {
+                if photos.isEmpty {
+                    photos = vm.allPhotos
+                }
             }
+            
+            selectionButtonView(photo: currentPhoto)
+                .padding(.trailing, 16)
+            
         }
         .navigationBarWithBack(title: currentPhoto.detailDateString, showShadow: false) {
             dismiss()
@@ -48,20 +53,10 @@ struct PhotoSelectionDetailView: View {
     }
 
     private func photoDetailView(photo: Photo) -> some View {
-        ZStack(alignment: .topTrailing) {
-            
-            ProgressiveDisplayImageView(
-                photo: photo
-            )
-            .zoomableGesture()
-            
-            VStack(spacing: 0) {
-                selectionButtonView(photo: photo)
-                    .padding(.trailing, 16)
-                
-                Spacer()
-            }
-        }
+        ProgressiveDisplayImageView(
+            photo: photo
+        )
+        .zoomableGesture()
         .task {
             // 현재 사진이 나타날 때 좌우 1장씩 prefetch
             vm.prefetchAdjacentPhotos(current: photo)

@@ -27,35 +27,31 @@ struct GroupedPhotosDetailView: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedPhoto) {
-            ForEach(groupedPhotos.photos) { photo in
-                photoDetailView(photo: photo)
-                    .tag(photo)
+        ZStack(alignment: .topTrailing) {
+            TabView(selection: $selectedPhoto) {
+                ForEach(groupedPhotos.photos) { photo in
+                    photoDetailView(photo: photo)
+                        .tag(photo.url)
+                }
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            
+            selectionButtonView(photo: selectedPhoto)
+                .padding(.trailing, 16)
+            
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
         .navigationBarWithBack(title: "\(currentPosition)", showShadow: false) {
             dismiss()
         } rightView: {
             EmptyView()
         }
     }
-
+    
     private func photoDetailView(photo: Photo) -> some View {
-        ZStack(alignment: .topTrailing) {
-            
-            ProgressiveDisplayImageView(
-                photo: photo
-            )
-            .zoomableGesture()
-            
-            VStack(spacing: 0) {
-                selectionButtonView(photo: photo)
-                    .padding(.trailing, 16)
-                
-                Spacer()
-            }
-        }
+        ProgressiveDisplayImageView(
+            photo: photo
+        )
+        .zoomableGesture()
         .task {
             // 현재 사진이 나타날 때 좌우 1-2장 prefetch
             vm.prefetchAdjacentPhotosInGroup(group: groupedPhotos, current: photo)
