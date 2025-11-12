@@ -16,6 +16,25 @@ enum ImageOperationsTarget {
 
 extension ImageOperationsTarget: BaseTargetType {
     var path: String {
+        guard let cameraType = CameraType.current else {
+            return defaultPath
+        }
+        
+        let version = cameraType.imageOperationsVersion
+        
+        switch self {
+        case .getStorageList:
+            return ImageOperationsAPI.storageList.path(with: version)
+
+        case .getDirectoryList(let storage):
+            return ImageOperationsAPI.directoryList(storage).path(with: version)
+
+        case .getContentInfo(let storage, let directory, let fileName):
+            return ImageOperationsAPI.contentInfo(storage, directory, fileName).path(with: version)
+        }
+    }
+    
+    private var defaultPath: String {
         switch self {
         case .getStorageList:
             return ImageOperationsAPI.storageList.path(with: .ver100)
