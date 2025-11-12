@@ -12,22 +12,30 @@ struct CircularWheelPickerView: View {
     @State var vm: CircularWheelViewModel
     private let coordinateSpaceName = "circleExpandSpace"
     
-    @State var value: Int = 0
+    @State var index: Int = 0
     
     var body: some View {
-       
-        ExpandableButton(viewModel: vm, value: $value, coordinateSpace: coordinateSpaceName)
-            .overlay {
-                if vm.isCircleVisible {
-                    ExpandableCircle(
-                        viewModel: vm,
-                        value: $value,
-                        type: vm.settingType,
-                        isVisible: vm.isCircleVisible
-                    )
+        VStack {
+            valueView()
+            ExpandableButton(viewModel: vm, value: $index, coordinateSpace: coordinateSpaceName)
+                .overlay {
+                    if vm.isCircleVisible {
+                        ExpandableCircle(
+                            viewModel: vm,
+                            index: $index,
+                            type: vm.settingType,
+                            isVisible: vm.isCircleVisible
+                        )
+                    }
                 }
-            }
-            .coordinateSpace(name: coordinateSpaceName)
+                .coordinateSpace(name: coordinateSpaceName)
+        }
+    }
+    
+    private func valueView() -> some View {
+        Text(vm.settingType.formatValue(index))
+            .font(.num6)
+            .foregroundStyle(Color.g0)
     }
     
 }
