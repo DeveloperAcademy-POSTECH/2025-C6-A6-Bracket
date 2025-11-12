@@ -4,6 +4,7 @@
 //
 //  Created by Rama on 11/2/25.
 //
+
 import SwiftUI
 
 @MainActor
@@ -14,8 +15,23 @@ final class CameraConnectionManager: BaseService, ObservableObject {
     
     private let networkManager: NetworkManager
     
+    // CameraType.current를 통해 UserDefaults에서 관리되는 값을 사용
+    var connectedCameraType: CameraType? {
+        get {
+            return CameraType.current
+        }
+        set {
+            CameraType.current = newValue
+        }
+    }
+    
     init(networkManager: NetworkManager = .shared) {
         self.networkManager = networkManager
+        
+        if let savedCameraType = CameraType.current {
+            connectionState = .connected
+            productName = savedCameraType.displayName  // 추가
+        }
     }
     
     func connectCamera(ipAddress: String) {
@@ -38,10 +54,13 @@ final class CameraConnectionManager: BaseService, ObservableObject {
                 
                 if let productName = cameraInfo.productName {
                     self.productName = productName
+                    self.connectedCameraType = CameraType(rawValue: productName)
                 }
+                
             } catch {
                 let connectionError = ConnectionError.from(error)
                 self.connectionState = .failed(connectionError)
+                self.connectedCameraType = nil
                 Logger.error(error.localizedDescription, category: .connection)
             }
         }
@@ -49,6 +68,7 @@ final class CameraConnectionManager: BaseService, ObservableObject {
     
     func disconnectCamera() {
         connectionState = .disconnected
+        CameraType.clearCurrent()
     }
     
     func checkConnectionStatus() async -> Bool {
