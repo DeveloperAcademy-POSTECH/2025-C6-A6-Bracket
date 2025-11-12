@@ -17,6 +17,7 @@ final class GroupedPhotosViewModel {
     
     var groupingState: ViewState<[SimilarPhotoGroup], ArchiveError> = .idle
     var savingState: ViewState<Bool, ArchiveError> = .idle
+    var savingProgress: (current: Int, total: Int) = (0, 0)
     var currentError: ArchiveError?
     
     init(
@@ -31,7 +32,7 @@ final class GroupedPhotosViewModel {
         if case .loading = groupingState { return }
         if case .success = groupingState { return }
 
-        groupingState = .loading()
+        groupingState = .loading
 
         Task {
             do {
@@ -59,7 +60,8 @@ final class GroupedPhotosViewModel {
     
     func saveSelectedPhotos() {
         let total = selectedPhotosInGroup.count
-        savingState = .loading(progress: 0.0)
+        savingProgress = (0, total)
+        savingState = .loading
 
         Task {
             do {
@@ -67,14 +69,13 @@ final class GroupedPhotosViewModel {
                 try await container.managers.photoManager.savePhotos(photos: selectedPhotosInGroup) { [weak self] current, total in
                     guard let self = self else { return }
                     Task { @MainActor in
-                        let progress = total > 0 ? Double(current) / Double(total) : 0.0
-                        self.savingState = .loading(progress: progress)
+                        self.savingProgress = (current, total)
+                        self.savingState = .loading
                     }
                 }
 
-                // 완료 표시 (progressbar 끝까지)
-                savingState = .loading(progress: 1.0)
-                try await Task.sleep(nanoseconds: 300_000_000)
+                savingProgress = (total, total)
+                try await Task.sleep(nanoseconds: 500_000_000)
 
                 // 저장 완료 후 모든 캐시 삭제
                 container.managers.imagePrefetchManager.clearAllCache()
@@ -123,14 +124,19 @@ final class GroupedPhotosViewModel {
     }
 
     /// 특정 그룹에서 선택된 사진 개수
-    func selectedCount(in group: SimilarPhotoGroup) -> Int {
+    func selectedCountInGroup(in group: SimilarPhotoGroup) -> Int {
         selectedPhotosInGroup.filter { selectedPhoto in
             group.photos.contains(where: { $0.url == selectedPhoto.url })
         }.count
     }
+    
+    /// 특정 그룹에서 선택된 사진이 있을 때
+    func hasSelectedPhotoInGroup(in group: SimilarPhotoGroup) -> Bool {
+        selectedCountInGroup(in: group) == 0 ? false : true
+    }
 
     /// 특정 그룹의 전체 사진 개수
-    func totalCount(in group: SimilarPhotoGroup) -> Int {
+    func totalCountInGroup(in group: SimilarPhotoGroup) -> Int {
         group.photos.count
     }
 }
