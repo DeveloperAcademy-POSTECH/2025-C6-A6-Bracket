@@ -9,10 +9,8 @@ import Moya
 
 enum ShootingSettingsTarget {
     case getShootingSetting(VersionType)                                         /// 모든 촬영 매개변수
-    case getShootingMode                                                         /// 사진촬영 모드(다이얼 없는)
-    case putShootingMode(ShootingSettings.ShootingModeRequest)                   /// 사진촬영 모드(다이얼 없는)
-    case getShootingModeDial                                                     /// 사진촬영 모드(다이얼 있는)
-    case putShootingModeDial(ShootingSettings.ShootingModeRequest)               /// 사진촬영 모드(다이얼 있는)
+    case getShootingMode                                                         /// 사진촬영 모드
+    case putShootingMode(ShootingSettings.ShootingModeRequest)                   /// 사진촬영 모드
     case getAv                                                                   /// 조리개
     case putAv(ShootingSettings.AVRequest)                                       /// 조리개
     case getTv                                                                   /// 셔터스피드
@@ -33,22 +31,64 @@ enum ShootingSettingsTarget {
 
 extension ShootingSettingsTarget: BaseTargetType {
     var path: String {
+        // UserDefaults에서 카메라 타입 가져오기
+        guard let cameraType = CameraType.current else {
+            // TODO: 에러 처리
+            return defaultPath
+        }
+        
         switch self {
         case .getShootingSetting(let version):
             return ShootingSettingsAPI.getShootingSetting.path(with: version)
             
-        //MARK: R50V용 v110(ver 1.1.0.)으로 변경
-        case .getShootingMode:
-            return ShootingSettingsAPI.shootingMode.path(with: .ver110)
-        //MARK: R50V용 v110(ver 1.1.0.)으로 변경
-        case .putShootingMode:
-            return ShootingSettingsAPI.shootingMode.path(with: .ver110)
+        case .getShootingMode, .putShootingMode:
+            let version = cameraType.shootingSettingsVersion(for: .shootingMode)
+            let endpoint = cameraType.hasShootingModeDial
+            ? ShootingSettingsAPI.shootingModeDial
+            : ShootingSettingsAPI.shootingMode
+            return "\(version.description)/\(endpoint)"
             
-        case .getShootingModeDial:
-            return ShootingSettingsAPI.shootingModeDial.path(with: .ver100)
+        case .getAv, .putAv:
+            let version = cameraType.shootingSettingsVersion(for: .av)
+            return ShootingSettingsAPI.av.path(with: version)
             
-        case .putShootingModeDial:
-            return ShootingSettingsAPI.shootingModeDial.path(with: .ver100)
+        case .getTv, .putTv:
+            let version = cameraType.shootingSettingsVersion(for: .tv)
+            return ShootingSettingsAPI.tv.path(with: version)
+            
+        case .getIso, .putIso:
+            let version = cameraType.shootingSettingsVersion(for: .iso)
+            return ShootingSettingsAPI.iso.path(with: version)
+            
+        case .getExposureCompensation, .putExposureCompensation:
+            let version = cameraType.shootingSettingsVersion(for: .exposureCompensation)
+            return ShootingSettingsAPI.exposureCompensation.path(with: version)
+            
+        case .getWhiteBalance, .putWhiteBalance:
+            let version = cameraType.shootingSettingsVersion(for: .whiteBalance)
+            return ShootingSettingsAPI.whiteBalance.path(with: version)
+            
+        case .getColorTemperature, .putColorTemperature:
+            let version = cameraType.shootingSettingsVersion(for: .colorTemperature)
+            return ShootingSettingsAPI.colorTemperature.path(with: version)
+            
+        case .getWbShift, .putWbShift:
+            let version = cameraType.shootingSettingsVersion(for: .wbShift)
+            return ShootingSettingsAPI.wbShift.path(with: version)
+            
+        case .getPictureStyle, .putPictureStyle:
+            let version = cameraType.shootingSettingsVersion(for: .pictureStyle)
+            return ShootingSettingsAPI.pictureStyle.path(with: version)
+        }
+    }
+    
+    private var defaultPath: String {
+        switch self {
+        case .getShootingSetting(let version):
+            return ShootingSettingsAPI.getShootingSetting.path(with: version)
+            
+        case .getShootingMode, .putShootingMode:
+            return ShootingSettingsAPI.shootingMode.path(with: .ver110)
             
         case .getAv, .putAv:
             return ShootingSettingsAPI.av.path(with: .ver100)
@@ -80,7 +120,6 @@ extension ShootingSettingsTarget: BaseTargetType {
         switch self {
         case .getShootingSetting,
                 .getShootingMode,
-                .getShootingModeDial,
                 .getAv,
                 .getTv,
                 .getIso,
@@ -92,7 +131,6 @@ extension ShootingSettingsTarget: BaseTargetType {
                 return .get
 
         case .putShootingMode,
-                .putShootingModeDial,
                 .putAv,
                 .putTv,
                 .putIso,
@@ -110,7 +148,6 @@ extension ShootingSettingsTarget: BaseTargetType {
         switch self {
         case .getShootingSetting,
                 .getShootingMode,
-                .getShootingModeDial,
                 .getAv,
                 .getTv,
                 .getIso,
@@ -122,9 +159,6 @@ extension ShootingSettingsTarget: BaseTargetType {
             return .requestPlain
     
         case .putShootingMode(let request):
-            return .requestJSONEncodable(request)
-            
-        case .putShootingModeDial(let request):
             return .requestJSONEncodable(request)
 
         case .putAv(let request):
