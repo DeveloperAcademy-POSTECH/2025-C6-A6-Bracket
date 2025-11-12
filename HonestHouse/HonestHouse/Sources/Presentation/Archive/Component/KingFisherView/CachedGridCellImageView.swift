@@ -16,7 +16,7 @@ struct CachedGridCellImageView: View {
     @State private var shouldUseFallback = false
     
     var body: some View {
-        Color.g10
+        Color.g11
             .frame(maxWidth: .infinity)
             .aspectRatio(3/2, contentMode: .fit)
             .overlay(
