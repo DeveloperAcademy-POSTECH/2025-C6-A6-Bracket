@@ -20,7 +20,6 @@ final class TrishotActivationViewModel {
     var activatedPresets: [Preset] = []
     var isMonitoring: Bool = false
     var error: TrishotError?
-    var isScreenLocked: Bool = false
     
     init(container: DIContainer) {
         self.container = container
@@ -45,11 +44,6 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
             return
         }
 
-        guard activatedPresets.count >= 2 else {
-            error = .insufficientPresets
-            return
-        }
-
         currentPresetIndex = 0
         error = nil
 
@@ -65,10 +59,6 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
             await stopMonitoring()
             currentPresetIndex = 0
         }
-    }
-
-    func toggleScreenLock() {
-        isScreenLocked.toggle()
     }
     
     private func loadActivatedPresets() {
