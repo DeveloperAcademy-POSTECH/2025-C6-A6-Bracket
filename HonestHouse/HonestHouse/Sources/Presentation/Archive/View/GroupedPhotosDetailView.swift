@@ -51,7 +51,7 @@ struct GroupedPhotosDetailView: View {
             
             VStack(spacing: 0) {
                 selectionButtonView(photo: photo)
-                    .padding(16)
+                    .padding(.trailing, 16)
                 
                 Spacer()
             }
