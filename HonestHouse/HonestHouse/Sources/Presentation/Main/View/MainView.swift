@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct MainView: View {
-    //TODO: App 파일에서 주입하도록 설정
     @State var vm: MainViewModel
     
     @EnvironmentObject private var container: DIContainer
