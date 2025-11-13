@@ -17,61 +17,63 @@ struct PhotoSelectionView: View {
     }
     
     var body: some View {
-        ZStack {
-            switch vm.state {
-            case .idle, .loading:
-                ZStack {
-                    PhotoSelectionSkeletonView()
-                    ProgressWithTextView(text: "사진 가져오는 중")
+        selectionStateView()
+            .task {
+                if vm.allPhotos.isEmpty {
+                    await vm.fetchAllImages()
                 }
-            case .success:
-                ZStack {
-                    photoSelectionGridView()
-                    selectionCompleteButtonView()
+            }
+            .onChange(of: vm.state) { _, newState in
+                if case .failure(let error) = newState {
+                    vm.currentError = error
                 }
-                
-            case .failure(_):
+            }
+            .navigationBarWithBack(title: "", showShadow: true, rightView: {
+                EmptyView()
+            })
+            .customErrorAlert(error: $vm.currentError) { error in
+                switch error {
+                case .cameraBusy:
+                    AlertButton.cancel("취소") { vm.goToBack() }
+                    AlertButton.default("재시도") {
+                        Task {
+                            await vm.fetchAllImages()
+                        }
+                    }
+                case .cameraDisconnected:
+                    AlertButton.cancel("취소") { vm.goToBack() }
+                    AlertButton.default("재연결") { } //TODO: - 카메라 연결 끊겼을 때
+                case .photoLoadingFailed:
+                    AlertButton.cancel("취소") { vm.goToBack() }
+                    AlertButton.default("재시도") {
+                        Task {
+                            await vm.fetchAllImages()
+                        }
+                    }
+                    
+                default:
+                    AlertButton.default("확인")
+                }
+            }
+    }
+    
+    @ViewBuilder
+    private func selectionStateView() -> some View {
+        switch vm.state {
+        case .idle, .loading:
+            ZStack {
                 PhotoSelectionSkeletonView()
+                ProgressWithTextView(text: "사진 가져오는 중")
             }
-        }
-        .task {
-            if vm.allPhotos.isEmpty {
-                await vm.fetchAllImages()
+        case .success:
+            ZStack {
+                photoSelectionGridView()
+                selectionCompleteButtonView()
             }
+            
+        case .failure(_):
+            PhotoSelectionSkeletonView()
         }
-        .onChange(of: vm.state) { _, newState in
-            if case .failure(let error) = newState {
-                vm.currentError = error
-            }
-        }
-        .errorAlert(error: $vm.currentError) { error in
-            switch error {
-            case .cameraBusy:
-                Button("취소", role: .cancel) { vm.goToBack() }
-                Button("재시도") {
-                    Task {
-                        await vm.fetchAllImages()
-                    }
-                }
-            case .cameraDisconnected:
-                Button("취소", role: .cancel) { vm.goToBack() }
-                Button("재연결") { } //TODO: - 카메라 연결 끊겼을 때
-                
-            case .photoLoadingFailed:
-                Button("취소", role: .cancel) { vm.goToBack() }
-                Button("재시도") {
-                    Task {
-                        await vm.fetchAllImages()
-                    }
-                }
-                
-            default:
-                Button("확인") { }
-            }
-        }
-        .navigationBarWithBack(title: "", showShadow: true, rightView: {
-            EmptyView()
-        })
     }
     
     private func photoSelectionGridView() -> some View {
