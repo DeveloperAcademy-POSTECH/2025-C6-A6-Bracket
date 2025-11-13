@@ -30,6 +30,18 @@ struct MainView: View {
                 .navigationDestination(for: NavigationDestination.self) {
                     NavigationRoutingView(destination: $0)
                 }
+
+                if vm.showModeChange {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            vm.showModeChange = false
+                        }
+
+                    modeChangeView()
+                        .safeAreaPadding(.top, 34)
+                        .safeAreaPadding(.trailing, 52)
+                }
             }
         }
         .onAppear {
@@ -66,17 +78,52 @@ struct MainView: View {
                 .padding(.trailing, 12)
             }
 
+    private func modeChangeView() -> some View {
+        VStack(alignment: .leading, spacing: 10) {
             Button {
-                // TODO: 사진 불러오기 연결
-                vm.send(action: .goToPhotoSelection)
+                vm.toggleEditMode()
+                vm.showModeChange = false
             } label: {
-                Image(.import)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
+                HStack(spacing: 10) {
+                    Image(.presetSelect)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                    Text("Preset 선택")
+                        .font(.num3)
+                        .foregroundStyle(Color.g0)
+                }
+            }
+            Divider()
+                .foregroundStyle(Color.g7)
+                .frame(height: 0.5)
+            Button {
+                vm.viewMode = vm.viewMode == .grid ? .list : .grid
+                vm.showModeChange = false
+            } label: {
+                HStack(spacing: 10) {
+                    Image(vm.viewMode == .grid ? .list : .squareGrid)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                    Text(vm.viewMode == .grid ? "목록으로 보기" : "갤러리로 보기")
+                        .font(.num3)
+                        .foregroundStyle(Color.g0)
+                }
             }
         }
-        .padding(.vertical, 10)
+        .frame(width: 250)
+        .padding(.vertical, 24)
+        .padding(.horizontal, 21)
+        .background {
+            VisualEffectBlurView()
+                .blur(radius: 6, opaque: true)
+                .overlay {
+                    (Color.g10.opacity(0.8))
+                }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .shadow(radius: 20, x: 0, y: 4)
     }
     
     private func segmentedControlView() -> some View {
