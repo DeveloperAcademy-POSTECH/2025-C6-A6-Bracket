@@ -182,13 +182,16 @@ final class PhotoSelectionViewModel {
                         )
                         
                         return Photo(
-                            url: url,
+                            url: BaseURLConstants.baseArchiveURL + url,
                             dateInfo: contentInfo.dateInfo
                         )
+                    } catch let error as CCAPIError {
+                        Logger.error("❌ ContentInfo 실패 (CCAPIError): \(url), \(error.localizedDescription)", category: .viewModel)
+                        return Photo(url: BaseURLConstants.baseArchiveURL + url, dateInfo: nil)
                     } catch {
                         print("ContentInfo 가져오기 실패: \(url), \(error)")
                         // 실패한 경우 날짜 없이 Photo 생성
-                        return Photo(url: url, dateInfo: nil)
+                        return Photo(url: BaseURLConstants.baseArchiveURL + url, dateInfo: nil)
                     }
                 }
             }
