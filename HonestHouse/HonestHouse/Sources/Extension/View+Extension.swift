@@ -71,20 +71,19 @@ extension View {
         error: Binding<E?>,
         @AlertButtonBuilder actions: @escaping (E) -> [CustomAlertConfig.AlertButton]
     ) -> some View {
-        let isPresented = Binding<Bool>(
-            get: { error.wrappedValue != nil },
-            set: { if !$0 { error.wrappedValue = nil } }
+        self.customAlert(
+            isPresented: Binding(
+                get: { error.wrappedValue != nil },
+                set: { if !$0 { error.wrappedValue = nil } }
+            ),
+            config: error.wrappedValue.map { currentError in
+                CustomAlertConfig(
+                    title: currentError.alertInfo.title,
+                    message: currentError.alertInfo.message ?? "",
+                    buttons: actions(currentError)
+                )
+            }
         )
-        
-        let config: CustomAlertConfig? = error.wrappedValue.map { currentError in
-            CustomAlertConfig(
-                title: currentError.alertInfo.title,
-                message: currentError.alertInfo.message ?? "",
-                buttons: actions(currentError)
-            )
-        }
-        
-        return self.customAlert(isPresented: isPresented, config: config)
     }
     
     // 일반 Alert
