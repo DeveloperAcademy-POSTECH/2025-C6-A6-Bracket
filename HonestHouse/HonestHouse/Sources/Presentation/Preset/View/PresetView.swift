@@ -11,6 +11,7 @@ import SwiftData
 struct PresetView: View {
     @EnvironmentObject private var container: DIContainer
     @State var vm: PresetViewModel
+    @State var vm: MainViewModel
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     @Namespace private var namespace
@@ -206,6 +207,5 @@ extension PresetView {
 }
 
 #Preview {
-    PresetView(vm: .init(container: .stub, isPresetEditMode: false))
-        .environmentObject(DIContainer.stub)
+    PresetView(vm: .init(container: .stub))
 }
