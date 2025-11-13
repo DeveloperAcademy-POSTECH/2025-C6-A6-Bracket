@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-enum ViewMode {
+enum PresetDetailViewMode {
     case view
     case edit
     case create
