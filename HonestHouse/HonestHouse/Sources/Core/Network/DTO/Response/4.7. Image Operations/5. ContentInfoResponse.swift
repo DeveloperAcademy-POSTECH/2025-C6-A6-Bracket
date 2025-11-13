@@ -17,6 +17,7 @@ extension ImageOperations {
         let rating: String
         let lastmodifieddate: String
         let playtime: Int?
+        let hdr: String
     }
 }
 
@@ -35,7 +36,8 @@ extension ImageOperations.ContentInfoResponse {
             rotate: "",
             rating: "",
             lastmodifieddate: "",
-            playtime: 0
+            playtime: 0,
+            hdr: ""
         )
     }
 }
