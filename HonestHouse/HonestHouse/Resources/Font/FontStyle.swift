@@ -11,6 +11,10 @@ struct FontStyle {
     let font: Font
     let size: CGFloat
     let lineHeight: CGFloat
+    
+    var lineSpacing: CGFloat {
+        max(0, lineHeight - size)
+    }
 }
 
 extension FontStyle {
