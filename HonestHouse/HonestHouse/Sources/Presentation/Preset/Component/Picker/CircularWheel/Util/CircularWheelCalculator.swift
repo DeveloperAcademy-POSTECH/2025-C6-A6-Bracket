@@ -9,17 +9,20 @@ import Foundation
 
 struct CircularWheelCalculator {
     
-    // 인덱스 ↔ 각도 변환
-    static func indexToAngle(index: Int, type: WheelSettingType) -> Double {
-        let totalCount: Int
+    private static func getTotalCount(for type: WheelSettingType) -> Int {
         switch type {
         case .tintMagentaGreen:
-            totalCount = CameraConstants.tintMagentaGreenValues.count
+            return CameraConstants.tintMagentaGreenValues.count
         case .exposureCompensation:
-            totalCount = CameraConstants.exposureCompensationValues.count
+            return CameraConstants.exposureCompensationValues.count
         case .colorTemperature:
-            totalCount = CameraConstants.colorTemperatureValues.count
+            return CameraConstants.colorTemperatureValues.count
         }
+    }
+    
+    // 인덱스 ↔ 각도 변환
+    static func indexToAngle(index: Int, type: WheelSettingType) -> Double {
+        let totalCount = getTotalCount(for: type)
         
         let normalized = Double(index) / Double(totalCount - 1)
         return type.minAngle + type.angleRange * normalized
@@ -30,15 +33,7 @@ struct CircularWheelCalculator {
         // 각도를 정규화 (0~1)
         let normalized = (angle - type.minAngle) / type.angleRange
         
-        let totalCount: Int
-        switch type {
-        case .tintMagentaGreen:
-            totalCount = CameraConstants.tintMagentaGreenValues.count
-        case .exposureCompensation:
-            totalCount = CameraConstants.exposureCompensationValues.count
-        case .colorTemperature:
-            totalCount = CameraConstants.colorTemperatureValues.count
-        }
+        let totalCount = getTotalCount(for: type)
         
         let rawIndex = normalized * Double(totalCount - 1)
         let closestIndex = Int(round(rawIndex))
