@@ -18,12 +18,11 @@ struct MainView: View {
     
     var body: some View {
         NavigationStack(path: $container.navigationRouter.destinations) {
-            ZStack {
+            ZStack(alignment: .topTrailing) {
                 Color.g12.ignoresSafeArea(.all)
                 VStack(spacing: 12) {
                     headerView()
                     CustomSegmentedControl(selection: $vm.selectedSegment)
-                        .padding(.bottom, 24)
                     selectedSegmentView()
                 }
                 .screenPadding()
