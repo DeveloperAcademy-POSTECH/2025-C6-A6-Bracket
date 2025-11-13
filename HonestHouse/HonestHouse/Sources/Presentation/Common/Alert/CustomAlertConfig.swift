@@ -7,6 +7,8 @@
 
 import Foundation
 
+typealias AlertButton = CustomAlertConfig.AlertButton
+
 struct CustomAlertConfig {
     let title: String
     let message: String
