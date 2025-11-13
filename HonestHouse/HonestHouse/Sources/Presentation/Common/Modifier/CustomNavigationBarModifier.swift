@@ -46,7 +46,7 @@ struct NavigationBarWithBackButton<RightContent: View>: ViewModifier {
                     Spacer()
                     // Center - Title
                     Text(title)
-                        .font(.num4)
+                        .fontStyle(.num4)
                         .lineLimit(1)
                     Spacer()
                 }

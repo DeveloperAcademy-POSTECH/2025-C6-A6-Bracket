@@ -57,7 +57,7 @@ struct SettingButton<SelectionType>: View {
             // 값 표시
             if type != .cameraMode {
                 Text("\(value)")
-                    .font(.num6)
+                    .fontStyle(.num6)
                     .foregroundColor(Color.g0)
             }
             
@@ -72,7 +72,7 @@ struct SettingButton<SelectionType>: View {
                     .foregroundStyle(backgroundColor)
                     .overlay {
                         Text(type.rawValue)
-                            .font(.num6)
+                            .fontStyle(.num6)
                             .foregroundColor(foregroundColor)
                     }
                     .overlay {
@@ -119,7 +119,7 @@ struct ShootingModeSelector: View {
                     }
                 } label: {
                     Text(mode.rawValue)
-                        .font(.num6)
+                        .fontStyle(.num6)
                         .foregroundStyle(Color.g0)
                         .padding(15)
                         .clipShape(Circle())

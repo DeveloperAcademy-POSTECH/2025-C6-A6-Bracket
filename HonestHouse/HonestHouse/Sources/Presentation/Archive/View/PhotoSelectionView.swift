@@ -94,7 +94,7 @@ struct PhotoSelectionView: View {
     private func sectionHeaderView(section: PhotoSection) -> some View {
         HStack {
             Text(section.dateString)
-                .font(.num6)
+                .fontStyle(.num6)
                 .foregroundStyle(Color.g0)
             
             Spacer()
@@ -105,7 +105,7 @@ struct PhotoSelectionView: View {
                 
                 HStack(spacing: 6) {
                     Text("전체 선택")
-                        .font(.num6)
+                        .fontStyle(.num6)
                         .foregroundStyle(Color.g0)
                 }
                 Image(vm.isAllSelected(in: section) ? .checkSelectBtnS : .checkUnselectBtnS)

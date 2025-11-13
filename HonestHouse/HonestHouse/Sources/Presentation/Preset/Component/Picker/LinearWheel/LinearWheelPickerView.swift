@@ -31,7 +31,7 @@ struct LinearWheelPickerView<SelectionValue>: View where SelectionValue: Hashabl
                 if let value = value {
                     
                     Text("\(value)")
-                        .font(.num4)
+                        .fontStyle(.num4)
                         .foregroundStyle(value == selectedValue ? Color.yellow1 : Color.g0)
                         .animation(.easeInOut(duration: 0.2), value: selectedValue)
                         .frame(width: config.itemSize.width,

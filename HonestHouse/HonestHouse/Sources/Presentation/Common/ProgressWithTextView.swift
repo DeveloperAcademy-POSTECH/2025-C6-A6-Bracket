@@ -17,7 +17,7 @@ struct ProgressWithTextView: View {
                 .tint(Color.g0)
 
             Text(text)
-                .font(.system(size: 17, weight: .regular))
+                .fontStyle(.body1)
                 .foregroundColor(Color.g0)
         }
     }

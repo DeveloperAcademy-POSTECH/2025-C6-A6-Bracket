@@ -38,7 +38,7 @@ struct SwipeToDeactivateButton: View {
         HStack {
             Spacer()
             Text("밀어서 중단")
-                .font(.num1)
+                .fontStyle(.num1)
                 .foregroundColor(interpolateColor(from: Color.g7, to: Color.g10, progress: progress))
                 .offset(x: 24)
             Spacer()

@@ -16,7 +16,7 @@ struct CameraConnectionView: View {
                 .toolbar {
                     ToolbarItem(placement: .principal) {
                         Text("카메라 연결")
-                            .font(.num4)
+                            .fontStyle(.num4)
                             .foregroundColor(.g0)
                     }
                     
@@ -52,7 +52,7 @@ struct CameraConnectionView: View {
                     .frame(width: 24, height: 24)
                 
                 Text("\(type.title)")
-                    .font(.num3)
+                    .fontStyle(.num3)
                     .foregroundStyle(Color.g12)
             }
             .frame(maxWidth: .infinity)

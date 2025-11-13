@@ -36,7 +36,7 @@ struct CustomSegmentedControl: View {
                             selection = segment
                         } label: {
                             Text(segment.displayName)
-                                .font(.num6)
+                                .fontStyle(.num6)
                                 .foregroundStyle(selection == segment ? Color.g12 : Color.g0)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: height)

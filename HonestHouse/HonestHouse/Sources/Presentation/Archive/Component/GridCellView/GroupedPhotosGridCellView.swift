@@ -56,7 +56,7 @@ struct GroupedPhotosGridCellView: View {
     
     private func selectNumBadge() -> some View {
         Text("\(vm.selectedCountInGroup(in: group))/\(vm.totalCountInGroup(in: group))장")
-            .font(.num6)
+            .fontStyle(.num6)
             .foregroundStyle(vm.hasSelectedPhotoInGroup(in: group) ? Color.g12 : Color.g0 )
             .padding(.vertical, 3)
             .padding(.horizontal, 8)
@@ -74,7 +74,7 @@ struct GroupedPhotosGridCellView: View {
     
     private func extraGroupBadge() -> some View {
         Text("기타")
-            .font(.num7)
+            .fontStyle(.num7)
             .foregroundStyle(Color.g0)
             .padding(.vertical, 3)
             .padding(.horizontal, 8)
