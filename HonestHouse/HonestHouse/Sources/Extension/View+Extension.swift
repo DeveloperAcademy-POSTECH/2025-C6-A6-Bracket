@@ -43,29 +43,55 @@ extension View {
         )
     }
     
-    /// AlertPresentable 에러를 Alert로 표시
-    /// - Parameters:
-    ///   - error: Binding<(AlertPresentable & Error)?>
-    ///   - actions: 에러에 따라 Alert 버튼들을 정의하는 ViewBuilder
-    func errorAlert<E: AlertPresentable, Actions: View>(
-        error: Binding<E?>,
-        @ViewBuilder actions: @escaping (E) -> Actions
+    func customAlert(
+        isPresented: Binding<Bool>,
+        config: CustomAlertConfig?
     ) -> some View {
-        self.alert(
-            error.wrappedValue?.alertInfo.title ?? "",
+        ZStack {
+            self
+            
+            if isPresented.wrappedValue, let config = config {
+                CustomAlertView(config: config, isPresented: isPresented)
+                    .transition(.opacity)
+                    .zIndex(999)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isPresented.wrappedValue)
+    }
+    
+    func customAlert(
+        title: String,
+        message: String = "",
+        isPresented: Binding<Bool>,
+        @AlertButtonBuilder actions: @escaping () -> [CustomAlertConfig.AlertButton]
+    ) -> some View {
+        self.customAlert(
+            isPresented: isPresented,
+            config: CustomAlertConfig(
+                title: title,
+                message: message,
+                buttons: actions()
+            )
+        )
+    }
+    
+    func customErrorAlert<E: AlertPresentable>(
+        error: Binding<E?>,
+        @AlertButtonBuilder actions: @escaping (E) -> [CustomAlertConfig.AlertButton]
+    ) -> some View {
+        self.customAlert(
             isPresented: Binding(
                 get: { error.wrappedValue != nil },
                 set: { if !$0 { error.wrappedValue = nil } }
-            )
-        ) {
-            if let currentError = error.wrappedValue {
-                actions(currentError)
+            ),
+            config: error.wrappedValue.map { currentError in
+                CustomAlertConfig(
+                    title: currentError.alertInfo.title,
+                    message: currentError.alertInfo.message ?? "",
+                    buttons: actions(currentError)
+                )
             }
-        } message: {
-            if let message = error.wrappedValue?.alertInfo.message {
-                Text(message)
-            }
-        }
+        )
     }
     
     /*
