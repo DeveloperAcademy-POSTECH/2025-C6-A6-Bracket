@@ -17,16 +17,7 @@ struct CustomAlertView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 28) {
-                VStack(spacing: 12) {
-                    Text(config.title)
-                        .font(.num3)
-                        .foregroundColor(.g0)
-                    
-                    Text(config.message)
-                        .font(.captionL)
-                        .foregroundColor(.g5)
-                        .multilineTextAlignment(.center)
-                }
+                textBodyStack()
                 
                 buttonStack
             }
@@ -36,14 +27,30 @@ struct CustomAlertView: View {
             .background {
                 ZStack {
                     VisualEffectBlurView()
-                        .blur(radius: 20, opaque: true)
+                        .blur(radius: 6, opaque: true)
                         .overlay {
-                            Color.g10
+                            Color.g11
                         }
                 }
             }
             .cornerRadius(24)
             .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 4)
+        }
+    }
+    
+    private func textBodyStack() -> some View {
+        VStack(spacing: 12) {
+            Text(config.title)
+                .font(.num3)
+                .foregroundColor(.g0)
+                .multilineTextAlignment(.center)
+            
+            if !config.message.isEmpty {
+                Text(config.message)
+                    .font(.captionL)
+                    .foregroundColor(.g5)
+                    .multilineTextAlignment(.center)
+            }
         }
     }
     
@@ -57,7 +64,7 @@ struct CustomAlertView: View {
                     alertButton(button)
                     
                     if index < config.buttons.count - 1 {
-                        Spacer()
+                        Spacer(minLength: 16)
                     }
                 }
             }
@@ -73,12 +80,12 @@ struct CustomAlertView: View {
                 .font(.num3)
                 .foregroundColor(buttonTitleColor(for: button.style))
                 .padding(.vertical, 13)
+                .frame(maxWidth: .infinity)
                 .background(buttonBGColor(for: button.style))
                 .clipShape(Capsule())
                 .overlay {
                     Capsule().strokeBorder(buttonBorderColor(for: button.style), lineWidth: 0.5)
                 }
-                .frame(maxWidth: .infinity)
         }
     }
     
