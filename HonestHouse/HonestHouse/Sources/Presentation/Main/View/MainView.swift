@@ -14,8 +14,6 @@ struct MainView: View {
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
     
     @State var vm: MainViewModel
-    @State var isPresetEditMode: Bool = false
-    
     var body: some View {
         NavigationStack(path: $container.navigationRouter.destinations) {
             ZStack(alignment: .topTrailing) {
