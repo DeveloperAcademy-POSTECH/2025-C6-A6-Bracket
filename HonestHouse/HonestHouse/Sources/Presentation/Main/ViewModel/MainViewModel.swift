@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum MainAction {
-    case goToPresetEditor(ViewMode, Preset)
+    case goToPresetEditor(PresetDetailViewMode, Preset?)
     case goToPhotoSelection
 }
 

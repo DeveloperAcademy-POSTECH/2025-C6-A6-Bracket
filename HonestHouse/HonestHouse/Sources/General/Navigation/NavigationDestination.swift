@@ -11,7 +11,7 @@ enum NavigationDestination: Hashable {
     case trishotActivation
     
     // Preset
-    case presetEditor(ViewMode, Preset?)
+    case presetEditor(PresetDetailViewMode, Preset?)
     
     // Photos
     case photoSelection
