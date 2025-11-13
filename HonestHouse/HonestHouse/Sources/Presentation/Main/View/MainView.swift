@@ -10,10 +10,11 @@ import SwiftData
 
 struct MainView: View {
     //TODO: App 파일에서 주입하도록 설정
+    @State var vm: MainViewModel
+    
     @EnvironmentObject private var container: DIContainer
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
     
-    @State var vm: MainViewModel
     var body: some View {
         NavigationStack(path: $container.navigationRouter.destinations) {
             ZStack(alignment: .topTrailing) {
