@@ -39,7 +39,7 @@ struct TrishotActivationView: View {
             ForEach(Array(vm.activatedPresets.enumerated()), id: \.element.id) { index, preset in
                 VStack(alignment: .leading, spacing: 12) {
                     Text(preset.name)
-                        .font(.num4)
+                        .fontStyle(.num4)
                         .foregroundStyle(Color.g0)
                     if vm.isCurrentPreset(index) {
                         activeCapsule(preset: preset, index: index)

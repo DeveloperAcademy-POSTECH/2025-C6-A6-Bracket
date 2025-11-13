@@ -35,7 +35,7 @@ struct ConnectionGuideView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("\(type.guideTitle)")
-                    .font(.num4)
+                    .fontStyle(.num4)
                     .foregroundColor(.g0)
             }
         }
@@ -74,7 +74,7 @@ struct ConnectionGuideView: View {
                 .frame(width: 28, height: 28)
             
             Text(description)
-                .font(.num4)
+                .fontStyle(.num4)
                 .foregroundStyle(Color.g0)
             
             Spacer()
@@ -85,12 +85,12 @@ struct ConnectionGuideView: View {
         ZStack(alignment: .center) {
             if ipAddress.isEmpty {
                 Text("예시) https://192.168.1.2:443")
-                    .font(.num4)
+                    .fontStyle(.num4)
                     .foregroundColor(.g6)
             }
             
             TextField("", text: $ipAddress)
-                .font(.num4)
+                .fontStyle(.num4)
                 .foregroundColor(.g0)
                 .tint(.g6)
                 .multilineTextAlignment(.center)
@@ -120,7 +120,7 @@ struct ConnectionGuideView: View {
             cameraConnectionManager.connectCamera(ipAddress: BaseURLConstants.cameraIP)
         } label: {
             Text("연결하기")
-                .font(.num3)
+                .fontStyle(.num3)
                 .foregroundColor(.g12)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 15)

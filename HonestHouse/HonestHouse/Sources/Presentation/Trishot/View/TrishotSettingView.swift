@@ -52,7 +52,7 @@ struct TrishotSettingView: View {
     private func emptySlotView(_ index: Int) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("프리셋 \(index + 1)")
-                .font(.title3)
+                .fontStyle(.title3)
                 .foregroundStyle(Color.g0)
             Button {
                 // TODO: Preset 생성 뷰로 이동하도록 연결
@@ -73,7 +73,7 @@ struct TrishotSettingView: View {
     /// 프리셋 타이틀
     private func titleView(name: String, order: Int) -> some View {
         Text(name)
-            .font(.num4)
+            .fontStyle(.num4)
             .foregroundStyle(Color.g0)
     }
     

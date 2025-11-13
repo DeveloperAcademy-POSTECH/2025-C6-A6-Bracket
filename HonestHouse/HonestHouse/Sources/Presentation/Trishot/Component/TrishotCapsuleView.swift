@@ -44,7 +44,7 @@ struct TrishotCapsuleView: View {
 
     private func occupiedOverlayView(order: Int) -> some View {
         Text("Preset \(order + 1)에 선택됨")
-            .font(.num5)
+            .fontStyle(.num5)
             .foregroundColor(Color.g0)
             .shadow(color: Color.black, radius: 20, x: 0, y: 0)
     }
@@ -70,11 +70,11 @@ struct TrishotCapsuleView: View {
             HStack(spacing: 8) {
                 if let modeText = shootingModeText {
                     Text(modeText)
-                        .font(.num6)
+                        .fontStyle(.num6)
                         .foregroundColor(isOccupied ? disabledColor : Color.g0)
                 }
                 Text(isoText)
-                    .font(.num6)
+                    .fontStyle(.num6)
                     .foregroundColor(isOccupied ? disabledColor : Color.g0)
             }
         }
@@ -104,7 +104,7 @@ struct TrishotCapsuleView: View {
         HStack(spacing: 10) {
             iconWithCircleBackground(icon: icon, hasValue: hasValue)
             Text(text)
-                .font(.num6)
+                .fontStyle(.num6)
                 .foregroundColor(textColor(hasValue: hasValue))
         }
     }

@@ -41,13 +41,13 @@ struct CustomAlertView: View {
     private func textBodyStack() -> some View {
         VStack(spacing: 12) {
             Text(config.title)
-                .font(.num3)
+                .fontStyle(.num3)
                 .foregroundColor(.g0)
                 .multilineTextAlignment(.center)
             
             if !config.message.isEmpty {
                 Text(config.message)
-                    .font(.captionL)
+                    .fontStyle(.captionL)
                     .foregroundColor(.g5)
                     .multilineTextAlignment(.center)
             }
@@ -77,7 +77,7 @@ struct CustomAlertView: View {
             isPresented = false
         } label: {
             Text(button.title)
-                .font(.num3)
+                .fontStyle(.num3)
                 .foregroundColor(buttonTitleColor(for: button.style))
                 .padding(.vertical, 13)
                 .frame(maxWidth: .infinity)

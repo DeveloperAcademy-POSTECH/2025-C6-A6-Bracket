@@ -20,7 +20,7 @@ struct ConnectionCompletionView: View {
                 .padding(.bottom, 38)
             
             Text("\(cameraConnectionManager.productName)")
-                .font(.title1)
+                .fontStyle(.title1)
                 .foregroundStyle(Color.g0)
                 .padding(.bottom, 14)
             
@@ -29,7 +29,7 @@ struct ConnectionCompletionView: View {
                 cameraConnectionManager.disconnectCamera()
             } label: {
                 Text("변경")
-                    .font(.captionL)
+                    .fontStyle(.captionL)
                     .foregroundStyle(Color.g7)
             }
             
@@ -40,7 +40,7 @@ struct ConnectionCompletionView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("카메라 연결")
-                    .font(.num4)
+                    .fontStyle(.num4)
                     .foregroundStyle(Color.g0)
             }
         }
@@ -59,7 +59,7 @@ struct ConnectionCompletionView: View {
             cameraConnectionManager.showConnectionSheet = false
         } label: {
             Text("Start Tri-shot")
-                .font(.num3)
+                .fontStyle(.num3)
                 .foregroundStyle(Color.g12)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)

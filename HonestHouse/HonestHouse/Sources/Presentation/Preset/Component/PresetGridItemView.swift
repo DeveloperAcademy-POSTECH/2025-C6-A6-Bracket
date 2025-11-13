@@ -37,7 +37,7 @@ struct PresetGridItemView: View {
     
     func nameView() -> some View {
         Text("\(preset.name)")
-            .font(.num6)
+            .fontStyle(.num6)
             .multilineTextAlignment(.center)
             .lineLimit(2)
             .foregroundStyle(Color.g0)

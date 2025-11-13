@@ -27,8 +27,9 @@ struct PresetListItemView: View {
     
     func titleView() -> some View {
         Text(preset.name)
-            .font(.num4)
+            .fontStyle(.num4)
             .foregroundStyle(Color.g0)
+            .lineLimit(1)
     }
     
     func applyButtonView() -> some View {

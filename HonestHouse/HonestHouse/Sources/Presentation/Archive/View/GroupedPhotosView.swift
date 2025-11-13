@@ -144,7 +144,7 @@ struct GroupedPhotosView: View {
             
             VStack(spacing: 20) {
                 Text("\(vm.savingProgress.current)/\(vm.savingProgress.total)")
-                    .font(.num2)
+                    .fontStyle(.num2)
                     .foregroundColor(.white)
                 
                 // 프로그레스 바
@@ -167,8 +167,8 @@ struct GroupedPhotosView: View {
                     .resizable()
                     .frame(width: 40, height: 40)
                 
-                Text("사진의 Bracket앨범에\n저장되었습니다!")
-                    .font(.num2)
+                Text("사진의 Bracket 앨범에\n저장되었습니다!")
+                    .fontStyle(.num2)
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
             }

@@ -26,7 +26,7 @@ struct PresetDetailSettingButtonStyle: ButtonStyle {
             configuration.label
                 .foregroundStyle(Color.g0)
                 .clipShape(Circle())
-                .font(.num6)
+                .fontStyle(.num6)
                 .overlay {
                     Circle().strokeBorder(Color.g0, lineWidth: 0.5)
                 }
@@ -36,7 +36,7 @@ struct PresetDetailSettingButtonStyle: ButtonStyle {
             configuration.label
                 .foregroundStyle(Color.g0)
                 .clipShape(Circle())
-                .font(.num6)
+                .fontStyle(.num6)
                 .overlay {
                     Circle().strokeBorder(Color.g7, lineWidth: 0.5)
                 }
@@ -46,7 +46,7 @@ struct PresetDetailSettingButtonStyle: ButtonStyle {
             configuration.label
                 .foregroundStyle(Color.g0)
                 .background(Color.g11)
-                .font(.num6)
+                .fontStyle(.num6)
                 .clipShape(Circle())
                 .overlay {
                     Circle().strokeBorder(Color.g0, lineWidth: 0.5)
