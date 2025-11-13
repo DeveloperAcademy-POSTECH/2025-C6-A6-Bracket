@@ -9,44 +9,23 @@ import Foundation
 
 @resultBuilder
 struct AlertButtonBuilder {
-    
+    // 개별 버튼을 배열로 변환
     static func buildExpression(_ button: CustomAlertConfig.AlertButton) -> [CustomAlertConfig.AlertButton] {
         [button]
     }
     
-    // 버튼 0개 (빈 블록)
-    static func buildBlock() -> [CustomAlertConfig.AlertButton] {
-        [CustomAlertConfig.AlertButton(title: "확인", style: .default, action: {})]
+    // 여러 배열을 하나로 결합
+    static func buildBlock(_ components: [CustomAlertConfig.AlertButton]...) -> [CustomAlertConfig.AlertButton] {
+        let result = components.flatMap { $0 }
+        return result.isEmpty ? [CustomAlertConfig.AlertButton(title: "확인", style: .default, action: {})] : result
     }
     
-    // 버튼 1개
-    static func buildBlock(_ button: CustomAlertConfig.AlertButton) -> [CustomAlertConfig.AlertButton] {
-        [button]
-    }
-    
-    // 버튼 2개
-    static func buildBlock(
-        _ b1: CustomAlertConfig.AlertButton,
-        _ b2: CustomAlertConfig.AlertButton
-    ) -> [CustomAlertConfig.AlertButton] {
-        [b1, b2]
-    }
-    
-    // 버튼 3개
-    static func buildBlock(
-        _ b1: CustomAlertConfig.AlertButton,
-        _ b2: CustomAlertConfig.AlertButton,
-        _ b3: CustomAlertConfig.AlertButton
-    ) -> [CustomAlertConfig.AlertButton] {
-        [b1, b2, b3]
-    }
-    
-    // if 문 지원
+    // Optional 지원
     static func buildOptional(_ component: [CustomAlertConfig.AlertButton]?) -> [CustomAlertConfig.AlertButton] {
         component ?? []
     }
     
-    // if-else 문 지원
+    // if-else 지원
     static func buildEither(first component: [CustomAlertConfig.AlertButton]) -> [CustomAlertConfig.AlertButton] {
         component
     }
@@ -55,7 +34,7 @@ struct AlertButtonBuilder {
         component
     }
     
-    // switch 문 지원
+    // Array 지원
     static func buildArray(_ components: [[CustomAlertConfig.AlertButton]]) -> [CustomAlertConfig.AlertButton] {
         components.flatMap { $0 }
     }
