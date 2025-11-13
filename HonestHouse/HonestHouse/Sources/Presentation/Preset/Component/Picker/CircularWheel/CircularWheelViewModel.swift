@@ -29,7 +29,7 @@ final class CircularWheelViewModel {
     @ObservationIgnored @Binding var isDimmed: Bool
     
     var isCircleVisible: Bool = false
-    var circleSize: CGFloat = 100
+    var circleSize: CGFloat = 120
     var buttonCenter: CGPoint = .zero
     var isDragging: Bool = false
     var currentAngle: Double = 100.0  // thumb의 현재 각도 (-60 ~ 60 범위)
