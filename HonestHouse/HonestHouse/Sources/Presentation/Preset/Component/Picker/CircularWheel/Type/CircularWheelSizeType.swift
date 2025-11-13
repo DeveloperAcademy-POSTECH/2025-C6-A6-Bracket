@@ -1,5 +1,5 @@
 //
-//  CircleSizeType.swift
+//  CircularWheelSizeType.swift
 //  HonestHouse
 //
 //  Created by Subeen on 11/13/25.

@@ -84,9 +84,9 @@ struct CircularWheelCalculator {
     
     // 원 크기 계산
     static func wheelSizeType(from diameter: CGFloat) -> CircularWheelSizeType {
-        if diameter < 260 {
+        if diameter < CircularWheelSizeType.medium.size {
             return .small
-        } else if diameter < 370 {
+        } else if diameter < CircularWheelSizeType.large.size {
             return .medium
         } else {
             return .large
@@ -94,8 +94,8 @@ struct CircularWheelCalculator {
     }
     
     static func mapDragTowheelSize(_ distance: CGFloat) -> CGFloat {
-        let minSize: CGFloat = 120
-        let maxSize: CGFloat = 370
+        let minSize: CGFloat = CircularWheelSizeType.small.size
+        let maxSize: CGFloat = CircularWheelSizeType.large.size
         let maxDistance: CGFloat = 120
         
         let normalizedDistance = min(distance, maxDistance)

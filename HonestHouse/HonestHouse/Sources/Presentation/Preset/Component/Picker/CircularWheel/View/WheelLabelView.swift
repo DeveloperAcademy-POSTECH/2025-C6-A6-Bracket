@@ -41,6 +41,9 @@ struct WheelLabelView: View {
         }
         
         if type == .tintMagentaGreen && circleSizeType == .medium {
+            guard index >= 0 && index < CameraConstants.tintMagentaGreenValues.count else {
+                return Color.g0
+            }
             let value = CameraConstants.tintMagentaGreenValues[index]
             return value % 3 != 0 ? Color.g7 : Color.g0
         }

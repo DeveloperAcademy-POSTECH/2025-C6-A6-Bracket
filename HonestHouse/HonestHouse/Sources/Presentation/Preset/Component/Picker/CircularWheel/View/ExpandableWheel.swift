@@ -14,8 +14,6 @@ struct ExpandableWheel: View {
     @Bindable var viewModel: CircularWheelViewModel
     @Binding var index: Int
     
-    @State private var previousIndex: Int = 0
-    
     let type: WheelSettingType
     let isVisible: Bool
     
@@ -75,9 +73,6 @@ struct ExpandableWheel: View {
         }
         .frame(width: viewModel.circleSize, height: viewModel.circleSize)
         .sensoryFeedback(.selection, trigger: index)
-        .onChange(of: index) { _, newValue in
-            previousIndex = newValue
-        }
     }
     
     // 휠 제스처
@@ -111,9 +106,11 @@ struct ExpandableWheel: View {
             return viewModel.circleSizeType == .small ? value % 3 == 0 : true
             
         case .exposureCompensation:
+            guard idx < CameraConstants.exposureCompensationValues.count else { return false }
             return idx % 3 == 0
             
         case .colorTemperature:
+            guard idx < CameraConstants.colorTemperatureValues.count else { return false }
             return idx == 0 || idx == type.range.upperBound || idx == index
         }
     }
