@@ -104,6 +104,8 @@ struct ExpandableCircle: View {
     @Bindable var viewModel: CircularWheelViewModel
     @Binding var index: Int
     
+    @State private var previousIndex: Int = 0
+    
     let type: WheelSettingType
     let isVisible: Bool
     
@@ -166,6 +168,10 @@ struct ExpandableCircle: View {
                 )
         }
         .frame(width: viewModel.circleSize, height: viewModel.circleSize)
+        .sensoryFeedback(.selection, trigger: index)  // ✨ 값 변경시 진동
+        .onChange(of: index) { _, newValue in
+            previousIndex = newValue
+        }
     }
     
     // MARK: - Gesture Handling
@@ -191,8 +197,6 @@ struct ExpandableCircle: View {
             circleSize: viewModel.circleSizeType
         )
     }
-    
-    // MARK: - Helper Methods
     
     private func shouldShowLabel(at idx: Int) -> Bool {
         switch type {
