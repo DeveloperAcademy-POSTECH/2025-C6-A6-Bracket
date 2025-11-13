@@ -66,13 +66,11 @@ struct GroupedPhotosView: View {
                 break
             }
         }
-        .errorAlert(error: $vm.currentError) { error in
+        .customErrorAlert(error: $vm.currentError) { error in
             switch error {
             case .photoLoadingFailed:
-                Button("취소", role: .cancel) { vm.goToBack() }
-                Button("재시도") {
-                    vm.startGrouping()
-                }
+                    .cancel("취소") { vm.goToBack() }
+                    .default("재시도") { vm.startGrouping() }
                 
             case .visionAnalysisFailed:
                 Button("취소", role: .cancel) { vm.goToBack() }
