@@ -28,8 +28,8 @@ struct ExpandableWheel: View {
         let radius = viewModel.circleSize / 2
         
         return CGPoint(
-            x: radius + radius * cos(angle),
-            y: radius + radius * sin(angle)
+            x: radius + radius * Foundation.cos(angle),
+            y: radius + radius * Foundation.sin(angle)
         )
     }
     

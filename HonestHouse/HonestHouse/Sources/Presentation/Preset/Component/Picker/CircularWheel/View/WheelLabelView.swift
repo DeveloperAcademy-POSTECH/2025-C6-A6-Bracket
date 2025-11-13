@@ -30,8 +30,8 @@ struct WheelLabelView: View {
         let labelDistance = radius + 20
         
         return CGPoint(
-            x: radius + labelDistance * cos(angleInRadians),
-            y: radius + labelDistance * sin(angleInRadians)
+            x: radius + labelDistance * Foundation.cos(angleInRadians),
+            y: radius + labelDistance * Foundation.sin(angleInRadians)
         )
     }
     
