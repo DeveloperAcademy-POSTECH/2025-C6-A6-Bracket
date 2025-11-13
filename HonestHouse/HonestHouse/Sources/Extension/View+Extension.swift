@@ -8,6 +8,21 @@
 import SwiftUI
 
 extension View {
+    
+    // 폰트 line height 적용
+    /*
+     <사용법>
+     Text("Hello World!)
+        .fontStyle(.num1)
+     */
+    func fontStyle(_ style: FontStyle) -> some View {
+        let spacing = style.lineHeight - style.size
+        return self
+            .font(style.font)
+            .lineSpacing(spacing)
+            .padding(.vertical, spacing / 2)
+    }
+    
     /*
      <사용법>
      VStack {
@@ -44,6 +59,16 @@ extension View {
     }
     
     // Error Alert
+    /*
+     <사용법>
+     .customErrorAlert(error: $vm.currentError) { error in
+         switch error {
+         case .photoLoadingFailed:
+             AlertButton.cancel("취소") { vm.goToBack() }
+             AlertButton.default("재시도") { vm.startGrouping() }
+            ...
+        }
+     */
     func customErrorAlert<E: AlertPresentable>(
         error: Binding<E?>,
         @AlertButtonBuilder actions: @escaping (E) -> [CustomAlertConfig.AlertButton]
@@ -65,6 +90,20 @@ extension View {
     }
     
     // 일반 Alert
+    /*
+     <사용법>
+     .customAlert(
+         title: "카메라로 촬영해보세요",
+         message: "카메라로 촬영해보세요",
+         isPresented: $showAlert
+     ) {
+         // 버튼 갯수 만큼
+         AlertButton.cancel("취소")
+         AlertButton.default("확인") {
+             action()
+         }
+     }
+     */
     func customAlert(
         title: String,
         message: String = "",
@@ -97,11 +136,6 @@ extension View {
         .animation(.easeInOut(duration: 0.2), value: isPresented.wrappedValue)
     }
     
-    /*
-     Pinch to zoom
-     Double tap to zoom in and out
-     Drag to pan
-     */
     func zoomableGesture(
         minZoomScale: CGFloat = 1.0,
         maxZoomScale: CGFloat = 3.0,
