@@ -30,14 +30,14 @@ struct ExpandableButton: View {
                         viewModel.startDragging()
                     }
                     
-                    // 1. 원 크기 업데이트
+                    // 원 크기 업데이트
                     let distance = sqrt(
                         pow(dragValue.translation.width, 2) +
                         pow(dragValue.translation.height, 2)
                     )
                     viewModel.updateCircleSize(with: distance)
                     
-                    // 2. ⚠️ 각도 계산해서 index 업데이트 (이 부분이 빠짐!)
+                    // 각도 계산해서 index 업데이트
                     let angleInRadians = atan2(dragValue.translation.width, -dragValue.translation.height)
                     var angleInDegrees = angleInRadians * 180 / .pi
                     
@@ -46,7 +46,7 @@ struct ExpandableButton: View {
                                         min(viewModel.settingType.maxAngle, angleInDegrees))
                     
                     // index 업데이트
-                    value = WheelCalculator.angleToIndex(
+                    value = CircularWheelCalculator.angleToIndex(
                         angle: angleInDegrees,
                         type: viewModel.settingType,
                         circleSize: viewModel.circleSizeType

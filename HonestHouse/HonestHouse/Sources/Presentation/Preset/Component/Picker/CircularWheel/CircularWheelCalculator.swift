@@ -1,13 +1,5 @@
 //
-//  WheelCalculator.swift
-//  HonestHouse
-//
-//  Created by Subeen on 11/13/25.
-//
-
-
-//
-//  WheelCalculator.swift
+//  CircularWheelCalculator.swift
 //  HonestHouse
 //
 //  Created by Subeen on 11/13/25.
@@ -15,9 +7,9 @@
 
 import Foundation
 
-struct WheelCalculator {
+struct CircularWheelCalculator {
     
-    // MARK: - 인덱스 ↔ 각도 변환
+    // 인덱스 ↔ 각도 변환
     
     static func indexToAngle(index: Int, type: WheelSettingType) -> Double {
         let totalCount: Int
@@ -34,7 +26,7 @@ struct WheelCalculator {
         return type.minAngle + type.angleRange * normalized
     }
     
-    static func angleToIndex(angle: Double, type: WheelSettingType, circleSize: CircleSizeType) -> Int {
+    static func angleToIndex(angle: Double, type: WheelSettingType, circleSize: CircularWheelSizeType) -> Int {
         // 각도를 정규화 (0~1)
         let normalized = (angle - type.minAngle) / type.angleRange
         
@@ -55,9 +47,9 @@ struct WheelCalculator {
         return snapToValidIndex(closestIndex, type: type, size: circleSize)
     }
     
-    // MARK: - 스냅 로직 (간단한 버전)
+    // 스냅 로직 (간단한 버전)
     
-    static func snapToValidIndex(_ index: Int, type: WheelSettingType, size: CircleSizeType) -> Int {
+    static func snapToValidIndex(_ index: Int, type: WheelSettingType, size: CircularWheelSizeType) -> Int {
         // 범위 제한
         let maxIndex: Int
         switch type {
@@ -96,9 +88,8 @@ struct WheelCalculator {
         }
     }
     
-    // MARK: - 원 크기 계산
-    
-    static func circleSizeType(from diameter: CGFloat) -> CircleSizeType {
+    // 원 크기 계산
+    static func wheelSizeType(from diameter: CGFloat) -> CircularWheelSizeType {
         if diameter < 260 {
             return .small
         } else if diameter < 370 {
@@ -108,7 +99,7 @@ struct WheelCalculator {
         }
     }
     
-    static func mapDragToCircleSize(_ distance: CGFloat) -> CGFloat {
+    static func mapDragTowheelSize(_ distance: CGFloat) -> CGFloat {
         let minSize: CGFloat = 120
         let maxSize: CGFloat = 370
         let maxDistance: CGFloat = 120

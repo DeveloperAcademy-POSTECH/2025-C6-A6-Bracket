@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// ExpandableWheel + ExpandableButton을 오버레이
 struct CircularWheelPickerView: View {
     
     @State var vm: CircularWheelViewModel
@@ -20,7 +21,7 @@ struct CircularWheelPickerView: View {
             ExpandableButton(viewModel: vm, value: $index, coordinateSpace: coordinateSpaceName)
                 .overlay {
                     if vm.isCircleVisible {
-                        ExpandableCircle(
+                        ExpandableWheel(
                             viewModel: vm,
                             index: $index,
                             type: vm.settingType,

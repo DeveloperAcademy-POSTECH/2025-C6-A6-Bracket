@@ -1,29 +1,11 @@
 //
-//  CircleSizeType.swift
+//  CircularWheelViewModel.swift
 //  HonestHouse
 //
 //  Created by Subeen on 11/13/25.
 //
 
-
 import SwiftUI
-
-enum CircleSizeType {
-    case small
-    case medium
-    case large
-    
-    var size: Double {
-        switch self {
-        case .small:
-            return 120
-        case .medium:
-            return 260
-        case .large:
-            return 370
-        }
-    }
-}
 
 @Observable
 final class CircularWheelViewModel {
@@ -35,17 +17,15 @@ final class CircularWheelViewModel {
     @ObservationIgnored @Binding var isDimmed: Bool
     
     // Computed property
-    var circleSizeType: CircleSizeType {
-        WheelCalculator.circleSizeType(from: circleSize)
+    var circleSizeType: CircularWheelSizeType {
+        CircularWheelCalculator.wheelSizeType(from: circleSize)
     }
     
-    // MARK: - Initialization
     init(settingType: WheelSettingType, isDimmed: Binding<Bool>) {
         self.settingType = settingType
         self._isDimmed = isDimmed
     }
     
-    // MARK: - Methods
     func toggleCircle() {
         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
             isCircleVisible.toggle()
@@ -68,15 +48,17 @@ final class CircularWheelViewModel {
     }
     
     func updateCircleSize(with distance: CGFloat) {
-        circleSize = WheelCalculator.mapDragToCircleSize(distance)
+        circleSize = CircularWheelCalculator.mapDragTowheelSize(distance)
     }
     
     func endDragging() {
-        isDragging = false
-        isDimmed = false
         withAnimation {
             circleSize = 120
         }
+        isDragging = false
+        isDimmed = false
+        
         toggleCircle()
     }
 }
+
