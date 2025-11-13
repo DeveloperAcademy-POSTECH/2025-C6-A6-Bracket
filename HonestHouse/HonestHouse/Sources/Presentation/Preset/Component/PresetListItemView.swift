@@ -21,6 +21,10 @@ struct PresetListItemView: View {
                 nameView()
                 iconListView()
                 settingDescriptionView()
+            if isEditMode && isSelected {
+                selectedCapsuleView()
+            } else {
+                defaultCapsuleView()
             }
             Spacer()
             applyButtonView()
@@ -59,6 +63,15 @@ struct PresetListItemView: View {
         HStack(spacing: 8) {
             if let modeDescription = preset.modeDescription {
                 Text(modeDescription)
+    func defaultCapsuleView() -> some View {
+        PresetCapsuleView(preset: preset)
+            .background(
+                Capsule()
+                    .fill(Color.g11)
+            )
+            .contentShape(Capsule())
+            .onTapGesture {
+                onTap()
             }
             
             Text(preset.isoDescription)
@@ -74,6 +87,20 @@ struct PresetListItemView: View {
                 .font(.system(size: 24))
                 .foregroundColor(.white.opacity(0.7))
         }
+    func selectedCapsuleView() -> some View {
+        PresetCapsuleView(preset: preset)
+            .background(
+                Capsule()
+                    .fill(Color.g11)
+            )
+            .overlay(
+                Capsule()
+                    .strokeBorder(Color.yellow1, lineWidth: 1)
+            )
+            .contentShape(Capsule())
+            .onTapGesture {
+                onTap()
+            }
     }
 }
 
