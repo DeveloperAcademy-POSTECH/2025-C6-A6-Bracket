@@ -21,7 +21,7 @@ struct MainView: View {
             ZStack {
                 Color.g12.ignoresSafeArea(.all)
                 VStack(spacing: 12) {
-                    cameraAndArchiveHeaderView()
+                    headerView()
                     CustomSegmentedControl(selection: $vm.selectedSegment)
                         .padding(.bottom, 24)
                     selectedSegmentView()
@@ -54,30 +54,62 @@ struct MainView: View {
         }
     }
     
-    private func cameraAndArchiveHeaderView() -> some View {
-        HStack {
-            Button {
-                if cameraConnectionManager.connectionState != .connected {
-                    cameraConnectionManager.showConnectionSheet = true
+    private func headerView() -> some View {
+        HStack(spacing: 20) {
+            if vm.selectedSegment == .preset && vm.isPresetEditMode {
+                Button {
+                    vm.selectAllPresets()
+                } label: {
+                    Text("전체선택")
+                        .foregroundStyle(Color.g0)
+                        .font(.num4)
                 }
-            } label: {
-                Image(.setting)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
+            } else {
+                Button {
+                    if cameraConnectionManager.connectionState != .connected {
+                        cameraConnectionManager.showConnectionSheet = true
+                    }
+                } label: {
+                    Image(.setting)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                }
             }
             Spacer()
-
-            if vm.showEditButton {
+            if vm.selectedSegment == .preset && !vm.isPresetEditMode {
                 Button {
-                    vm.toggleEditMode()
+                    vm.showModeChange.toggle()
                 } label: {
-                    Text(vm.isPresetEditMode ? "완료" : "편집")
-                        .font(.system(size: 16, weight: .bold))
+                    Image(.modeEllipsis)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
                 }
-                .padding(.trailing, 12)
             }
 
+            if vm.selectedSegment == .preset && vm.isPresetEditMode {
+                Button {
+                    vm.isPresetEditMode = false
+                } label: {
+                    Text("완료")
+                        .foregroundStyle(Color.g0)
+                        .font(.num4)
+                }
+            } else {
+                Button {
+                    vm.send(action: .goToPhotoSelection)
+                } label: {
+                    Image(.importPhoto)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                }
+            }
+        }
+        .padding(.vertical, 10)
+    }
+    
     private func modeChangeView() -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Button {
