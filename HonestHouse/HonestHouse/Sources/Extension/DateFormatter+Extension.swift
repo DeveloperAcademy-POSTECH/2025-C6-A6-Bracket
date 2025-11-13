@@ -22,6 +22,15 @@ extension DateFormatter {
         formatter.timeZone = TimeZone(abbreviation: "GMT")
         return formatter
     }()
+
+    /// API lastmodifieddate 파싱용 (타임존 없는 버전): "Tue, 11 Nov 2025 21:02:28"
+    static let apiDateFormatterWithoutTimezone: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(abbreviation: "GMT")
+        return formatter
+    }()
     
     /// 날짜 키 생성용: "yyyy-MM-dd"
     static let dateKeyFormatter: DateFormatter = {
