@@ -10,7 +10,7 @@ import Foundation
 /// 뷰의 상태를 나타내는 제네릭 enum
 enum ViewState<Success: Equatable, Failure: Error & Equatable>: Equatable {
     case idle                                    // 초기 상태
-    case loading(progress: Double? = nil)        // 로딩 중 (선택적 progress)
+    case loading                                 // 로딩 중
     case success(Success)                        // 성공
     case failure(Failure)                        // 실패
 

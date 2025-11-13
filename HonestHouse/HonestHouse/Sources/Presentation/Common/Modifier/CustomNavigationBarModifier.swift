@@ -41,7 +41,7 @@ struct NavigationBarWithBackButton<RightContent: View>: ViewModifier {
             }
         
             // Navigation Bar
-            Group {
+            ZStack(alignment: .center) {
                 HStack {
                     Spacer()
                     // Center - Title
@@ -72,6 +72,7 @@ struct NavigationBarWithBackButton<RightContent: View>: ViewModifier {
             .screenPadding()
             .foregroundStyle(Color.g0)
             .background(backgroundColor)
+            .frame(height: 44)
         }
         .navigationBarHidden(true)
         .toolbar(.hidden, for: .navigationBar)

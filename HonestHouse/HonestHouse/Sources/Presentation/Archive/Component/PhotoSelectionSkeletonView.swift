@@ -17,7 +17,7 @@ struct PhotoSelectionSkeletonView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 5) {
-                ForEach(0..<30, id: \.self) { _ in
+                ForEach(0..<50, id: \.self) { _ in
                     skeletonCell()
                 }
             }

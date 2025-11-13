@@ -250,7 +250,7 @@ final class PhotoSelectionViewModel {
     
     /// 점진적 로딩으로 모든 이미지 가져오기
     func fetchAllImages() async {
-        state = .loading()
+        state = .loading
         allPhotos.removeAll()
         photoSections.removeAll()
         photosByDate.removeAll()

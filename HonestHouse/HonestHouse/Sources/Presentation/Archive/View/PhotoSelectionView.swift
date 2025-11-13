@@ -70,9 +70,7 @@ struct PhotoSelectionView: View {
             }
         }
         .navigationBarWithBack(title: "", showShadow: true, rightView: {
-            Text("\(vm.selectedPhotos.count)장")
-                .font(.num4)
-                .foregroundStyle(Color.g0)
+            EmptyView()
         })
     }
     
@@ -82,18 +80,7 @@ struct PhotoSelectionView: View {
                 ForEach(vm.photoSections) { section in
                     VStack(spacing: 0) {
                         sectionHeaderView(section: section)
-
-                        LazyVGrid(columns: columns, spacing: 5) {
-                            ForEach(section.photos) { photo in
-                                SelectionGridCellView(
-                                    photo: photo,
-                                    isSelected: vm.selectedPhotos.contains(photo),
-                                    onTapSelectionGridCell: { vm.toggleGridCell(for: photo) }
-                                )
-                                .environment(vm)
-                                .id(photo.url)
-                            }
-                        }
+                        sectionBodyView(section: section)
                     }
                 }
             }
@@ -126,6 +113,20 @@ struct PhotoSelectionView: View {
         .background(Color.clear)
     }
     
+    private func sectionBodyView(section: PhotoSection) -> some View {
+        LazyVGrid(columns: columns, spacing: 5) {
+            ForEach(section.photos) { photo in
+                SelectionGridCellView(
+                    photo: photo,
+                    isSelected: vm.selectedPhotos.contains(photo),
+                    onTapSelectionGridCell: { vm.toggleGridCell(for: photo) }
+                )
+                .environment(vm)
+                .id(photo.url)
+            }
+        }
+    }
+    
     private func selectionCompleteButtonView() -> some View {
         VStack {
             Spacer()
@@ -136,7 +137,7 @@ struct PhotoSelectionView: View {
                 Button {
                     vm.goToGroupedPhotos()
                 } label: {
-                    Text("완료")
+                    Text("\(vm.selectedPhotos.count)장 분류하러 가기")
                 }
                 .buttonStyle(DefaultButtonStyle(vm.selectedPhotos.isEmpty ? .deactivated : .activated))
                 .screenPadding()

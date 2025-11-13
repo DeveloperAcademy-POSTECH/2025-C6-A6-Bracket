@@ -12,38 +12,49 @@ struct GroupedPhotosDetailView: View {
     @Environment(GroupedPhotosViewModel.self) var vm
     @Environment(\.dismiss) private var dismiss
     
+    @State private var selectedPhoto: Photo
+    
     let groupedPhotos: SimilarPhotoGroup
+    
+    private var currentPosition: String {
+        let index = groupedPhotos.photos.firstIndex(of: selectedPhoto) ?? 0
+        return "\(index + 1)/\(groupedPhotos.photos.count)"
+    }
+    
+    init(groupedPhotos: SimilarPhotoGroup) {
+        self.groupedPhotos = groupedPhotos
+        self._selectedPhoto = State(initialValue: groupedPhotos.photos.first!)
+    }
 
     var body: some View {
-        TabView {
+        ZStack(alignment: .topTrailing) {
+            photoGroupTabView()
+            
+            selectionButtonView(photo: selectedPhoto)
+                .padding(.trailing, 16)
+        }
+        .navigationBarWithBack(title: "\(currentPosition)", showShadow: false) {
+            dismiss()
+        } rightView: {
+            EmptyView()
+        }
+    }
+    
+    private func photoGroupTabView() -> some View {
+        TabView(selection: $selectedPhoto) {
             ForEach(groupedPhotos.photos) { photo in
                 photoDetailView(photo: photo)
                     .tag(photo)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .navigationBarWithBack(title: "", showShadow: false) {
-            dismiss()
-        } rightView: {
-            EmptyView()
-        }
     }
-
+    
     private func photoDetailView(photo: Photo) -> some View {
-        ZStack(alignment: .topLeading) {
-            
-            ProgressiveDisplayImageView(
-                photo: photo
-            )
-            .zoomableGesture()
-            
-            VStack(spacing: 0) {
-                selectionButtonView(photo: photo)
-                    .padding(16)
-                
-                Spacer()
-            }
-        }
+        ProgressiveDisplayImageView(
+            photo: photo
+        )
+        .zoomableGesture()
         .task {
             // 현재 사진이 나타날 때 좌우 1-2장 prefetch
             vm.prefetchAdjacentPhotosInGroup(group: groupedPhotos, current: photo)

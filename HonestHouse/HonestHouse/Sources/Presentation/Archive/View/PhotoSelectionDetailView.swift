@@ -16,6 +16,10 @@ struct PhotoSelectionDetailView: View {
     @State private var photos: [Photo] = [] // 스냅샷 (vm chunk append시, 무시 목적)
     
     let initialPhoto: Photo
+    
+    private var currentPhoto: Photo {
+        photos.first { $0.url == selectedURL } ?? initialPhoto
+    }
 
     init(initialPhoto: Photo) {
         self.initialPhoto = initialPhoto
@@ -23,6 +27,21 @@ struct PhotoSelectionDetailView: View {
     }
 
     var body: some View {
+        ZStack(alignment: .topTrailing) {
+            photoTabView()
+            
+            selectionButtonView(photo: currentPhoto)
+                .padding(.trailing, 16)
+            
+        }
+        .navigationBarWithBack(title: currentPhoto.detailDateString, showShadow: false) {
+            dismiss()
+        } rightView: {
+            EmptyView()
+        }
+    }
+    
+    private func photoTabView() -> some View {
         TabView(selection: $selectedURL) {
             ForEach(photos) { photo in
                 photoDetailView(photo: photo)
@@ -31,35 +50,17 @@ struct PhotoSelectionDetailView: View {
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .task {
-            // 진입 시 현재 photos 스냅샷 저장 (chunk 변경 무시)
             if photos.isEmpty {
                 photos = vm.allPhotos
             }
         }
-        .navigationBarWithBack(title: "", showShadow: false) {
-            dismiss()
-        } rightView: {
-            Text("\(vm.selectedPhotos.count)장")
-                .font(.num4)
-                .foregroundStyle(Color.g0)
-        }
     }
 
     private func photoDetailView(photo: Photo) -> some View {
-        ZStack(alignment: .topLeading) {
-            
-            ProgressiveDisplayImageView(
-                photo: photo
-            )
-            .zoomableGesture()
-            
-            VStack(spacing: 0) {
-                selectionButtonView(photo: photo)
-                    .padding(16)
-                
-                Spacer()
-            }
-        }
+        ProgressiveDisplayImageView(
+            photo: photo
+        )
+        .zoomableGesture()
         .task {
             // 현재 사진이 나타날 때 좌우 1장씩 prefetch
             vm.prefetchAdjacentPhotos(current: photo)
