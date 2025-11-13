@@ -23,8 +23,15 @@ struct PresetGridItemView: View {
             }
             .padding(.vertical, 20)
             .frame(maxHeight: 122)
-            .background(Color.g11)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.g11)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .strokeBorder(isEditMode && isSelected ? Color.yellow1 : Color.clear, lineWidth: 1)
+            )
+//            .contentShape(RoundedRectangle(cornerRadius: 20))
         }
         .buttonStyle(NoHighlightButtonStyle())
     }
@@ -41,9 +48,17 @@ struct PresetGridItemView: View {
     
     func applyButtonView() -> some View {
         Button(action: onActionTap) {
-            Image(systemName: "circle")
-                .font(.system(size: 24))
-                .foregroundColor(.white.opacity(0.7))
+            if isEditMode {
+                Image(isSelected ? .checkSelectBtnS : .checkUnselectBtnS)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+            } else {
+                Image(.cameraSend)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+            }
         }
     }
 }
