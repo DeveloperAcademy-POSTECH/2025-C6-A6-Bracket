@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import CoreGraphics
 
 enum WheelSettingType: CaseIterable {
     case tintMagentaGreen

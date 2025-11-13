@@ -18,13 +18,13 @@ extension ImageOperationsTarget: BaseTargetType {
     var path: String {
         switch self {
         case .getStorageList:
-            return ImageOperationsAPI.storageList.path(with: .ver100)
+            return ImageOperationsAPI.storageList.path(with: .ver140)
             
         case .getDirectoryList(let storage):
-            return ImageOperationsAPI.directoryList(storage).path(with: .ver100)
+            return ImageOperationsAPI.directoryList(storage).path(with: .ver140)
             
         case .getContentInfo(let storage, let directory, let fileName):
-            return ImageOperationsAPI.contentInfo(storage, directory, fileName).path(with: .ver100)
+            return ImageOperationsAPI.contentInfo(storage, directory, fileName).path(with: .ver140)
         }
     }
     

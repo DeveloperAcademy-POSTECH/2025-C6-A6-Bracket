@@ -12,6 +12,7 @@ enum VersionType {
     case ver110
     case ver120
     case ver130
+    case ver140
     
     var description: String {
         switch self {
@@ -23,6 +24,8 @@ enum VersionType {
             return "ver120"
         case .ver130:
             return "ver130"
+        case .ver140:
+            return  "ver140"
         }
     }
 }
