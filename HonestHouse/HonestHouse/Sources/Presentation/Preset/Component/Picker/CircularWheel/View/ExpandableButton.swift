@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ExpandableButton: View {
     @Bindable var viewModel: CircularWheelViewModel
-    @Binding var value: Int  // index 값
+    @Binding var value: Int
     let coordinateSpace: String
     
     var body: some View {

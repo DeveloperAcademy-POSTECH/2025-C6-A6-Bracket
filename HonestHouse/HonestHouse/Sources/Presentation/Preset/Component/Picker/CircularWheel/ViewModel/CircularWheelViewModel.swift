@@ -9,14 +9,12 @@ import SwiftUI
 
 @Observable
 final class CircularWheelViewModel {
-    // MARK: - Properties
     var isCircleVisible = false
     var circleSize: CGFloat = 120
     var isDragging = false
     let settingType: WheelSettingType
     @ObservationIgnored @Binding var isDimmed: Bool
-    
-    // Computed property
+
     var circleSizeType: CircularWheelSizeType {
         CircularWheelCalculator.wheelSizeType(from: circleSize)
     }
@@ -52,11 +50,12 @@ final class CircularWheelViewModel {
     }
     
     func endDragging() {
+        isDragging = false
+        isDimmed = false
+        
         withAnimation {
             circleSize = 120
         }
-        isDragging = false
-        isDimmed = false
         
         toggleCircle()
     }

@@ -19,8 +19,6 @@ struct ExpandableWheel: View {
     let type: WheelSettingType
     let isVisible: Bool
     
-    // MARK: - Computed Properties
-    
     private var currentAngle: Double {
         CircularWheelCalculator.indexToAngle(index: index, type: type)
     }
@@ -76,14 +74,13 @@ struct ExpandableWheel: View {
                 )
         }
         .frame(width: viewModel.circleSize, height: viewModel.circleSize)
-        .sensoryFeedback(.selection, trigger: index)  // ✨ 값 변경시 진동
+        .sensoryFeedback(.selection, trigger: index)
         .onChange(of: index) { _, newValue in
             previousIndex = newValue
         }
     }
     
     // 휠 제스처
-    
     private func handleDrag(at location: CGPoint) {
         let center = viewModel.circleSize / 2
         let deltaX = location.x - center
