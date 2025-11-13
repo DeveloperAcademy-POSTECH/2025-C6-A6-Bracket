@@ -2,65 +2,61 @@
 //  ExpandableButton.swift
 //  HonestHouse
 //
-//  Created by Subeen on 11/10/25.
+//  Created by Subeen on 11/13/25.
 //
+
 
 import SwiftUI
 
 struct ExpandableButton: View {
-    
     @Bindable var viewModel: CircularWheelViewModel
-    @Binding var value: Int
+    @Binding var value: Int  // index 값
     let coordinateSpace: String
     
     var body: some View {
-        
-        VStack {
-
-            Button {
-                viewModel.isCircleVisible.toggle()
-            } label: {
-                viewModel.settingType.icon
-                    .frame(width: 64, height: 64)
-            }
-            .buttonStyle(PresetDetailSettingButtonStyle(.activated))
-            .background(
-                GeometryReader { geometry in
-                    Color.clear
-                        .preference(
-                            key: ButtonFrameKey.self,
-                            value: geometry.frame(in: .named(coordinateSpace))
-                        )
-                }
-            )
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { dragValue in
-                        if dragValue.translation == .zero {
-                            return
-                        }
-                        
-                        if !viewModel.isDragging {
-                            viewModel.startDragging()
-                        }
-                        
-                        // 거리와 각도를 동시에 업데이트하고, 계산된 인덱스를 받아서 value 업데이트
-                        let newIndex = viewModel.updateDragWithAngle(dragValue.translation)
-                        value = newIndex
-                    }
-                    .onEnded { _ in
-                        if viewModel.isDragging {
-                            viewModel.endDragging()
-                        } else {
-                            viewModel.toggleCircle()
-                        }
-                    }
-            )
+        Button {
+            viewModel.toggleCircle()
+        } label: {
+            viewModel.settingType.icon
+                .frame(width: 64, height: 64)
         }
+        .buttonStyle(PresetDetailSettingButtonStyle(.activated))
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { dragValue in
+                    if dragValue.translation == .zero { return }
+                    
+                    if !viewModel.isDragging {
+                        viewModel.startDragging()
+                    }
+                    
+                    // 1. 원 크기 업데이트
+                    let distance = sqrt(
+                        pow(dragValue.translation.width, 2) +
+                        pow(dragValue.translation.height, 2)
+                    )
+                    viewModel.updateCircleSize(with: distance)
+                    
+                    // 2. ⚠️ 각도 계산해서 index 업데이트 (이 부분이 빠짐!)
+                    let angleInRadians = atan2(dragValue.translation.width, -dragValue.translation.height)
+                    var angleInDegrees = angleInRadians * 180 / .pi
+                    
+                    // 타입별 각도 범위 제한
+                    angleInDegrees = max(viewModel.settingType.minAngle,
+                                        min(viewModel.settingType.maxAngle, angleInDegrees))
+                    
+                    // index 업데이트
+                    value = WheelCalculator.angleToIndex(
+                        angle: angleInDegrees,
+                        type: viewModel.settingType,
+                        circleSize: viewModel.circleSizeType
+                    )
+                }
+                .onEnded { _ in
+                    if viewModel.isDragging {
+                        viewModel.endDragging()
+                    }
+                }
+        )
     }
-}
-
-#Preview {
-    @Previewable @State var value = 0
-    ExpandableButton(viewModel: .init(settingType: .exposureCompensation, isDimmed: .constant(false)), value: $value, coordinateSpace: "")
 }
