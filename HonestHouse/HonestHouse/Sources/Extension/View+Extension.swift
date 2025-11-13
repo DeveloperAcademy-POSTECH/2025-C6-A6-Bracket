@@ -16,11 +16,9 @@ extension View {
         .fontStyle(.num1)
      */
     func fontStyle(_ style: FontStyle) -> some View {
-        let spacing = style.lineHeight - style.size
-        return self
+        self
             .font(style.font)
-            .lineSpacing(spacing)
-            .padding(.vertical, spacing / 2)
+            .lineSpacing(style.lineSpacing)
     }
     
     /*

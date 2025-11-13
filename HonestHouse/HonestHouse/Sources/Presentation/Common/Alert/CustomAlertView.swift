@@ -29,7 +29,7 @@ struct CustomAlertView: View {
                     VisualEffectBlurView()
                         .blur(radius: 6, opaque: true)
                         .overlay {
-                            Color.g11
+                            Color.g11.opacity(0.8)
                         }
                 }
             }
