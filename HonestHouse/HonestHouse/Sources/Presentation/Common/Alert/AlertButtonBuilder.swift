@@ -25,7 +25,6 @@ struct AlertButtonBuilder {
         component ?? []
     }
     
-    // if-else 지원
     static func buildEither(first component: [CustomAlertConfig.AlertButton]) -> [CustomAlertConfig.AlertButton] {
         component
     }
@@ -34,7 +33,6 @@ struct AlertButtonBuilder {
         component
     }
     
-    // Array 지원
     static func buildArray(_ components: [[CustomAlertConfig.AlertButton]]) -> [CustomAlertConfig.AlertButton] {
         components.flatMap { $0 }
     }
