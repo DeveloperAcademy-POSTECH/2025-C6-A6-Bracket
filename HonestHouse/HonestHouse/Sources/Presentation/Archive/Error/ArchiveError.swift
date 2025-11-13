@@ -28,8 +28,7 @@ enum ArchiveError: LocalizedError, Equatable, AlertPresentable {
         switch self {
         case .cameraBusy:
             return AlertInfo(
-                title: "카메라가 이미 사용 중입니다.\n잠시 후에 다시 시도해주세요.",
-                message: "카메라가 촬영 중일 때는 아카이빙 기능을 이용할 수 없습니다."
+                title: "카메라 조작을 멈추고\n다시 시도해주세요."
             )
             
         case .cameraDisconnected:
