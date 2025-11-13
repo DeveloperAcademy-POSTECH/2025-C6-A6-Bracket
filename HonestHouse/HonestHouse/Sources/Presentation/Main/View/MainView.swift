@@ -146,20 +146,12 @@ struct MainView: View {
                 vm: TrishotSettingViewModel(container: container)
             )
         } else if vm.selectedSegment == .preset {
-            PresetView(
-                vm: PresetViewModel(
-                    container: container,
-                    isPresetEditMode: isPresetEditMode,
-                    onEditModeChange: { newValue in
-                        isPresetEditMode = newValue
-                    }
-                )
-            )
+            PresetView(vm: vm)
         }
     }
 }
 
 #Preview {
-    MainView(vm: .init(container: .stub), isPresetEditMode: false)
+    MainView(vm: .init(container: .stub))
         .environmentObject(DIContainer.stub)
 }
