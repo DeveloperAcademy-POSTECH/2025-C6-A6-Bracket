@@ -19,7 +19,7 @@ struct CustomAlertView: View {
             VStack(spacing: 28) {
                 textBodyStack()
                 
-                buttonStack
+                buttonStack()
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 24)
@@ -55,7 +55,7 @@ struct CustomAlertView: View {
     }
     
     @ViewBuilder
-    private var buttonStack: some View {
+    private func buttonStack() -> some View {
         if config.buttons.count == 1 {
             alertButton(config.buttons[0])
         } else {
