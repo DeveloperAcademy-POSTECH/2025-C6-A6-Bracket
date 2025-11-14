@@ -154,16 +154,14 @@ struct PresetView: View {
         Button {
             vm.send(action: .goToPresetEditor(.create, nil))
         } label: {
-            ZStack {
-                Circle()
-                    .fill(Color.g0)
-                    .frame(width: 50, height: 50)
-                    .shadow(color: .black, radius: 10)
-                Image(.plus)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-            }
+            Image(.plus)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .padding(13)
+                .background(Color.g0)
+                .clipShape(Circle())
+                .shadow(color: .black, radius: 10)
         }
     }
 
@@ -171,18 +169,16 @@ struct PresetView: View {
         Button {
             vm.showDeleteAlert = true
         } label: {
-            ZStack {
-                Circle()
-                    .fill(Color.g0)
-                    .frame(width: 50, height: 50)
-                    .shadow(color: .black, radius: 10)
-                Image(.trash)
-                    .resizable()
-                    .renderingMode(.template)
-                    .foregroundStyle(vm.selectedPresets.isEmpty ? Color.g5 : Color.g12)
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-            }
+            Image(.trash)
+                .resizable()
+                .renderingMode(.template)
+                .foregroundStyle(vm.selectedPresets.isEmpty ? Color.g5 : Color.g12)
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .padding(13)
+                .background(Color.g0)
+                .clipShape(Circle())
+                .shadow(color: .black, radius: 10)
         }
         .disabled(vm.selectedPresets.isEmpty)
     }
