@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PresetGridItemView: View {
     let preset: Preset
-    let isSelected: Bool
+    let displayType: PresetCapsuleDisplayType
     let isEditMode: Bool
     let onTap: () -> Void
     let onActionTap: () -> Void
@@ -23,8 +23,14 @@ struct PresetGridItemView: View {
             }
             .padding(.vertical, 20)
             .frame(maxHeight: 122)
-            .background(Color.g11)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.g11)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .strokeBorder(displayType != .default ? Color.yellow1 : Color.clear, lineWidth: 1)
+            )
         }
         .buttonStyle(NoHighlightButtonStyle())
     }
@@ -41,9 +47,19 @@ struct PresetGridItemView: View {
     
     func applyButtonView() -> some View {
         Button(action: onActionTap) {
-            Image(systemName: "circle")
-                .font(.system(size: 24))
-                .foregroundColor(.white.opacity(0.7))
+            if isEditMode {
+                Image(displayType == .selected ? .checkSelectBtnS : .checkUnselectBtnS)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+            } else {
+                Image(.cameraSend)
+                    .resizable()
+                    .renderingMode(.template)
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(displayType == .currentlyApplied ? Color.yellow1 : Color.g0)
+            }
         }
     }
 }
@@ -52,7 +68,7 @@ struct PresetGridItemView: View {
     HStack(spacing: 10) {
         PresetGridItemView(
             preset: .stub1,
-            isSelected: false,
+            displayType: .default,
             isEditMode: false,
             onTap: {},
             onActionTap: {}
@@ -60,8 +76,8 @@ struct PresetGridItemView: View {
         
         PresetGridItemView(
             preset: .stub2,
-            isSelected: true,
-            isEditMode: false,
+            displayType: .selected,
+            isEditMode: true,
             onTap: {},
             onActionTap: {}
         )

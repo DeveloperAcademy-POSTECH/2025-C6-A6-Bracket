@@ -37,6 +37,7 @@ struct TrishotSettingView: View {
                 }
             }
         }
+        .padding(.top, 27)
     }
     
     /// 프리셋 타이틀 + 내용

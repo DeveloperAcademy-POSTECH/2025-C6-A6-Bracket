@@ -1,5 +1,5 @@
 //
-//  PresetViewModel.swift
+//  PresetDetailViewModel.swift
 //  HonestHouse
 //
 //  Created by BoMin Lee on 10/27/25.
@@ -15,10 +15,9 @@ enum PresetDetailAction {
 
 @Observable
 class PresetDetailViewModel {
-
     var container: DIContainer
     var currentPreset: Preset
-    var viewMode: ViewMode
+    var viewMode: PresetDetailViewMode
     var isLoading: Bool = false
     var errorMessage: String?
     var showCameraModeSelector: Bool = false
@@ -29,7 +28,7 @@ class PresetDetailViewModel {
     
     init(
         container: DIContainer,
-        mode: ViewMode,
+        mode: PresetDetailViewMode,
         preset: Preset?
     ) {
         self.container = container
