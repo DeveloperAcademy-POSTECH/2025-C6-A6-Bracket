@@ -115,6 +115,7 @@ struct PresetView: View {
                             vm.toggleSelection(for: preset)
                         } else {
                             Task {
+                                // TODO: Custom Alert("이 프리셋을 적용하시겠습니까?") 적용
                                 await vm.setCurrentPreset(preset)
                             }
                         }
@@ -201,7 +202,6 @@ struct PresetView: View {
 
             Button {
                 vm.deleteSelectedPresets()
-                vm.showDeleteAlert = false
             } label: {
                 Text("프리셋 삭제")
                     .font(.num3)

@@ -95,6 +95,7 @@ final class MainViewModel {
             }
             selectedPresets.removeAll()
             loadPresets()
+            showDeleteAlert = false
             exitEditMode()
         } catch {
             handleError(error)
@@ -142,6 +143,7 @@ final class MainViewModel {
             error = nil
             try await ignoreShootingMode(action: "off")
         } catch {
+            try? await ignoreShootingMode(action: "off")
             handleError(error)
         }
     }
