@@ -105,6 +105,16 @@ final class MainViewModel {
         }
     }
 
+    func getDisplayType(for preset: Preset) -> PresetCapsuleDisplayType {
+        if isPresetEditMode && selectedPresets.contains(preset.id) {
+            return .selected
+        } else if currentlyAppliedPresetId == preset.id {
+            return .currentlyApplied
+        } else {
+            return .default
+        }
+    }
+
     func setCurrentPreset(_ preset: Preset) async {
         let shootingMode = preset.shootingMode
         let pictureStyle = preset.pictureStyle
