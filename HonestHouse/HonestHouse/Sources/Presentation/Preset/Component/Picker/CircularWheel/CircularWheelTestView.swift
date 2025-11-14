@@ -15,7 +15,7 @@ struct CircularWheelTestView: View {
 //            Spacer()
             HStack {
 //                ForEach(WheelSettingType.allCases, id: \.self) { item in
-                CircularWheelPickerView(vm: .init(settingType: WheelSettingType.tintMagentaGreen, isDimmed: $isDimmed))
+                CircularWheelPickerView(preset: .constant(.stub1), vm: .init(settingType: WheelSettingType.tintMagentaGreen, isDimmed: $isDimmed))
                         .frame(maxWidth: .infinity)
                     
 //                }

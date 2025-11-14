@@ -13,6 +13,7 @@ struct ExpandableWheel: View {
     
     @Bindable var viewModel: CircularWheelViewModel
     @Binding var index: Int
+    @Binding var preset: Preset
     
     let type: WheelSettingType
     let isVisible: Bool
@@ -68,6 +69,7 @@ struct ExpandableWheel: View {
                         }
                         .onEnded { _ in
                             viewModel.isDragging = false
+                            setValue()
                         }
                 )
         }
@@ -96,6 +98,19 @@ struct ExpandableWheel: View {
             type: type,
             circleSize: viewModel.circleSizeType
         )
+    }
+    
+    private func setValue() {
+        switch type {
+        case .tintMagentaGreen:
+            preset.tintMagentaGreen = CameraConstants.tintMagentaGreenValues[index]
+            
+        case .exposureCompensation:
+            preset.exposureCompensation = CameraConstants.exposureCompensationValues[index]
+            
+        case .colorTemperature:
+            preset.exposureCompensation = CameraConstants.colorTemperatureValues[index].description
+        }
     }
     
     private func shouldShowLabel(at idx: Int) -> Bool {

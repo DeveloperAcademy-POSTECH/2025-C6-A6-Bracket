@@ -198,14 +198,14 @@ struct PresetDetailView: View {
         HStack(alignment: .center, spacing: 54) {
             
             // Tint Magenta Green (마젠타-그린)
-            CircularWheelPickerView(vm: .init(settingType: .tintMagentaGreen, isDimmed: $vm.isDimmed))
+            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .tintMagentaGreen, isDimmed: $vm.isDimmed))
             
             
             // Exposure Compensation (노출 보정)
-            CircularWheelPickerView(vm: .init(settingType: .exposureCompensation, isDimmed: $vm.isDimmed))
+            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .exposureCompensation, isDimmed: $vm.isDimmed))
             
             // Color Temperature (색온도)
-            CircularWheelPickerView(vm: .init(settingType: .colorTemperature, isDimmed: $vm.isDimmed))
+            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .colorTemperature, isDimmed: $vm.isDimmed))
         }
         .frame(maxWidth: .infinity)
     }
