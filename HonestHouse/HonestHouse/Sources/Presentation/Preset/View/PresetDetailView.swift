@@ -23,18 +23,37 @@ struct PresetDetailView: View {
                 settingsView()
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            toolbarContent()
-        }
-        .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
-            Button("저장하지 않고 나가기", role: .destructive) {
+        .navigationBarWithBack(title: "", showShadow: false) {
+            if vm.viewMode == .create {
+                showUnsavedChangesAlert = true
+            } else if vm.hasUnsavedChanges() {
+                showUnsavedChangesAlert = true
+            } else {
                 dismiss()
             }
-            Button("계속 편집", role: .cancel) { }
+        } rightView: {
+            saveButtonView()
+        }
+        // TODO: alert 변경
+        .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
+            Button("삭제하기", role: .destructive) {
+                dismiss()
+            }
+            Button("취소", role: .cancel) { }
         } message: {
-            Text("저장하지 않은 변경사항이 있습니다.")
+            Text("이 프리셋이 저장되지 않았습니다.\n정말 나가시겠습니까?")
+        }
+    }
+    
+    private func saveButtonView() -> some View {
+        Button {
+            Task {
+                try await vm.savePreset()
+            }
+            vm.send(.popToPresetView)
+        } label: {
+            Text("저장")
+                .foregroundStyle(Color.g0)
         }
     }
     
@@ -200,7 +219,6 @@ struct PresetDetailView: View {
             // Tint Magenta Green (마젠타-그린)
             CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .tintMagentaGreen, isDimmed: $vm.isDimmed))
             
-            
             // Exposure Compensation (노출 보정)
             CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .exposureCompensation, isDimmed: $vm.isDimmed))
             
@@ -225,47 +243,6 @@ struct PresetDetailView: View {
             vm.activePicker = nil
         } else {
             vm.activePicker = type
-        }
-    }
-    
-    // Toolbar
-    @ToolbarContentBuilder
-    private func toolbarContent() -> some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            Button("취소") {
-                if vm.viewMode == .create {
-                    showUnsavedChangesAlert = true
-                } else if vm.hasUnsavedChanges() {
-                    showUnsavedChangesAlert = true
-                } else {
-                    dismiss()
-                }
-            }
-            .foregroundColor(.white)
-        }
-        
-        ToolbarItem(placement: .principal) {
-            Text(vm.currentPreset.name)
-                .font(.headline)
-                .foregroundColor(.white)
-        }
-        
-        ToolbarItem(placement: .navigationBarTrailing) {
-            switch vm.viewMode {
-            case .view:
-                Button("편집") {
-                    vm.switchToEditMode()
-                }
-                .foregroundColor(.white)
-                
-            case .edit, .create:
-                Button("저장") {
-                    Task {
-                        try? await vm.savePreset()
-                    }
-                }
-                .foregroundColor(.white)
-            }
         }
     }
 }
