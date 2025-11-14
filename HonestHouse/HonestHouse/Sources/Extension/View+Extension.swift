@@ -19,6 +19,7 @@ extension View {
         self
             .font(style.font)
             .lineSpacing(style.lineSpacing)
+            .padding(.vertical, style.verticalPadding)
     }
     
     /*
