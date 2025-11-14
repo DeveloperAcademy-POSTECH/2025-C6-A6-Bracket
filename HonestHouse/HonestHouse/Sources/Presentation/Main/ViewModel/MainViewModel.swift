@@ -27,6 +27,7 @@ final class MainViewModel {
     var selectedPresets: Set<UUID> = []
     var viewMode: PresetViewMode = .list
     var error: PresetError?
+    var currentlyAppliedPresetId: UUID?
 
     var showEditButton: Bool {
         selectedSegment == .preset
@@ -143,6 +144,7 @@ final class MainViewModel {
             }
 
             error = nil
+            currentlyAppliedPresetId = preset.id
             try await ignoreShootingMode(action: "off")
         } catch {
             try? await ignoreShootingMode(action: "off")
