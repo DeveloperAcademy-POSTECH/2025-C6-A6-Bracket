@@ -53,6 +53,7 @@ final class MainViewModel {
     }
     
     func toggleEditMode() {
+        selectedPresets.removeAll()
         isPresetEditMode.toggle()
     }
     
@@ -62,6 +63,7 @@ final class MainViewModel {
     }
     
     func setViewMode(_ mode: PresetViewMode) {
+        selectedPresets.removeAll()
         withAnimation(.easeInOut(duration: 0.3)) {
             viewMode = mode
         }
