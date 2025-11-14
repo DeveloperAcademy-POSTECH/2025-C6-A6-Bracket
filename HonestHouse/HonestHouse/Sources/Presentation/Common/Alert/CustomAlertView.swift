@@ -81,7 +81,7 @@ struct CustomAlertView: View {
                 .foregroundColor(buttonTitleColor(for: button.style))
                 .padding(.vertical, 13)
                 .frame(maxWidth: .infinity)
-                .background(buttonBGColor(for: button.style))
+                .background(buttonBackgroundColor(for: button.style))
                 .clipShape(Capsule())
                 .overlay {
                     Capsule().strokeBorder(buttonBorderColor(for: button.style), lineWidth: 0.5)
@@ -98,7 +98,7 @@ struct CustomAlertView: View {
         }
     }
     
-    private func buttonBGColor(for style: CustomAlertConfig.AlertButton.ButtonStyle) -> Color {
+    private func buttonBackgroundColor(for style: CustomAlertConfig.AlertButton.ButtonStyle) -> Color {
         switch style {
         case .default:
             return Color.yellow1
