@@ -12,13 +12,13 @@ struct CircularWheelTestView: View {
     
     var body: some View {
         VStack {
-            Spacer()
+//            Spacer()
             HStack {
-                ForEach(WheelSettingType.allCases, id: \.self) { item in
-                    CircularWheelPickerView(vm: .init(settingType: item, isDimmed: $isDimmed))
+//                ForEach(WheelSettingType.allCases, id: \.self) { item in
+                CircularWheelPickerView(vm: .init(settingType: WheelSettingType.tintMagentaGreen, isDimmed: $isDimmed))
                         .frame(maxWidth: .infinity)
                     
-                }
+//                }
                 .padding(.bottom, 20)
             }
         }
