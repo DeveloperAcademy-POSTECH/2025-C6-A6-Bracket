@@ -70,7 +70,7 @@ struct PresetView: View {
             ForEach(vm.presets) { preset in
                 PresetGridItemView(
                     preset: preset,
-                    isSelected: vm.selectedPresets.contains(preset.id),
+                    displayType: vm.getDisplayType(for: preset),
                     isEditMode: vm.isPresetEditMode,
                     onTap: {
                         if vm.isPresetEditMode {
@@ -101,7 +101,7 @@ struct PresetView: View {
             ForEach(vm.presets) { preset in
                 PresetListItemView(
                     preset: preset,
-                    isSelected: vm.selectedPresets.contains(preset.id),
+                    displayType: vm.getDisplayType(for: preset),
                     isEditMode: vm.isPresetEditMode,
                     onTap: {
                         if vm.isPresetEditMode {

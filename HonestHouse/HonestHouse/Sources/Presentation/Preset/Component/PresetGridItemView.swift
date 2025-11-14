@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PresetGridItemView: View {
     let preset: Preset
-    let isSelected: Bool
+    let displayType: PresetCapsuleDisplayType
     let isEditMode: Bool
     let onTap: () -> Void
     let onActionTap: () -> Void
@@ -29,9 +29,8 @@ struct PresetGridItemView: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .strokeBorder(isEditMode && isSelected ? Color.yellow1 : Color.clear, lineWidth: 1)
+                    .strokeBorder(displayType != .default ? Color.yellow1 : Color.clear, lineWidth: 1)
             )
-//            .contentShape(RoundedRectangle(cornerRadius: 20))
         }
         .buttonStyle(NoHighlightButtonStyle())
     }
@@ -49,15 +48,17 @@ struct PresetGridItemView: View {
     func applyButtonView() -> some View {
         Button(action: onActionTap) {
             if isEditMode {
-                Image(isSelected ? .checkSelectBtnS : .checkUnselectBtnS)
+                Image(displayType == .selected ? .checkSelectBtnS : .checkUnselectBtnS)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 24, height: 24)
             } else {
                 Image(.cameraSend)
                     .resizable()
+                    .renderingMode(.template)
                     .scaledToFit()
                     .frame(width: 24, height: 24)
+                    .foregroundStyle(displayType == .currentlyApplied ? Color.yellow1 : Color.g0)
             }
         }
     }
@@ -67,7 +68,7 @@ struct PresetGridItemView: View {
     HStack(spacing: 10) {
         PresetGridItemView(
             preset: .stub1,
-            isSelected: false,
+            displayType: .default,
             isEditMode: false,
             onTap: {},
             onActionTap: {}
@@ -75,8 +76,8 @@ struct PresetGridItemView: View {
         
         PresetGridItemView(
             preset: .stub2,
-            isSelected: true,
-            isEditMode: false,
+            displayType: .selected,
+            isEditMode: true,
             onTap: {},
             onActionTap: {}
         )

@@ -7,8 +7,15 @@
 
 import SwiftUI
 
+enum PresetCapsuleDisplayType {
+    case `default`
+    case selected
+    case currentlyApplied
+}
+
 struct PresetCapsuleView: View {
     let preset: Preset
+    let displayType: PresetCapsuleDisplayType
 
     private let iconCircleSize: CGFloat = 32
     private let iconContentSize: CGFloat = 24
@@ -26,6 +33,24 @@ struct PresetCapsuleView: View {
         .padding(.horizontal, horizontalPadding)
         .padding(.vertical, verticalPadding)
         .frame(maxWidth: .infinity)
+        .background(
+            Capsule()
+                .fill(Color.g11)
+        )
+        .overlay(
+            Capsule()
+                .strokeBorder(strokeColor, lineWidth: 1)
+        )
+        .contentShape(Capsule())
+    }
+
+    private var strokeColor: Color {
+        switch displayType {
+        case .default:
+            return .clear
+        case .selected, .currentlyApplied:
+            return .yellow1
+        }
     }
 
     private func firstRowView() -> some View {

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PresetListItemView: View {
     let preset: Preset
-    let isSelected: Bool
+    let displayType: PresetCapsuleDisplayType
     let isEditMode: Bool
     let onTap: () -> Void
     let onActionTap: () -> Void
@@ -21,11 +21,7 @@ struct PresetListItemView: View {
                 Spacer()
                 applyButtonView()
             }
-            if isEditMode && isSelected {
-                selectedCapsuleView()
-            } else {
-                defaultCapsuleView()
-            }
+            capsuleView()
         }
     }
     
@@ -40,42 +36,23 @@ struct PresetListItemView: View {
             onActionTap()
         } label: {
             if isEditMode {
-                Image(isSelected ? .checkSelectBtnS : .checkUnselectBtnS)
+                Image(displayType == .selected ? .checkSelectBtnS : .checkUnselectBtnS)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 24, height: 24)
             } else {
                 Image(.cameraSend)
                     .resizable()
+                    .renderingMode(.template)
                     .scaledToFit()
                     .frame(width: 24, height: 24)
+                    .foregroundStyle(displayType == .currentlyApplied ? Color.yellow1 : Color.g0)
             }
         }
     }
     
-    func defaultCapsuleView() -> some View {
-        PresetCapsuleView(preset: preset)
-            .background(
-                Capsule()
-                    .fill(Color.g11)
-            )
-            .contentShape(Capsule())
-            .onTapGesture {
-                onTap()
-            }
-    }
-    
-    func selectedCapsuleView() -> some View {
-        PresetCapsuleView(preset: preset)
-            .background(
-                Capsule()
-                    .fill(Color.g11)
-            )
-            .overlay(
-                Capsule()
-                    .strokeBorder(Color.yellow1, lineWidth: 1)
-            )
-            .contentShape(Capsule())
+    func capsuleView() -> some View {
+        PresetCapsuleView(preset: preset, displayType: displayType)
             .onTapGesture {
                 onTap()
             }
@@ -86,7 +63,7 @@ struct PresetListItemView: View {
     VStack(spacing: 20) {
         PresetListItemView(
             preset: .stub1,
-            isSelected: false,
+            displayType: .default,
             isEditMode: false,
             onTap: {},
             onActionTap: {}
@@ -94,16 +71,16 @@ struct PresetListItemView: View {
         
         PresetListItemView(
             preset: .stub2,
-            isSelected: true,
-            isEditMode: false,
+            displayType: .selected,
+            isEditMode: true,
             onTap: {},
             onActionTap: {}
         )
         
         PresetListItemView(
             preset: .stub3,
-            isSelected: false,
-            isEditMode: true,
+            displayType: .currentlyApplied,
+            isEditMode: false,
             onTap: {},
             onActionTap: {}
         )
