@@ -18,7 +18,7 @@ struct WheelLabelView: View {
     
     var body: some View {
         Text(type.formatValue(index))
-            .font(.num6)
+            .fontStyle(.num6)
             .foregroundColor(labelColor)
             .position(labelPosition)
     }

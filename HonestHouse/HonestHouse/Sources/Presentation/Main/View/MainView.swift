@@ -59,7 +59,7 @@ struct MainView: View {
                 } label: {
                     Text("전체선택")
                         .foregroundStyle(Color.g0)
-                        .font(.num4)
+                        .fontStyle(.num4)
                 }
             } else {
                 Button {
@@ -91,7 +91,7 @@ struct MainView: View {
                 } label: {
                     Text("완료")
                         .foregroundStyle(Color.g0)
-                        .font(.num4)
+                        .fontStyle(.num4)
                 }
             } else {
                 Button {
@@ -119,7 +119,7 @@ struct MainView: View {
                         .scaledToFit()
                         .frame(width: 24, height: 24)
                     Text("Preset 선택")
-                        .font(.num3)
+                        .fontStyle(.num3)
                         .foregroundStyle(Color.g0)
                 }
             }
@@ -136,7 +136,7 @@ struct MainView: View {
                         .scaledToFit()
                         .frame(width: 24, height: 24)
                     Text(vm.viewMode == .grid ? "목록으로 보기" : "갤러리로 보기")
-                        .font(.num3)
+                        .fontStyle(.num3)
                         .foregroundStyle(Color.g0)
                 }
             }

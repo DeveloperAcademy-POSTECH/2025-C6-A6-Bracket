@@ -186,11 +186,11 @@ struct PresetView: View {
     private func deleteConfirmAlertView() -> some View {
         VStack(alignment: .center, spacing: 12) {
             Text("정말 삭제하시겠습니까?")
-                .font(.num3)
+                .fontStyle(.num3)
                 .foregroundStyle(Color.g0)
 
             Text("삭제된 프리셋은\n복구할 수 없습니다.")
-                .font(.captionL)
+                .fontStyle(.captionL)
                 .foregroundStyle(Color.g5)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
@@ -200,7 +200,7 @@ struct PresetView: View {
                 vm.deleteSelectedPresets()
             } label: {
                 Text("프리셋 삭제")
-                    .font(.num3)
+                    .fontStyle(.num3)
                     .foregroundStyle(Color.red1)
                     .padding(.vertical, 13)
                     .padding(.horizontal, 60)
