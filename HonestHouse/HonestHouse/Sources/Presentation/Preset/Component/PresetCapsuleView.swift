@@ -74,11 +74,11 @@ struct PresetCapsuleView: View {
             HStack(spacing: 8) {
                 if let modeText = shootingModeText {
                     Text(modeText)
-                        .font(.num6)
+                        .fontStyle(.num6)
                         .foregroundColor(Color.g0)
                 }
                 Text(isoText)
-                    .font(.num6)
+                    .fontStyle(.num6)
                     .foregroundColor(Color.g0)
             }
         }
@@ -108,7 +108,7 @@ struct PresetCapsuleView: View {
         HStack(spacing: 10) {
             iconWithCircleBackground(icon: icon, hasValue: hasValue)
             Text(text)
-                .font(.num6)
+                .fontStyle(.num6)
                 .foregroundColor(hasValue ? Color.g0 : disabledColor)
         }
     }

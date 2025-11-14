@@ -35,7 +35,7 @@ struct CircularWheelPickerView: View {
     
     private func valueView() -> some View {
         Text(vm.settingType.formatValue(index))
-            .font(.num6)
+            .fontStyle(.num6)
             .foregroundStyle(Color.g0)
     }
     

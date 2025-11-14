@@ -95,7 +95,7 @@ struct TrishotSettingView: View {
         return Button {
             vm.send(action: .goToTrishotActivation)
         } label: {
-            Text("시작하기")
+            Text("Tri-shot 시작하기")
         }
         .buttonStyle(DefaultButtonStyle(canStart ? .activated : .deactivated))
         .disabled(!canStart)
