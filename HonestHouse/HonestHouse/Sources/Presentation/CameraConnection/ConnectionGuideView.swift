@@ -28,8 +28,6 @@ struct ConnectionGuideView: View {
             
             Spacer()
             
-            connectionStatusView()
-            
             connectButton()
         }
         .padding(.vertical, 38)
@@ -83,20 +81,30 @@ struct ConnectionGuideView: View {
         }
     }
     
-    // TODO: IP 직접 입력 후 연결 구현 필요
     private func ipAddressTextField() -> some View {
-        TextField("https://192.168.1.2:443/ccapi/", text: $ipAddress)
-            .font(.num4)
-            .foregroundColor(.g0)
-            .multilineTextAlignment(.center)
-            .keyboardType(.webSearch)
-            .padding(.vertical, 12)
-            .background(Color.clear)
-            .overlay(
-                RoundedRectangle(cornerRadius: 100)
-                    .stroke(Color.g0, lineWidth: 1)
-            )
-            .padding(.horizontal, 16)
+        ZStack(alignment: .center) {
+            if ipAddress.isEmpty {
+                Text("예시) https://192.168.1.2:443")
+                    .font(.num4)
+                    .foregroundColor(.g6)
+            }
+            
+            TextField("", text: $ipAddress)
+                .font(.num4)
+                .foregroundColor(.g0)
+                .tint(.g6)
+                .multilineTextAlignment(.center)
+                .keyboardType(.URL)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+        }
+        .padding(.vertical, 12)
+        .background(Color.clear)
+        .overlay(
+            RoundedRectangle(cornerRadius: 100)
+                .stroke(Color.g0, lineWidth: 1)
+        )
+        .padding(.horizontal, 16)
     }
     
     private func connectButton() -> some View {
@@ -104,7 +112,11 @@ struct ConnectionGuideView: View {
             if cameraConnectionManager.connectionState != .connecting {
                 cameraConnectionManager.connectionState = .disconnected
             }
-            
+
+            if !ipAddress.isEmpty {
+                parseAndSetURLComponents(from: ipAddress)
+            }
+
             cameraConnectionManager.connectCamera(ipAddress: BaseURLConstants.cameraIP)
         } label: {
             Text("연결하기")
@@ -117,22 +129,20 @@ struct ConnectionGuideView: View {
         }
         .padding(.horizontal, 16)
     }
-    
-    // TODO: 연결 UI 로그용, 추후 삭제
-    private func connectionStatusView() -> some View {
-        switch cameraConnectionManager.connectionState {
-        case .disconnected:
-            Text("Disconnected")
-                .foregroundColor(.gray)
-        case .connecting:
-            Text("Connecting")
-                .foregroundColor(.gray)
-        case .connected:
-            Text("Connected")
-                .foregroundColor(.green)
-        case .failed(let error):
-            Text("Connection Failed: \(error)")
-                .foregroundColor(.red)
+
+    private func parseAndSetURLComponents(from urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        
+        if let scheme = url.scheme {
+            BaseURLConstants.scheme = scheme
+        }
+        
+        if let host = url.host {
+            BaseURLConstants.cameraIP = host
+        }
+
+        if let port = url.port {
+            BaseURLConstants.port = String(port)
         }
     }
 }
