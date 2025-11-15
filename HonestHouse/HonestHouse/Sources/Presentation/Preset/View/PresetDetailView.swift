@@ -34,7 +34,9 @@ struct PresetDetailView: View {
                 dismiss()
             }
         } rightView: {
-            saveButtonView()
+            if vm.viewMode == .create {
+                saveButtonView()
+            }
         }
         // TODO: alert 변경
         .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
