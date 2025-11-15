@@ -10,4 +10,9 @@ import Vision
 struct AnalyzedPhoto {
     let photo: Photo
     let observation: VNFeaturePrintObservation
+    let faceObservation: VNFaceObservation?
+    
+    var hasFace: Bool {
+        faceObservation != nil
+    }
 }
