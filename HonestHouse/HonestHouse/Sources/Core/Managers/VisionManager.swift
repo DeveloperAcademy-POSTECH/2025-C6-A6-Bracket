@@ -253,6 +253,29 @@ final class VisionManager: VisionManagerType {
         return sumDistance / Float(currentGroupIndexes.count)
     }
     
+    /// 완전 링크 제약 확인 (그룹 내의 모든 사진과의 거리가 threshold 이하인지)
+    private func fitsCompleteLinkConstraint(
+        targetIndex: Int,
+        currentGroupIndexes: [Int],
+        photos: [AnalyzedPhoto],
+        params: GroupingParams,
+        threshold: Float
+    ) throws -> Bool {
+        for idx in currentGroupIndexes {
+            let distance = try combinedDistance(
+                photos[idx],
+                photos[targetIndex],
+                params: params
+            )
+            
+            // 하나라도 threshold를 넘으면 실패
+            if distance >= threshold {
+                return false
+            }
+        }
+        return true
+    }
+    
     /// 유사 그룹 생성
     private func makeSimilarGroup(
         photos: [Photo],
