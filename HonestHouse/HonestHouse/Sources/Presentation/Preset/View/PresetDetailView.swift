@@ -12,6 +12,7 @@ struct PresetDetailView: View {
     @State var vm: PresetDetailViewModel
     @State private var showDeleteAlert = false
     @State private var showUnsavedChangesAlert = false
+    @FocusState private var isNameFieldFocused: Bool
     @Environment(\.dismiss) private var dismiss // TODO: - vm에서 nvrouter로 관리
     
     var body: some View {
@@ -19,6 +20,7 @@ struct PresetDetailView: View {
             Color.g12.ignoresSafeArea(.all)
             
             VStack(spacing: 0) {
+                nameView()
                 previewView()
                 settingsView()
             }
@@ -55,6 +57,29 @@ struct PresetDetailView: View {
             Text("저장")
                 .foregroundStyle(Color.g0)
         }
+    }
+    
+    private func nameView() -> some View {
+        HStack() {
+            if vm.viewMode == .view {
+                Text(vm.currentPreset.name)
+                    .fontStyle(.num2)
+                    .foregroundStyle(Color.g0)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            } else {
+                PresetNameTextFieldView(placeholder: "프리셋 이름", text: $vm.currentPreset.name)
+                    
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .onTapGesture {
+            if vm.viewMode != .view {
+                isNameFieldFocused = true
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private func previewView() -> some View {
@@ -246,3 +271,5 @@ struct PresetDetailView: View {
 #Preview("Create Mode") {
     PresetDetailView(vm: .init(container: .stub, mode: .create, preset: .stub3))
 }
+
+
