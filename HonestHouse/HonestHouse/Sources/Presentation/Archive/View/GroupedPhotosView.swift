@@ -18,6 +18,7 @@ struct GroupedPhotosView: View {
     
     var body: some View {
         groupingStateView()
+            .background(Color.g12.ignoresSafeArea(.all))
             .navigationBarWithBack(title: "", showShadow: true, rightView: {
                 EmptyView()
             })

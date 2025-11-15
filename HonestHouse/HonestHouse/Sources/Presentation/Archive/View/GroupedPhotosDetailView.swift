@@ -28,6 +28,8 @@ struct GroupedPhotosDetailView: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
+            Color.g12.ignoresSafeArea(.all)
+            
             photoGroupTabView()
             
             selectionButtonView(photo: selectedPhoto)

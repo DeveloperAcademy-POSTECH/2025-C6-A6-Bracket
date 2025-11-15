@@ -28,11 +28,12 @@ struct PhotoSelectionDetailView: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
+            Color.g12.ignoresSafeArea(.all)
+            
             photoTabView()
             
             selectionButtonView(photo: currentPhoto)
                 .padding(.trailing, 16)
-            
         }
         .navigationBarWithBack(title: currentPhoto.detailDateString, showShadow: false) {
             dismiss()

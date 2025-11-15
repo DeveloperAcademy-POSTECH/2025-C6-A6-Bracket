@@ -18,6 +18,7 @@ struct PhotoSelectionView: View {
     
     var body: some View {
         selectionStateView()
+            .background(Color.g12.ignoresSafeArea(.all))
             .task {
                 if vm.allPhotos.isEmpty {
                     await vm.fetchAllImages()
