@@ -85,14 +85,18 @@ struct PresetCapsuleView: View {
     }
 
     private var shootingModeText: String? {
-        let apertureValue = preset.aperture ?? "Auto"
-        let shutterSpeedValue = preset.shutterSpeed ?? "Auto"
-
         switch preset.shootingMode {
         case .av:
-            return "f:\(apertureValue)"
+            if let apertureValue = preset.aperture {
+                return "F:\(apertureValue.apertureNumericValue)"
+            } else {
+                return "F:Auto"
+            }
+            
         case .tv:
+            let shutterSpeedValue = preset.shutterSpeed ?? "Auto"
             return "S:\(shutterSpeedValue)"
+            
         case .p:
             return nil
         }
