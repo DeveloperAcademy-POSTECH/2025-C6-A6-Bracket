@@ -78,7 +78,7 @@ struct PresetDetailView: View {
     
     // Primary Settings Section
     private func primarySettingsView() -> some View {
-        HStack(alignment: .bottom) {
+        HStack(alignment: .bottom, spacing: 20) {
             
             // 촬영 모드
             ShootingModeSettingButtonView(
