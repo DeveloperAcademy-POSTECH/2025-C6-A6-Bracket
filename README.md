@@ -2,9 +2,6 @@
 
 ![Bracket Banner](https://github.com/user-attachments/assets/4bca99a7-5b37-4c6d-a059-212e9458a096)
 
-**Canon 카메라 원격 제어 및 AI 사진 그룹화**
-
-[![Notion](https://img.shields.io/badge/프로젝트_스토리-Notion-000000?style=flat-square&logo=notion&logoColor=white)](https://slime-shirt-140.notion.site/Bracket-2a202aff8b528063be0ff432c107e135)
 
 </div>
 
@@ -12,12 +9,7 @@
 
 ## 📋 Overview
 
-Bracket은 Canon 미러리스 카메라를 iPhone으로 제어하며, 미리 설정한 3가지 프리셋을 자동으로 순환 적용하는 iOS 앱입니다. 촬영한 사진은 Vision Framework를 통해 자동 그룹화되어 빠른 선별이 가능합니다.
-
-```
-📸 Tri-shot: 셔터 한 번에 프리셋 자동 전환
-🤖 AI 그룹화: 유사 사진 자동 분류 및 무선 전송
-```
+Bracket은 DSLR/미러리스 카메라 사용자를 위한 촬영 보조 앱입니다.
 
 ---
 
@@ -35,7 +27,7 @@ Bracket은 Canon 미러리스 카메라를 iPhone으로 제어하며, 미리 설
 
 </div>
 
-미리 저장한 3가지 프리셋(촬영 모드, 조리개, 셔터, ISO, 색온도, 틴트, 픽처스타일)을 셔터 한 번에 자동 순환 적용합니다.
+미리 저장한 3가지 프리셋(촬영 모드, 조리개, 셔터, ISO, 색온도, 틴트, 픽처스타일)을 셔터를 누를때마다 적용합니다.
 
 **기술 구현**
 - [ ] **개발자 작성**: 프리셋 순환 로직 및 상태 관리 방식
@@ -46,11 +38,6 @@ Bracket은 Canon 미러리스 카메라를 iPhone으로 제어하며, 미리 설
 // 핵심 코드 스니펫 (개발자 작성)
 // 예: PresetCycleManager, CameraService 등
 ```
-
-**차별점**
-- 기존 브라케팅: 한 가지 설정만 변경 (예: 노출 -1, 0, +1)
-- Bracket Tri-shot: 모든 촬영 설정을 자유롭게 조합 가능
-
 ---
 
 <div align="center">
@@ -63,7 +50,7 @@ Bracket은 Canon 미러리스 카메라를 iPhone으로 제어하며, 미리 설
 
 </div>
 
-Vision Framework를 활용한 이미지 유사도 분석으로 비슷한 사진끼리 자동 그룹화합니다.
+Vision Framework를 활용한 이미지 유사도 분석과 시간대에 따른 가중치 계산으로 비슷한 사진끼리 그룹화합니다.
 
 **기술 구현**
 - [ ] **개발자 작성**: Vision Framework 특징점 추출 방식
@@ -273,6 +260,7 @@ View 자동 리렌더링
 **Apple Developer Academy @ POSTECH | Team A6 (HonestHouse)**
 
 </div>
+[![Notion](https://img.shields.io/badge/프로젝트_스토리-Notion-000000?style=flat-square&logo=notion&logoColor=white)](https://slime-shirt-140.notion.site/Bracket-2a202aff8b528063be0ff432c107e135)
 
 ---
 
