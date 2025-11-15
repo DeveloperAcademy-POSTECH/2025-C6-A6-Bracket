@@ -64,7 +64,6 @@ struct PresetDetailView: View {
     
     private func settingsView() -> some View {
         VStack(spacing: 52) {
-            shootingModeView()
             primarySettingsView()
             
             if let activePicker = vm.activePicker {
@@ -77,33 +76,21 @@ struct PresetDetailView: View {
         .padding(.top, 30)
     }
     
-    // Camera Mode Section
-    private func shootingModeView() -> some View {
-        ShootingModeSelector(
-            selectedMode: Binding(
-                get: { vm.currentPreset.shootingMode },
-                set: { vm.changeCameraMode(to: $0) }
-            ),
-            isEnabled: vm.viewMode != .view
-        )
-    }
-    
     // Primary Settings Section
     private func primarySettingsView() -> some View {
-        HStack {
+        HStack(alignment: .bottom) {
             
-//            SettingButton(
-//                type: .cameraMode,
-//                state: vm.getButtonState(for: .cameraMode),
-//                value: vm.currentPreset.shootingMode,
-//                isSelected: vm.activePicker == .cameraMode,
-//                action: {
-//                    handleSettingButtonTap(.cameraMode)
-//                }
-//            )
+            // 촬영 모드
+            ShootingModeSettingButtonView(
+                selectedMode: Binding(
+                    get: { vm.currentPreset.shootingMode },
+                    set: { vm.changeCameraMode(to: $0) }
+                ),
+                isEnabled: vm.viewMode != .view
+            )
             
             // Aperture (조리개)
-            SettingButton(
+            SettingButtonView(
                 type: .aperture,
                 state: vm.getButtonState(for: .aperture),
                 value: vm.currentPreset.displayAperture,
@@ -114,7 +101,7 @@ struct PresetDetailView: View {
             )
             
             // Shutter Speed (셔터 스피드)
-            SettingButton(
+            SettingButtonView(
                 type: .shutterSpeed,
                 state: vm.getButtonState(for: .shutterSpeed),
                 value: vm.currentPreset.displayShutterSpeed,
@@ -125,7 +112,7 @@ struct PresetDetailView: View {
             )
             
             // ISO
-            SettingButton(
+            SettingButtonView(
                 type: .iso,
                 state: vm.getButtonState(for: .iso),
                 value: vm.currentPreset.displayISO,
@@ -136,7 +123,7 @@ struct PresetDetailView: View {
             )
             
             // Picture Style (픽쳐 스타일)
-            SettingButton(
+            SettingButtonView(
                 type: .pictureStyle,
                 state: vm.getButtonState(for: .pictureStyle),
                 value: vm.currentPreset.pictureStyle.rawValue,
