@@ -167,19 +167,85 @@ final class VisionManager: VisionManagerType {
         )
     }
     
-    /// 그룹 내 사진과 타겟 사진의 유사도 평균을 계산
+    /// 결합 거리: ImageFeature + Face + DateInfo
+    private func combinedDistance(
+        _ a: AnalyzedPhoto,
+        _ b: AnalyzedPhoto,
+        params: GroupingParams
+    ) throws -> Float {
+        // 1. Vision 시각 거리
+        var visual: Float = 0
+        try a.observation.computeDistance(&visual, to: b.observation)
+        
+        // 2. 시간 패널티
+        guard let da = a.photo.dateInfo,
+              let db = b.photo.dateInfo else {
+            return 0
+        }
+        let dt = abs(da.timeIntervalSince(db))
+        let sigma = max(params.timeSigma, 1)
+        let gaussian = 1 - Float(exp(-(dt * dt) / (2 * sigma * sigma)))
+        let temporal = min(gaussian, params.maxTimePenalty)
+        
+        // 3. Face (비교하는 두 이미지 모두 인물 사진이면, 얼굴 위치/크기도 고려)
+        var facePenalty: Float = 0
+        if a.hasFace && b.hasFace,
+           let faceA = a.faceObservation,
+           let faceB = b.faceObservation {
+            let faceSimilarity = calculateFaceSimilarity(faceA, faceB)
+            // 얼굴이 다르면 패널티 (최대 0.1)
+            facePenalty = (1 - faceSimilarity) * 0.1
+        }
+        
+        // 결합
+        return params.alpha * visual + (1 - params.alpha) * temporal + facePenalty
+    }
+    
+    /// 얼굴 유사도 계산
+    private func calculateFaceSimilarity(
+        _ faceA: VNFaceObservation,
+        _ faceB: VNFaceObservation
+    ) -> Float {
+        
+        // 이미지 내 얼굴 비율 비교
+        let sizeA = faceA.boundingBox.width * faceA.boundingBox.height
+        let sizeB = faceB.boundingBox.width * faceB.boundingBox.height
+        let sizeDiff = abs(sizeA - sizeB) / max(sizeA, sizeB)
+        
+        // 얼굴 위치 비교 (중심점)
+        let centerA = CGPoint(
+            x: faceA.boundingBox.midX,
+            y: faceA.boundingBox.midY
+        )
+        
+        let centerB = CGPoint(
+            x: faceB.boundingBox.midX,
+            y: faceB.boundingBox.midY
+        )
+        
+        let positionDiff = sqrt(
+            pow(centerA.x - centerB.x, 2) +
+            pow(centerA.y - centerB.y, 2)
+        )
+        
+        // 0~1 정규화
+        return Float(min(1.0, (sizeDiff + positionDiff) / 2))
+    }
+    
+    /// 그룹 내 사진과 타겟 사진의 평균 결합 거리
     private func calculateAverageDistanceToGroup(
         targetIndex: Int,
         currentGroupIndexes: [Int],
-        photos: [AnalyzedPhoto]
+        photos: [AnalyzedPhoto],
+        params: GroupingParams
     ) throws -> Float {
         var sumDistance: Float = 0.0
         
         for idx in currentGroupIndexes {
-            var distance: Float = 0.0
-            try photos[idx].observation.computeDistance(
-                &distance,
-                to: photos[targetIndex].observation
+            let distance = try combinedDistance(
+                photos[idx],
+                photos[targetIndex],
+                params: params
             )
             sumDistance += distance
         }
