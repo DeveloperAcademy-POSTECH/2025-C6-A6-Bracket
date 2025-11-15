@@ -55,7 +55,7 @@ struct SettingButton<SelectionType>: View {
     var body: some View {
         VStack(spacing: 16) {
             // 값 표시
-            if type != .cameraMode {
+            if type != .cameraMode || type != .pictureStyle {
                 Text("\(value)")
                     .fontStyle(.num6)
                     .foregroundColor(Color.g0)

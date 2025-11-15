@@ -202,13 +202,14 @@ struct PresetDetailView: View {
                 selectedValue: $vm.currentPreset.pictureStyle,
                 items: vm.getPictureStyleValues(),
                 config: .init(
-                    spacing: 22,
-                    itemSize: .init(width: 100, height: 24)
+                    spacing: 6,
+                    itemSize: .init(width: 90, height: 24)
                 )
             )
             
         default:
-            EmptyView().frame(height: 52)
+            Spacer()
+                .frame(height: 52)
         }
     }
     

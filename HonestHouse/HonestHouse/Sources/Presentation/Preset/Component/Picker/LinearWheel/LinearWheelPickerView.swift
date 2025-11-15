@@ -30,12 +30,31 @@ struct LinearWheelPickerView<SelectionValue>: View where SelectionValue: Hashabl
                 
                 if let value = value {
                     
-                    Text("\(value)")
-                        .fontStyle(.num4)
+                    if let pictureStyle = value as? PictureStyleType {
+                        Text("\(pictureStyle.rawValue)")
+                        .font(.num4)
+                        .foregroundStyle(value == selectedValue ? Color.g12 : Color.g0)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+//                        .frame(height: config.itemSize.height)
+                        .background(value == selectedValue ? Color.g0 : Color.g12)
+                        .clipShape(RoundedRectangle(cornerRadius: 100))
+                        .animation(.easeInOut(duration: 0.2), value: selectedValue)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 100)
+                                .strokeBorder(Color.g0, lineWidth: 1)
+                        }
+                        
+                    } else {
+                        Text("\(value)")
+                        .font(.num4)
                         .foregroundStyle(value == selectedValue ? Color.yellow1 : Color.g0)
                         .animation(.easeInOut(duration: 0.2), value: selectedValue)
                         .frame(width: config.itemSize.width,
                                height: config.itemSize.height)
+                    }
+                    
+                        
                 }
             }
             .frame(height: 52)
@@ -84,7 +103,6 @@ where SelectionValue: Hashable & Sendable {
     let config: Config
     
     var body: some View {
-        // Optional로 변환해서 기존 CustomWheelPickerView 재사용
         LinearWheelPickerView(
             selectedValue: Binding(
                 get: { self.selectedValue },
@@ -103,5 +121,9 @@ where SelectionValue: Hashable & Sendable {
 
 
 #Preview("Int") {
-    LinearWheelPickerView(selectedValue: .constant(1), items: CameraConstants.tintMagentaGreenValues    , config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+    LinearWheelPickerView(selectedValue: .constant(1), items: CameraConstants.tintMagentaGreenValues, config: .init(spacing: 22, itemSize: .init(width: 50, height: 24)))
+}
+
+#Preview("PictureStyle") {
+    LinearWheelPickerView(selectedValue: .constant(PictureStyleType.auto as PictureStyleType?), items: PictureStyleType.allCases, config: .init(spacing: 6, itemSize: .init(width: 100, height: 24)))
 }
