@@ -79,7 +79,7 @@ enum WheelSettingType: CaseIterable {
         switch self {
         case .tintMagentaGreen:
             guard index >= 0 && index < CameraConstants.tintMagentaGreenValues.count else { return "0" }
-            return "\(CameraConstants.tintMagentaGreenValues[index])"
+            return CameraConstants.tintMagentaGreenValues[index].withSign
             
         case .exposureCompensation:
             guard index >= 0 && index < CameraConstants.exposureCompensationValues.count else { return "0" }
