@@ -80,7 +80,8 @@ final class VisionManager: VisionManagerType {
     /// 비슷한 이미지를 그룹핑
     private func groupSimilarImages(
         analyzedPhotos: [AnalyzedPhoto],
-        threshold: Float
+        threshold: Float,
+        params: GroupingParams
     ) async throws -> [SimilarPhotoGroup] {
         var similarGroups: [SimilarPhotoGroup] = []
         var processedImageSet = Set<Int>()
@@ -93,6 +94,7 @@ final class VisionManager: VisionManagerType {
                 startIndex: idx,
                 photos: analyzedPhotos,
                 threshold: threshold,
+                params: params,
                 processed: &processedImageSet
             )
             
@@ -117,6 +119,7 @@ final class VisionManager: VisionManagerType {
         startIndex: Int,
         photos: [AnalyzedPhoto],
         threshold: Float,
+        params: GroupingParams,
         processed: inout Set<Int>
     ) throws -> SimilarPhotoGroup? {
         var groupImages = [photos[startIndex].photo]
@@ -126,14 +129,25 @@ final class VisionManager: VisionManagerType {
         for idx in (startIndex + 1)..<photos.count {
             if processed.contains(idx) { continue }
             
+            // 1. 평균 결합 거리 계산
             let avgDistance = try calculateAverageDistanceToGroup(
                 targetIndex: idx,
                 currentGroupIndexes: currentGroupIndexes,
-                photos: photos
+                photos: photos,
+                params: params
             )
             
-            // 그룹 내 사진과 타겟 사진 유사도의 평균값이 임계값보다 작으면 통과
-            if avgDistance < threshold {
+            // 2. 완전 링크 제약 확인 (그룹 내 모든 사진과의 거리가 threshold 이하)
+            let satisfiesCompleteLink = try fitsCompleteLinkConstraint(
+                targetIndex: idx,
+                currentGroupIndexes: currentGroupIndexes,
+                photos: photos,
+                params: params,
+                threshold: threshold
+            )
+            
+            // 3. 평균 < threshold AND 완전링크 만족 시에만 추가
+            if avgDistance < threshold && satisfiesCompleteLink {
                 groupImages.append(photos[idx].photo)
                 currentGroupIndexes.append(idx)
                 distances.append(avgDistance)
