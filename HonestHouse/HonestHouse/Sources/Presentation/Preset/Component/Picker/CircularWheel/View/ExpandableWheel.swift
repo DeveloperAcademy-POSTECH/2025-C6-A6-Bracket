@@ -69,6 +69,10 @@ struct ExpandableWheel: View {
                         }
                         .onEnded { _ in
                             viewModel.isDragging = false
+//                            viewModel.isCircleVisible = false
+                            withAnimation {
+                                viewModel.isCircleVisible.toggle()
+                            }
                             setValue()
                         }
                 )
