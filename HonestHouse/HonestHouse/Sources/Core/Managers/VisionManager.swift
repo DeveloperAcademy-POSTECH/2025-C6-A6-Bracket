@@ -5,6 +5,7 @@
 //  Created by Rama on 10/24/25.
 //
 
+import Foundation
 import Vision
 
 final class VisionManager: VisionManagerType {
@@ -22,45 +23,49 @@ final class VisionManager: VisionManagerType {
         
         return try await groupSimilarImages(
             analyzedPhotos: features,
-            threshold: threshold
+            threshold: threshold,
+            params: .default
         )
     }
     
     /// 각 이미지의 특징을 Vision으로 추출
     private func extractFeatures(from photos: [Photo]) async throws -> [AnalyzedPhoto] {
         var features: [AnalyzedPhoto] = []
-
+        
         for photo in photos {
             do {
-                // Thumbnail 사용 (300x300, Vision에 충분)
                 let uiImage = try await imageLoader.fetchUIImage(from: photo.thumbnailURL)
-
+                
                 guard let cgImage = uiImage.cgImage else {
                     throw VisionError.cgImageConversion(url: photo.thumbnailURL)
                 }
-
-                let request = VNGenerateImageFeaturePrintRequest()
+                
+                // 1. 이미지 전체 특징 추출
+                let featureRequest = VNGenerateImageFeaturePrintRequest()
                 let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-
-                try handler.perform([request])
-
-                guard let observation = request.results?.first else {
+                try handler.perform([featureRequest])
+                
+                guard let featureObservation = featureRequest.results?.first else {
                     throw VisionError.observation(url: photo.thumbnailURL)
                 }
-
+                
+                // 2. 얼굴 감지
+                let faceRequest = VNDetectFaceLandmarksRequest()
+                try? handler.perform([faceRequest])
+                let faceObservation = faceRequest.results?.first
+                
                 features.append(
                     AnalyzedPhoto(
                         photo: photo,
-                        observation: observation
+                        observation: featureObservation,
+                        faceObservation: faceObservation
                     )
                 )
             }
             catch let imageLoadingError as ImageLoadingError {
-                // ImageLoadingError → VisionError 변환
                 throw VisionError.imageFetching(url: photo.thumbnailURL, underlyingError: imageLoadingError)
             }
             catch let visionError as VisionError {
-                // 이미 VisionError면 그대로 throw
                 throw visionError
             }
             catch {
@@ -68,7 +73,7 @@ final class VisionManager: VisionManagerType {
                 throw VisionError.imageFetching(url: photo.thumbnailURL, underlyingError: error)
             }
         }
-
+        
         return features
     }
     
