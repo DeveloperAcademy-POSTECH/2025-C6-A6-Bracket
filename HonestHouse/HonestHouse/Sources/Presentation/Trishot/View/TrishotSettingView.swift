@@ -106,13 +106,13 @@ struct TrishotSettingView: View {
         let canStart = vm.allSelectedPresets.count == 3
         return Button {
             // TODO: 연결 끊김 감지 로직 수정 후 반영
-            if cameraConnectionManager.connectionState == .connected {
-                Logger.info("CONNECTED", category: .connection)
-                vm.send(action: .goToTrishotActivation)
-            } else {
-                Logger.info("DISCONNECTED", category: .connection)
-                vm.showConnectionAlert = true
-            }
+//            if cameraConnectionManager.connectionState == .connected {
+//                Logger.info("CONNECTED", category: .connection)
+//                vm.send(action: .goToTrishotActivation)
+//            } else {
+//                Logger.info("DISCONNECTED", category: .connection)
+//                vm.showConnectionAlert = true
+//            }
         } label: {
             Text("Tri-shot 시작하기")
         }
