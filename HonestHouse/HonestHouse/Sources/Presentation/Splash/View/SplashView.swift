@@ -13,7 +13,7 @@ struct SplashView: View {
         ZStack {
             Color.g12.ignoresSafeArea(.all)
             
-            LottieView(animation: .named("BracketLotti.json"))
+            LottieView(animation: .named("BracketLottie.json"))
                 .playing()
                 .padding(.horizontal, 130)
         }
