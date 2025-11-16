@@ -180,8 +180,7 @@ final class VisionManager: VisionManagerType {
         // 2. 시간 패널티
         guard let da = a.photo.dateInfo,
               let db = b.photo.dateInfo else {
-            // 날짜 정보가 없으면 시각적 거리만 사용
-            return visual
+            return 0
         }
         let dt = abs(da.timeIntervalSince(db))
         let sigma = max(params.timeSigma, 1)
