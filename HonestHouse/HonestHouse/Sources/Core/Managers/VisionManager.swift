@@ -240,7 +240,6 @@ final class VisionManager: VisionManagerType {
         
         return Float(similarity)
     }
-    }
     
     /// 그룹 내 사진과 타겟 사진의 평균 결합 거리
     private func calculateAverageDistanceToGroup(
