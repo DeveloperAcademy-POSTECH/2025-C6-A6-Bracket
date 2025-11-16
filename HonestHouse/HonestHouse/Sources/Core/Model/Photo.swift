@@ -9,7 +9,7 @@ import Foundation
 
 struct Photo: Identifiable, SelectableItem {
     
-    let id = UUID()
+    var id: String { url }
     var url: String
     var mediaType: MediaType
     var dateInfo: Date?

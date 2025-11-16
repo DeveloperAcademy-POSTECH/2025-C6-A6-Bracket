@@ -18,12 +18,12 @@ struct PhotoSelectionDetailView: View {
     let initialPhoto: Photo
     
     private var currentPhoto: Photo {
-        photos.first { $0.url == selectedURL } ?? initialPhoto
+        photos.first { $0.id == selectedURL } ?? initialPhoto
     }
 
     init(initialPhoto: Photo) {
         self.initialPhoto = initialPhoto
-        self._selectedURL = State(initialValue: initialPhoto.url)
+        self._selectedURL = State(initialValue: initialPhoto.id)
     }
 
     var body: some View {
@@ -46,7 +46,7 @@ struct PhotoSelectionDetailView: View {
         TabView(selection: $selectedURL) {
             ForEach(photos) { photo in
                 photoDetailView(photo: photo)
-                    .tag(photo.url)
+                    .tag(photo.id)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
