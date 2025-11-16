@@ -8,12 +8,23 @@
 import Foundation
 
 struct ContentInfo {
-    let dateInfo: Date?
+    var dateInfo: Date?
     
     init(dateInfo: String?) {
-        // String을 Date로 변환
         if let dateString = dateInfo {
             self.dateInfo = DateFormatter.apiDateFormatter.date(from: dateString)
+            // 타임존 포함
+            if let date = DateFormatter.apiDateFormatter.date(from: dateString) {
+                self.dateInfo = date
+            }
+            // 타임존 없음
+            else if let date = DateFormatter.apiDateFormatterWithoutTimezone.date(from: dateString) {
+                self.dateInfo = date
+            }
+            // 파싱 실패
+            else {
+                self.dateInfo = nil
+            }
         } else {
             self.dateInfo = nil
         }
