@@ -12,6 +12,7 @@ import CoreData
 enum TrishotSettingAction {
     case goToTrishotSelection(order: Int)
     case goToTrishotActivation
+    case goToPresetCreation
 }
 
 @Observable
@@ -19,8 +20,8 @@ final class TrishotSettingViewModel {
     private let container: DIContainer
 
     var allSelectedPresets: [Preset] = []
-    var error: TrishotError?
-    
+    var showConnectionAlert: Bool = false
+
     init(container: DIContainer) {
         self.container = container
         loadPresets()
@@ -29,16 +30,9 @@ final class TrishotSettingViewModel {
     func loadPresets() {
         do {
             allSelectedPresets = try container.managers.presetManager.fetchSelectedPresets()
-            error = nil
         } catch {
-            handleError(error)
+            Logger.error("Failed to load selected presets: \(error.localizedDescription)", category: .trishot)
         }
-    }
-}
-
-extension TrishotSettingViewModel: TrishotErrorHandleable {
-    var errorMessage: String? {
-        error?.errorDescription
     }
 }
 
@@ -47,9 +41,10 @@ extension TrishotSettingViewModel {
         switch action {
         case .goToTrishotSelection(let order):
             container.navigationRouter.push(to: .trishotSelection(order: order))
-
         case .goToTrishotActivation:
             container.navigationRouter.push(to: .trishotActivation)
+        case .goToPresetCreation:
+            container.navigationRouter.push(to: .presetEditor(.create, nil))
         }
     }
 }
