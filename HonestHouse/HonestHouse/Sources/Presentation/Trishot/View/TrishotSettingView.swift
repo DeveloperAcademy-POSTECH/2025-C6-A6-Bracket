@@ -66,7 +66,7 @@ struct TrishotSettingView: View {
                 .fontStyle(.title3)
                 .foregroundStyle(Color.g0)
             Button {
-                // TODO: Preset 생성 뷰로 이동하도록 연결
+                vm.send(action: .goToPresetCreation)
             } label: {
                 HStack {
                     Spacer()
