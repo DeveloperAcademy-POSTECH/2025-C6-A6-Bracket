@@ -85,6 +85,7 @@ struct TrishotSettingView: View {
     private func titleView(name: String, order: Int) -> some View {
         Text(name)
             .fontStyle(.num4)
+            .lineLimit(1)
             .foregroundStyle(Color.g0)
     }
     
