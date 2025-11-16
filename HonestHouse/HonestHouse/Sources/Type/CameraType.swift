@@ -8,9 +8,18 @@
 import Foundation
 
 enum CameraType: String, CaseIterable {
-    case eosR50 = "EOS R50"
-    case eosR50V = "EOS R50V"
+    case eos1DXMarkIII = "EOS-1D X Mark III"
+    case eosR5 = "EOS R5"
+    case eosR6 = "EOS R6"
+    case eosR3 = "EOS R3"
+    case eosR7 = "EOS R7"
     case eosR6MarkII = "EOS R6 Mark II"
+    case eosR8 = "EOS R8"
+    case eosR50 = "EOS R50"
+    case powerShotV10 = "PowerShot V10"
+    case eosR5MARKII = "EOS R5 Mark II"
+    case eosR1 = "EOS R1"
+    case eosR50V = "EOS R50V"
         
     var displayName: String {
         return rawValue
@@ -43,7 +52,7 @@ enum CameraType: String, CaseIterable {
     /// 모드 다이얼 유무
     var hasShootingModeDial: Bool {
         switch self {
-        case .eosR50, .eosR6MarkII:
+        case .eosR50, .eosR6MarkII, .eos1DXMarkIII, .eosR5, .eosR6, .eosR3, .eosR7, .eosR8, .powerShotV10, .eosR5MARKII, .eosR1:
             return true
         case .eosR50V:
             return false
@@ -53,9 +62,11 @@ enum CameraType: String, CaseIterable {
     /// Image Operations API 버전
     var imageOperationsVersion: VersionType {
         switch self {
-        case .eosR50, .eosR6MarkII:
+        case .eos1DXMarkIII, .eosR5, .eosR6, .eosR3, .eosR7:
+            return .ver110
+        case .eosR50, .eosR6MarkII, .eosR8, .powerShotV10:
             return .ver120
-        case .eosR50V:
+        case .eosR50V, .eosR5MARKII, .eosR1:
             return .ver140
         }
     }
@@ -63,7 +74,7 @@ enum CameraType: String, CaseIterable {
     /// Event Monitor API 버전
     var eventMonitorVersion: VersionType {
         switch self {
-        case .eosR50, .eosR6MarkII, .eosR50V:
+        case .eos1DXMarkIII, .eosR1, .eosR5, .eosR6, .eosR3, .eosR7, .eosR8, .eosR50, .powerShotV10, .eosR5MARKII, .eosR6MarkII, .eosR50V:
             return .ver100
         }
     }
@@ -71,7 +82,7 @@ enum CameraType: String, CaseIterable {
     /// Shooting Control API 버전
     var shootingControlVersion: VersionType {
         switch self {
-        case .eosR50, .eosR6MarkII, .eosR50V:
+        case .eos1DXMarkIII, .eosR1, .eosR5, .eosR6, .eosR3, .eosR7, .eosR8, .powerShotV10, .eosR5MARKII, .eosR50, .eosR6MarkII, .eosR50V:
             return .ver100
         }
     }
