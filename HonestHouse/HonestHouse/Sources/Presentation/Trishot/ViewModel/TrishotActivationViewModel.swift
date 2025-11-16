@@ -41,7 +41,6 @@ final class TrishotActivationViewModel {
         loadActivatedPresets()
 
         currentPresetIndex = 0
-        error = nil
 
         Task {
             await applyPreset(at: currentPresetIndex)
