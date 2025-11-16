@@ -20,6 +20,7 @@ final class TrishotSelectionViewModel {
     var allPresets: [Preset] = []
     var targetOrder: Int
     var selectedPresets: [Preset] = []
+    var currentError: TrishotError?
 
     var currentSelectedPreset: Preset? {
         selectedPresets.indices.contains(targetOrder) ? selectedPresets[targetOrder] : nil
@@ -32,11 +33,12 @@ final class TrishotSelectionViewModel {
         loadSelectedPresets()
     }
 
-    private func loadPresets() {
+    func loadPresets() {
         do {
             allPresets = try container.managers.presetManager.fetchAllPresets()
         } catch {
-            print("Failed to load presets: \(error.localizedDescription)")
+            Logger.error("Failed to load presets: \(error.localizedDescription)", category: .trishot)
+            currentError = .unknown
         }
     }
 
@@ -44,7 +46,7 @@ final class TrishotSelectionViewModel {
         do {
             selectedPresets = try container.managers.presetManager.fetchSelectedPresets()
         } catch {
-            print("Failed to load selected presets: \(error.localizedDescription)")
+            Logger.error("Failed to load selected presets: \(error.localizedDescription)", category: .trishot)
         }
     }
 
@@ -53,7 +55,7 @@ final class TrishotSelectionViewModel {
             try container.managers.presetManager.updateSelectedPresetAtOrder(order: targetOrder, presetId: presetId)
             loadSelectedPresets()
         } catch {
-            print("Failed to select preset: \(error.localizedDescription)")
+            Logger.error("Failed to select preset: \(error.localizedDescription)", category: .trishot)
         }
     }
 
