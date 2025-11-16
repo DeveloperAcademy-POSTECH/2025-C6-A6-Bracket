@@ -177,15 +177,15 @@ final class VisionManager: VisionManagerType {
         var visual: Float = 0
         try a.observation.computeDistance(&visual, to: b.observation)
         
-        // 2. 시간 패널티
-        guard let da = a.photo.dateInfo,
-              let db = b.photo.dateInfo else {
-            return 0
+        // 2. 시간 패널티 (날짜 정보 존재시에만)
+        var temporal: Float = 0
+        if let da = a.photo.dateInfo,
+           let db = b.photo.dateInfo {
+            let dt = abs(da.timeIntervalSince(db))
+            let sigma = max(params.timeSigma, 1)
+            let gaussian = 1 - Float(exp(-(dt * dt) / (2 * sigma * sigma)))
+            temporal = min(gaussian, params.maxTimePenalty)
         }
-        let dt = abs(da.timeIntervalSince(db))
-        let sigma = max(params.timeSigma, 1)
-        let gaussian = 1 - Float(exp(-(dt * dt) / (2 * sigma * sigma)))
-        let temporal = min(gaussian, params.maxTimePenalty)
         
         // 3. Face (비교하는 두 이미지 모두 인물 사진이면, 얼굴 위치/크기도 고려)
         var facePenalty: Float = 0
@@ -207,12 +207,13 @@ final class VisionManager: VisionManagerType {
         _ faceB: VNFaceObservation
     ) -> Float {
         
-        // 이미지 내 얼굴 비율 비교
+        // 1. 이미지 내 얼굴 비율 비교
         let sizeA = faceA.boundingBox.width * faceA.boundingBox.height
         let sizeB = faceB.boundingBox.width * faceB.boundingBox.height
         let sizeDiff = abs(sizeA - sizeB) / max(sizeA, sizeB)
+        let sizeSimilarity = 1 - sizeDiff
         
-        // 얼굴 위치 비교 (중심점)
+        // 2. 얼굴 위치 비교 (중심점)
         let centerA = CGPoint(
             x: faceA.boundingBox.midX,
             y: faceA.boundingBox.midY
@@ -223,13 +224,22 @@ final class VisionManager: VisionManagerType {
             y: faceB.boundingBox.midY
         )
         
-        let positionDiff = sqrt(
+        let distance = sqrt(
             pow(centerA.x - centerB.x, 2) +
             pow(centerA.y - centerB.y, 2)
         )
+        // distance 범위: 0 ~ sqrt(2) ≈ 1.41
         
-        // 0~1 정규화
-        return Float(min(1.0, (sizeDiff + positionDiff) / 2))
+        // 정규화: 대각선 거리(√2)를 1로 매핑
+        let maxDistance = sqrt(2.0)
+        let normalizedDistance = min(distance / maxDistance, 1.0)
+        let positionSimilarity = 1 - normalizedDistance
+        
+        // 3. 가중 평균 (크기 50%, 위치 50%)
+        let similarity = (sizeSimilarity + positionSimilarity) / 2
+        
+        return Float(similarity)
+    }
     }
     
     /// 그룹 내 사진과 타겟 사진의 평균 결합 거리
