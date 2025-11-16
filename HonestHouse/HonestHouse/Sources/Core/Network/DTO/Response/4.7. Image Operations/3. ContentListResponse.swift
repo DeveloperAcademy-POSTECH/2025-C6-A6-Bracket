@@ -8,7 +8,7 @@
 extension ImageOperations {
     /// 콘텐츠 리스트
     struct ContentListResponse: BaseResponse {
-        let url: [String]?
+        let path: [String]?
     }
 }
 
@@ -16,11 +16,11 @@ extension ImageOperations.ContentListResponse {
     typealias EntityType = ContentList
     
     func toEntity() -> ContentList {
-        ContentList(url: url)
+        ContentList(url: path)
     }
     
     static var stub1: ImageOperations.ContentListResponse {
-        .init(url: [""])
+        .init(path: [""])
     }
 }
 

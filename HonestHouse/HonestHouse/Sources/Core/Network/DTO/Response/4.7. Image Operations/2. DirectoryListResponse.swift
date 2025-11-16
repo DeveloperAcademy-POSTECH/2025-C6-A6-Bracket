@@ -8,7 +8,7 @@
 extension ImageOperations {
     /// 디렉토리 리스트
     struct DirectoryListResponse: BaseResponse {
-        let url: [String]?
+        let path: [String]?
     }
 }
 
@@ -16,10 +16,10 @@ extension ImageOperations.DirectoryListResponse {
     typealias EntityType = DirectoryList
     
     func toEntity() -> DirectoryList {
-        DirectoryList(url: url)
+        DirectoryList(url: path)
     }
     
     static var stub1: ImageOperations.DirectoryListResponse {
-        .init(url: [""])
+        .init(path: [""])
     }
 }
