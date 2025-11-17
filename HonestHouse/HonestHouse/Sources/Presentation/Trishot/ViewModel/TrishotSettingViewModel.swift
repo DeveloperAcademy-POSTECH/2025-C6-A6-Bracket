@@ -20,7 +20,6 @@ final class TrishotSettingViewModel {
     private let container: DIContainer
 
     var allSelectedPresets: [Preset] = []
-    var showConnectionAlert: Bool = false
 
     init(container: DIContainer) {
         self.container = container
