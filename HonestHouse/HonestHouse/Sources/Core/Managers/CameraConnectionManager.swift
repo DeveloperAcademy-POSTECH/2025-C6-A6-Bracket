@@ -29,7 +29,6 @@ final class CameraConnectionManager: BaseService, ObservableObject {
         self.networkManager = networkManager
         
         if let savedCameraType = CameraType.current {
-            connectionState = .connected
             productName = savedCameraType.displayName  // 추가
         }
     }

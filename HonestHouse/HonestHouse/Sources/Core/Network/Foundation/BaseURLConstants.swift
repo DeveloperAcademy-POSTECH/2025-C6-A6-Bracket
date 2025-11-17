@@ -15,6 +15,6 @@ enum BaseURLConstants {
         "\(scheme)://\(cameraIP):\(port)/ccapi/"
     }
     static var baseArchiveURL: String {
-        "\(scheme)://\(cameraIP):\(port)/"
+        "\(scheme)://\(cameraIP):\(port)"
     }
 }

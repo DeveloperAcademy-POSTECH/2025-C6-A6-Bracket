@@ -12,7 +12,6 @@ struct ContentInfo {
     
     init(dateInfo: String?) {
         if let dateString = dateInfo {
-            self.dateInfo = DateFormatter.apiDateFormatter.date(from: dateString)
             // 타임존 포함
             if let date = DateFormatter.apiDateFormatter.date(from: dateString) {
                 self.dateInfo = date
