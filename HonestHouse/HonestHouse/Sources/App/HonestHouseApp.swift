@@ -17,7 +17,7 @@ struct HonestHouseApp: App {
     
     var body: some Scene {
         WindowGroup {
-            MainView(vm: MainViewModel(container: container))
+            RootView()
                 .environmentObject(container)
                 .environment(\.managedObjectContext, Self.persistenceController.viewContext)
                 .environmentObject(cameraConnectionManager)
