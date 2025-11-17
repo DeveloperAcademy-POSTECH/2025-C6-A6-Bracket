@@ -12,6 +12,7 @@ struct PresetDetailView: View {
     @State var vm: PresetDetailViewModel
     @State private var showDeleteAlert = false
     @State private var showUnsavedChangesAlert = false
+    @FocusState private var isNameFieldFocused: Bool
     @Environment(\.dismiss) private var dismiss // TODO: - vm에서 nvrouter로 관리
     
     var body: some View {
@@ -19,23 +20,68 @@ struct PresetDetailView: View {
             Color.g12.ignoresSafeArea(.all)
             
             VStack(spacing: 0) {
+                nameView()
                 previewView()
                 settingsView()
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            toolbarContent()
-        }
-        .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
-            Button("저장하지 않고 나가기", role: .destructive) {
+        .navigationBarWithBack(title: "", showShadow: false) {
+            if vm.viewMode == .create {
+                showUnsavedChangesAlert = true
+            } else if vm.hasUnsavedChanges() {
+                showUnsavedChangesAlert = true
+            } else {
                 dismiss()
             }
-            Button("계속 편집", role: .cancel) { }
-        } message: {
-            Text("저장하지 않은 변경사항이 있습니다.")
+        } rightView: {
+            if vm.viewMode == .create {
+                saveButtonView()
+            }
         }
+        // TODO: alert 변경
+        .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
+            Button("삭제하기", role: .destructive) {
+                dismiss()
+            }
+            Button("취소", role: .cancel) { }
+        } message: {
+            Text("이 프리셋이 저장되지 않았습니다.\n정말 나가시겠습니까?")
+        }
+    }
+    
+    private func saveButtonView() -> some View {
+        Button {
+            Task {
+                try await vm.savePreset()
+            }
+            vm.send(.popToPresetView)
+        } label: {
+            Text("저장")
+                .foregroundStyle(Color.g0)
+        }
+    }
+    
+    private func nameView() -> some View {
+        HStack() {
+            if vm.viewMode == .view {
+                Text(vm.currentPreset.name)
+                    .fontStyle(.num2)
+                    .foregroundStyle(Color.g0)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            } else {
+                PresetNameTextFieldView(placeholder: "프리셋 이름", text: $vm.currentPreset.name)
+                    
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .onTapGesture {
+            if vm.viewMode != .view {
+                isNameFieldFocused = true
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private func previewView() -> some View {
@@ -45,7 +91,6 @@ struct PresetDetailView: View {
     
     private func settingsView() -> some View {
         VStack(spacing: 52) {
-            shootingModeView()
             primarySettingsView()
             
             if let activePicker = vm.activePicker {
@@ -58,33 +103,21 @@ struct PresetDetailView: View {
         .padding(.top, 30)
     }
     
-    // Camera Mode Section
-    private func shootingModeView() -> some View {
-        ShootingModeSelector(
-            selectedMode: Binding(
-                get: { vm.currentPreset.shootingMode },
-                set: { vm.changeCameraMode(to: $0) }
-            ),
-            isEnabled: vm.viewMode != .view
-        )
-    }
-    
     // Primary Settings Section
     private func primarySettingsView() -> some View {
-        HStack {
+        HStack(alignment: .bottom, spacing: 20) {
             
-//            SettingButton(
-//                type: .cameraMode,
-//                state: vm.getButtonState(for: .cameraMode),
-//                value: vm.currentPreset.shootingMode,
-//                isSelected: vm.activePicker == .cameraMode,
-//                action: {
-//                    handleSettingButtonTap(.cameraMode)
-//                }
-//            )
+            // 촬영 모드
+            ShootingModeSettingButtonView(
+                selectedMode: Binding(
+                    get: { vm.currentPreset.shootingMode },
+                    set: { vm.changeCameraMode(to: $0) }
+                ),
+                isEnabled: vm.viewMode != .view
+            )
             
             // Aperture (조리개)
-            SettingButton(
+            SettingButtonView(
                 type: .aperture,
                 state: vm.getButtonState(for: .aperture),
                 value: vm.currentPreset.displayAperture,
@@ -95,7 +128,7 @@ struct PresetDetailView: View {
             )
             
             // Shutter Speed (셔터 스피드)
-            SettingButton(
+            SettingButtonView(
                 type: .shutterSpeed,
                 state: vm.getButtonState(for: .shutterSpeed),
                 value: vm.currentPreset.displayShutterSpeed,
@@ -106,7 +139,7 @@ struct PresetDetailView: View {
             )
             
             // ISO
-            SettingButton(
+            SettingButtonView(
                 type: .iso,
                 state: vm.getButtonState(for: .iso),
                 value: vm.currentPreset.displayISO,
@@ -117,7 +150,7 @@ struct PresetDetailView: View {
             )
             
             // Picture Style (픽쳐 스타일)
-            SettingButton(
+            SettingButtonView(
                 type: .pictureStyle,
                 state: vm.getButtonState(for: .pictureStyle),
                 value: vm.currentPreset.pictureStyle.rawValue,
@@ -183,13 +216,14 @@ struct PresetDetailView: View {
                 selectedValue: $vm.currentPreset.pictureStyle,
                 items: vm.getPictureStyleValues(),
                 config: .init(
-                    spacing: 22,
-                    itemSize: .init(width: 100, height: 24)
+                    spacing: 6,
+                    itemSize: .init(width: 90, height: 24)
                 )
             )
             
         default:
-            EmptyView().frame(height: 52)
+            Spacer()
+                .frame(height: 52)
         }
     }
     
@@ -198,14 +232,13 @@ struct PresetDetailView: View {
         HStack(alignment: .center, spacing: 54) {
             
             // Tint Magenta Green (마젠타-그린)
-            CircularWheelPickerView(vm: .init(settingType: .tintMagentaGreen, isDimmed: $vm.isDimmed))
-            
+            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .tintMagentaGreen, isDimmed: $vm.isDimmed))
             
             // Exposure Compensation (노출 보정)
-            CircularWheelPickerView(vm: .init(settingType: .exposureCompensation, isDimmed: $vm.isDimmed))
+            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .exposureCompensation, isDimmed: $vm.isDimmed))
             
             // Color Temperature (색온도)
-            CircularWheelPickerView(vm: .init(settingType: .colorTemperature, isDimmed: $vm.isDimmed))
+            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .colorTemperature, isDimmed: $vm.isDimmed))
         }
         .frame(maxWidth: .infinity)
     }
@@ -227,47 +260,6 @@ struct PresetDetailView: View {
             vm.activePicker = type
         }
     }
-    
-    // Toolbar
-    @ToolbarContentBuilder
-    private func toolbarContent() -> some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            Button("취소") {
-                if vm.viewMode == .create {
-                    showUnsavedChangesAlert = true
-                } else if vm.hasUnsavedChanges() {
-                    showUnsavedChangesAlert = true
-                } else {
-                    dismiss()
-                }
-            }
-            .foregroundColor(.white)
-        }
-        
-        ToolbarItem(placement: .principal) {
-            Text(vm.currentPreset.name)
-                .font(.headline)
-                .foregroundColor(.white)
-        }
-        
-        ToolbarItem(placement: .navigationBarTrailing) {
-            switch vm.viewMode {
-            case .view:
-                Button("편집") {
-                    vm.switchToEditMode()
-                }
-                .foregroundColor(.white)
-                
-            case .edit, .create:
-                Button("저장") {
-                    Task {
-                        try? await vm.savePreset()
-                    }
-                }
-                .foregroundColor(.white)
-            }
-        }
-    }
 }
 
 #Preview("View Mode") {
@@ -281,3 +273,5 @@ struct PresetDetailView: View {
 #Preview("Create Mode") {
     PresetDetailView(vm: .init(container: .stub, mode: .create, preset: .stub3))
 }
+
+

@@ -20,7 +20,24 @@ struct WheelLabelView: View {
         Text(type.formatValue(index))
             .fontStyle(.num6)
             .foregroundColor(labelColor)
+            .padding(.horizontal, isCurrentIndex ? 6 : 0)  // 현재 인덱스일 때만 padding 적용
+            .padding(.vertical, isCurrentIndex ? 2 : 0)  // 현재 인덱스일 때만 padding 적용
+            .background(backgroundView)
+            .clipShape(RoundedRectangle(cornerRadius: isCurrentIndex ? 10 : 0))
             .position(labelPosition)
+    }
+    
+    private var isCurrentIndex: Bool {
+        index == currentIndex
+    }
+    
+    @ViewBuilder
+    private var backgroundView: some View {
+        if isCurrentIndex {
+            Color.g0
+        } else {
+            Color.clear
+        }
     }
     
     private var labelPosition: CGPoint {
@@ -36,8 +53,8 @@ struct WheelLabelView: View {
     }
     
     private var labelColor: Color {
-        if index == currentIndex {
-            return Color.yellow1
+        if isCurrentIndex {
+            return Color.g12
         }
         
         if type == .tintMagentaGreen && circleSizeType == .medium {

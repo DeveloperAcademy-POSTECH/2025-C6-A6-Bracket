@@ -239,3 +239,12 @@ class PresetDetailViewModel {
         return CameraConstants.colorTemperatureValues
     }
 }
+
+extension PresetDetailViewModel {
+    func send(_ action: PresetDetailAction) {
+        switch action {
+        case .popToPresetView:
+            container.navigationRouter.pop()
+        }
+    }
+}

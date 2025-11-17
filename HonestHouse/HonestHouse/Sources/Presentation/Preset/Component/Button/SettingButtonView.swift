@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SettingButton<SelectionType>: View {
+struct SettingButtonView<SelectionType>: View {
     let type: SettingType
     let state: ButtonState
     let value: SelectionType
@@ -55,7 +55,7 @@ struct SettingButton<SelectionType>: View {
     var body: some View {
         VStack(spacing: 16) {
             // 값 표시
-            if type != .cameraMode {
+            if type != .cameraMode || type != .pictureStyle {
                 Text("\(value)")
                     .fontStyle(.num6)
                     .foregroundColor(Color.g0)
@@ -106,28 +106,3 @@ struct SettingButton<SelectionType>: View {
     }
 }
 
-struct ShootingModeSelector: View {
-    @Binding var selectedMode: ShootingModeType
-    let isEnabled: Bool
-    
-    var body: some View {
-        HStack(spacing: 20) {
-            ForEach(ShootingModeType.allCases, id: \.self) { mode in
-                Button {
-                    if isEnabled {
-                        selectedMode = mode  // 직접 Binding 업데이트
-                    }
-                } label: {
-                    Text(mode.rawValue)
-                        .fontStyle(.num6)
-                        .foregroundStyle(Color.g0)
-                        .padding(15)
-                        .clipShape(Circle())
-                        .overlay {
-                            Circle().strokeBorder(Color.g0, lineWidth: 1)
-                        }
-                }
-            }
-        }
-    }
-}
