@@ -30,11 +30,6 @@ final class TrishotActivationViewModel {
         self.container = container
     }
 
-    func reconnectCamera() {
-        CameraConnectionManager.shared.reconnectCamera()
-        currentError = nil
-    }
-
     func isCurrentPreset(_ index: Int) -> Bool {
         isMonitoring && index == currentPresetIndex
     }

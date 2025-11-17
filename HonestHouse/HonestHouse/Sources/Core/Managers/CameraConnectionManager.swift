@@ -8,9 +8,7 @@
 import SwiftUI
 
 @MainActor
-final class CameraConnectionManager: BaseService, ObservableObject {
-    static let shared = CameraConnectionManager()
-    
+final class CameraConnectionManager: BaseService, ObservableObject {    
     @Published var productName: String = ""
     @Published var connectionState: ConnectionState = .disconnected
     @Published var showConnectionSheet = false

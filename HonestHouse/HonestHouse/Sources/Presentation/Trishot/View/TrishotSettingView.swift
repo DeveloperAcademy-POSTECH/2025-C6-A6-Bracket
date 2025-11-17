@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TrishotSettingView: View {
-    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
 
     @State var vm: TrishotSettingViewModel
     
@@ -95,12 +95,12 @@ struct TrishotSettingView: View {
         let canStart = vm.allSelectedPresets.count == 3
         return Button {
             Task {
-                if await CameraConnectionManager.shared.checkConnection() {
+                if await cameraConnectionManager.checkConnection() {
                     Logger.info("Camera connected", category: .connection)
                     vm.send(action: .goToTrishotActivation)
                 } else {
                     Logger.info("Camera disconnected", category: .connection)
-                    CameraConnectionManager.shared.showConnectionLostAlert()
+                    cameraConnectionManager.showConnectionLostAlert()
                 }
             }
         } label: {

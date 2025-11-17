@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TrishotActivationView: View {
+    @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
+
     @State var vm: TrishotActivationViewModel
     
     var body: some View {
@@ -49,7 +51,7 @@ struct TrishotActivationView: View {
                     vm.send(.popToTrishotSetting)
                 }
                 AlertButton.default("다시 연결") {
-                    vm.reconnectCamera()
+                    cameraConnectionManager.reconnectCamera()
                     vm.deactivateTrishot()
                     vm.send(.popToTrishotSetting)
                 }
