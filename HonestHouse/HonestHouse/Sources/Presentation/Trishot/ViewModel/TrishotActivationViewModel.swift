@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 enum TrishotActivationAction {
     case popToTrishotSetting
@@ -29,15 +30,23 @@ final class TrishotActivationViewModel {
         self.container = container
     }
 
+    func reconnectCamera() {
+        CameraConnectionManager.shared.reconnectCamera()
+        currentError = nil
+    }
+
     func isCurrentPreset(_ index: Int) -> Bool {
         isMonitoring && index == currentPresetIndex
     }
 
     func showInitialGuide() {
+        Logger.info("TrishotActivation appeared, resetting state", category: .trishot)
+        currentError = nil
         showGuide = true
     }
 
     func activateTrishot() {
+        Logger.info("Activating Trishot", category: .trishot)
         loadActivatedPresets()
 
         currentPresetIndex = 0
@@ -49,6 +58,8 @@ final class TrishotActivationViewModel {
     }
 
     func deactivateTrishot() {
+        Logger.info("Deactivating Trishot", category: .trishot)
+
         Task {
             await stopMonitoring()
             currentPresetIndex = 0
@@ -80,17 +91,18 @@ final class TrishotActivationViewModel {
 
         if success {
             isMonitoring = true
+            Logger.info("Event monitoring started successfully", category: .trishot)
         } else {
+            Logger.error("Failed to start event monitoring - startMonitoring returned false", category: .trishot)
             currentError = .monitoringStartFailed
         }
     }
 
     private func stopMonitoring() async {
-        guard isMonitoring else { return }
-
         do {
             try await container.services.eventMonitorService.stopMonitoring()
             isMonitoring = false
+            Logger.info("Event monitoring stopped successfully", category: .trishot)
         } catch {
             Logger.error("Failed to stop monitoring: \(error.localizedDescription)", category: .trishot)
         }
@@ -110,12 +122,14 @@ final class TrishotActivationViewModel {
     }
 
     private func handleMonitoringError(_ monitorError: Error) {
+        Logger.error("EventMonitor error occurred: \(monitorError.localizedDescription)", category: .trishot)
         isMonitoring = false
+
         if let ccapiError = monitorError as? CCAPIError {
+            Logger.error("CCAPI Error type: \(ccapiError)", category: .trishot)
             currentError = TrishotError.fromCCAPI(ccapiError)
         } else {
-            Logger.error("Monitoring error: \(monitorError.localizedDescription)", category: .trishot)
-            currentError = .monitoringStartFailed
+            Logger.error("Unknown monitoring error: \(monitorError)", category: .trishot)
         }
     }
 
@@ -127,36 +141,31 @@ final class TrishotActivationViewModel {
         }
 
         let preset = activatedPresets[index]
+        Logger.info("Applying preset '\(preset.name)' (index: \(index))", category: .trishot)
         let maxRetries = 3
 
         let shootingMode = preset.shootingMode
         let pictureStyle = preset.pictureStyle
 
         do {
+            // Logger.debug("Setting ignoreShootingMode to ON", category: .trishot)
             try await ignoreShootingMode(action: "on")
 
-            defer {
-                Task {
-                    do {
-                        try await ignoreShootingMode(action: "off")
-                    } catch let ccapiError as CCAPIError {
-                        Logger.error("Failed to turn off ignoreShootingMode: \(ccapiError.errorDescription ?? "")", category: .trishot)
-                    } catch {
-                        Logger.error("Failed to turn off ignoreShootingMode: \(error.localizedDescription)", category: .trishot)
-                    }
-                }
-            }
-
+            // Logger.debug("Setting shootingMode to \(shootingMode.apiValue)", category: .trishot)
             try await setShootingMode(value: shootingMode.apiValue)
+
+            // Logger.debug("Setting pictureStyle to \(pictureStyle.apiValue)", category: .trishot)
             try await setPictureStyle(value: pictureStyle.apiValue)
 
             switch preset.shootingMode {
             case .av:
                 if let aperture = preset.aperture {
+                    // Logger.debug("Setting aperture to \(aperture)", category: .trishot)
                     try await setAperture(value: aperture)
                 }
             case .tv:
                 if let shutterSpeed = preset.shutterSpeed {
+                    // Logger.debug("Setting shutterSpeed to \(shutterSpeed)", category: .trishot)
                     try await setShutterSpeed(value: shutterSpeed)
                 }
             case .p:
@@ -164,24 +173,33 @@ final class TrishotActivationViewModel {
             }
 
             if let iso = preset.iso {
+                // Logger.debug("Setting ISO to \(iso)", category: .trishot)
                 try await setISO(value: iso)
             }
 
             if let exposureCompensation = preset.exposureCompensation {
+                // Logger.debug("Setting exposureCompensation to \(exposureCompensation)", category: .trishot)
                 try await setExposureCompensation(value: exposureCompensation)
             }
 
             if let colorTemperature = preset.colorTemperature {
+                // Logger.debug("Setting colorTemperature to \(colorTemperature)", category: .trishot)
                 try await setColorTemperature(value: colorTemperature)
             }
 
             if let tintBlueAmber = preset.tintBlueAmber, let tintMagentaGreen = preset.tintMagentaGreen {
+                // Logger.debug("Setting WB shift to BA:\(tintBlueAmber), MG:\(tintMagentaGreen)", category: .trishot)
                 try await setWbShift(blueAmber: tintBlueAmber, magentaGreen: tintMagentaGreen)
             }
 
-            // 성공 시 실패 카운터 리셋
+            // Logger.debug("Setting ignoreShootingMode to OFF", category: .trishot)
+            try await ignoreShootingMode(action: "off")
+
+            Logger.info("Preset '\(preset.name)' applied successfully", category: .trishot)
             presetApplicationFailureCount = 0
         } catch let ccapiError as CCAPIError {
+            try? await ignoreShootingMode(action: "off")
+
             let trishotError = TrishotError.fromCCAPI(ccapiError)
 
             // 카메라 연결 끊김이면 즉시 에러 표시
@@ -209,6 +227,8 @@ final class TrishotActivationViewModel {
                 presetApplicationFailureCount = 0
             }
         } catch {
+            try? await ignoreShootingMode(action: "off")
+
             // 일반 에러도 실패 카운터 증가
             presetApplicationFailureCount += 1
             Logger.error("Preset application failed (\(presetApplicationFailureCount)/\(maxPresetApplicationFailures)): \(error.localizedDescription)", category: .trishot)
