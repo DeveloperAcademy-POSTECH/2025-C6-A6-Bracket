@@ -8,18 +8,18 @@
 import Foundation
 
 enum CameraType: String, CaseIterable {
-    case eos1DXMarkIII = "EOS-1D X Mark III"
-    case eosR5 = "EOS R5"
-    case eosR6 = "EOS R6"
-    case eosR3 = "EOS R3"
-    case eosR7 = "EOS R7"
-    case eosR6MarkII = "EOS R6 Mark II"
-    case eosR8 = "EOS R8"
-    case eosR50 = "EOS R50"
-    case powerShotV10 = "PowerShot V10"
-    case eosR5MARKII = "EOS R5 Mark II"
+    case eos1DXMarkIII = "Canon EOS-1D X Mark III"
+    case eosR5 = "Canon EOS R5"
+    case eosR6 = "Canon EOS R6"
+    case eosR3 = "Canon EOS R3"
+    case eosR7 = "Canon EOS R7"
+    case eosR6MarkII = "Canon EOS R6 Mark II"
+    case eosR8 = "Canon EOS R8"
+    case eosR50 = "Canon EOS R50"
+    case powerShotV10 = "Canon PowerShot V10"
+    case eosR5MARKII = "Canon EOS R5 Mark II"
     case eosR1 = "EOS R1"
-    case eosR50V = "EOS R50V"
+    case eosR50V = "Canon EOS R50 V"
         
     var displayName: String {
         return rawValue
@@ -52,9 +52,9 @@ enum CameraType: String, CaseIterable {
     /// 모드 다이얼 유무
     var hasShootingModeDial: Bool {
         switch self {
-        case .eosR50, .eosR6MarkII, .eos1DXMarkIII, .eosR5, .eosR6, .eosR3, .eosR7, .eosR8, .powerShotV10, .eosR5MARKII, .eosR1:
+        case .eosR50, .eosR6MarkII, .eosR6, .eosR8:
             return true
-        case .eosR50V:
+        case .eosR50V, .eosR1, .eosR5MARKII, .powerShotV10, .eosR7, .eosR3, .eosR5, .eos1DXMarkIII:
             return false
         }
     }
