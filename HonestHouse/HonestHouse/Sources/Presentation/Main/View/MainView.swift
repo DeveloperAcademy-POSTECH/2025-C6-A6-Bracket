@@ -49,6 +49,16 @@ struct MainView: View {
         .sheet(isPresented: $cameraConnectionManager.showConnectionSheet) {
             CameraConnectionView()
         }
+        .customAlert(
+            title: "카메라와의 연결이 해제되었습니다.",
+            message: "카메라를 다시 연결해주세요.",
+            isPresented: $cameraConnectionManager.showDisconnectionAlert
+        ) {
+            AlertButton.cancel("취소")
+            AlertButton.default("다시 연결") {
+                cameraConnectionManager.reconnectCamera()
+            }
+        }
     }
     
     private func headerView() -> some View {
