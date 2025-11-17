@@ -13,14 +13,13 @@ struct HonestHouseApp: App {
     static let persistenceController = PersistenceController.shared
     
     @StateObject var container: DIContainer = .init(services: Services(), managers: Managers(viewContext: persistenceController.viewContext))
-    @StateObject var cameraConnectionManager = CameraConnectionManager()
     
     var body: some Scene {
         WindowGroup {
             MainView(vm: MainViewModel(container: container))
                 .environmentObject(container)
                 .environment(\.managedObjectContext, Self.persistenceController.viewContext)
-                .environmentObject(cameraConnectionManager)
+                .environmentObject(CameraConnectionManager.shared)
                 .preferredColorScheme(.dark)
         }
     }
