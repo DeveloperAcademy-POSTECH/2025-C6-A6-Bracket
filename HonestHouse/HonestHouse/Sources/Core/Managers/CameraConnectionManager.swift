@@ -8,12 +8,14 @@
 import SwiftUI
 
 @MainActor
-final class CameraConnectionManager: BaseService, ObservableObject {
+final class CameraConnectionManager: BaseService, ObservableObject {    
     @Published var productName: String = ""
     @Published var connectionState: ConnectionState = .disconnected
     @Published var showConnectionSheet = false
+    @Published var showDisconnectionAlert = false
     
     private let networkManager: NetworkManager
+    private let wifiMonitor = WiFiMonitorManager.shared
     
     // CameraType.current를 통해 UserDefaults에서 관리되는 값을 사용
     var connectedCameraType: CameraType? {
@@ -31,6 +33,20 @@ final class CameraConnectionManager: BaseService, ObservableObject {
         if let savedCameraType = CameraType.current {
             productName = savedCameraType.displayName  // 추가
         }
+    }
+
+    func showConnectionLostAlert() {
+        guard !showDisconnectionAlert else {
+            Logger.warning("Connection lost alert already showing, ignoring duplicate request", category: .connection)
+            return
+        }
+        Logger.info("Showing connection lost alert", category: .connection)
+        showDisconnectionAlert = true
+    }
+    
+    func reconnectCamera() {
+        showDisconnectionAlert = false
+        showConnectionSheet = true
     }
     
     func connectCamera(ipAddress: String) {
@@ -70,15 +86,8 @@ final class CameraConnectionManager: BaseService, ObservableObject {
         CameraType.clearCurrent()
     }
     
-    func checkConnectionStatus() async -> Bool {
-        do {
-            _ = try await getCameraInfo()
-            self.connectionState = .connected
-            return true
-        } catch {
-            self.connectionState = .disconnected
-            return false
-        }
+    func checkConnection() async -> Bool {
+        return await wifiMonitor.checkConnection()
     }
     
     func getCameraInfo() async throws -> CameraInformation.CameraFixedInformationResponse {

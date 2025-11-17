@@ -8,10 +8,10 @@
 import Foundation
 
 class StreamService: BaseStreamService {
-
     private var urlSession: URLSession?
     private var streamingTask: URLSessionDataTask?
     private(set) var isStreaming = false
+    fileprivate var shouldBeStreaming = false
 
     var endpoint: String {
         fatalError("Subclass must override endpoint")
@@ -26,9 +26,18 @@ class StreamService: BaseStreamService {
         onDataReceived: @escaping (Data) -> Void,
         onError: @escaping (Error) -> Void
     ) async -> Bool {
-        guard !isStreaming else {
-            Logger.warning("Already streaming", category: .network)
-            return false
+        if isStreaming {
+            Logger.warning("Already streaming for endpoint: \(endpoint), forcing cleanup", category: .network)
+
+            shouldBeStreaming = false
+            streamingTask?.cancel()
+            streamingTask = nil
+            urlSession?.invalidateAndCancel()
+            urlSession = nil
+            isStreaming = false
+
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            Logger.info("Forced cleanup completed, continuing with stream start", category: .network)
         }
 
         // Phase 1: Authentication
@@ -47,7 +56,8 @@ class StreamService: BaseStreamService {
         let delegate = StreamDelegate(
             onBinaryDataReceived: onDataReceived,
             onError: onError,
-            sslHandler: handleSSLChallenge
+            sslHandler: handleSSLChallenge,
+            streamService: self
         )
 
         urlSession = URLSession(
@@ -60,6 +70,7 @@ class StreamService: BaseStreamService {
         streamingTask = urlSession?.dataTask(with: request)
         streamingTask?.resume()
         isStreaming = true
+        shouldBeStreaming = true
 
         Logger.info("Streaming started: \(endpoint)", category: .network)
         return true
@@ -71,6 +82,7 @@ class StreamService: BaseStreamService {
             return
         }
 
+        shouldBeStreaming = false
         streamingTask?.cancel()
         streamingTask = nil
         urlSession?.invalidateAndCancel()
@@ -111,15 +123,18 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate {
     private let onBinaryDataReceived: (Data) -> Void
     private let onError: (Error) -> Void
     private let sslHandler: (URLAuthenticationChallenge, @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) -> Void
+    private weak var streamService: StreamService?
 
     init(
         onBinaryDataReceived: @escaping (Data) -> Void,
         onError: @escaping (Error) -> Void,
-        sslHandler: @escaping (URLAuthenticationChallenge, @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) -> Void
+        sslHandler: @escaping (URLAuthenticationChallenge, @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) -> Void,
+        streamService: StreamService
     ) {
         self.onBinaryDataReceived = onBinaryDataReceived
         self.onError = onError
         self.sslHandler = sslHandler
+        self.streamService = streamService
     }
 
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
@@ -161,7 +176,12 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate {
             Logger.error("Stream completed with error: \(error.localizedDescription)", category: .network)
             onError(error)
         } else {
-            Logger.info("Stream completed successfully", category: .network)
+            if streamService?.shouldBeStreaming == true {
+                Logger.warning("Stream completed unexpectedly (connection lost)", category: .network)
+                onError(CCAPIError.networkError(URLError(.networkConnectionLost)))
+            } else {
+                Logger.info("Stream completed successfully", category: .network)
+            }
         }
     }
 

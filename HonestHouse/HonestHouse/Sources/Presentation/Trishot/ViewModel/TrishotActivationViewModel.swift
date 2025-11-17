@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 enum TrishotActivationAction {
     case popToTrishotSetting
@@ -19,33 +20,31 @@ final class TrishotActivationViewModel {
     var currentPresetIndex: Int = 0 /// 현재 적용된 프리셋의 인덱스 ( 0 ~ 2 )
     var activatedPresets: [Preset] = []
     var isMonitoring: Bool = false
-    var error: TrishotError?
-    
+    var currentError: TrishotError?
+    var showGuide: Bool = false
+
+    private var presetApplicationFailureCount: Int = 0
+    private let maxPresetApplicationFailures: Int = 3
+
     init(container: DIContainer) {
         self.container = container
     }
-}
 
-/// Trishot 기능 관련
-extension TrishotActivationViewModel: TrishotErrorHandleable {
-    var errorMessage: String? {
-        error?.errorDescription
-    }
-    
     func isCurrentPreset(_ index: Int) -> Bool {
         isMonitoring && index == currentPresetIndex
     }
-    
+
+    func showInitialGuide() {
+        Logger.info("TrishotActivation appeared, resetting state", category: .trishot)
+        currentError = nil
+        showGuide = true
+    }
+
     func activateTrishot() {
+        Logger.info("Activating Trishot", category: .trishot)
         loadActivatedPresets()
-        
-        guard !activatedPresets.isEmpty else {
-            error = .noPresetsSelected
-            return
-        }
 
         currentPresetIndex = 0
-        error = nil
 
         Task {
             await applyPreset(at: currentPresetIndex)
@@ -54,24 +53,25 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
     }
 
     func deactivateTrishot() {
-        error = nil
+        Logger.info("Deactivating Trishot", category: .trishot)
+
         Task {
             await stopMonitoring()
             currentPresetIndex = 0
         }
     }
     
-    private func loadActivatedPresets() {
+    func loadActivatedPresets() {
         do {
             activatedPresets = try container.managers.presetManager.fetchActivatedPresets()
         } catch {
-            handleError(error)
+            Logger.error("Failed to load activated presets: \(error.localizedDescription)", category: .trishot)
         }
     }
-    
+
     private func startMonitoring() async {
         guard !isMonitoring else {
-            error = .monitoringAlreadyActive
+            Logger.warning("Monitoring already active, ignoring start request", category: .trishot)
             return
         }
 
@@ -86,21 +86,20 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
 
         if success {
             isMonitoring = true
-            error = nil
+            Logger.info("Event monitoring started successfully", category: .trishot)
         } else {
-            error = .monitoringStartFailed
+            Logger.error("Failed to start event monitoring - startMonitoring returned false", category: .trishot)
+            currentError = .monitoringStartFailed
         }
     }
 
     private func stopMonitoring() async {
-        guard isMonitoring else { return }
-
         do {
             try await container.services.eventMonitorService.stopMonitoring()
             isMonitoring = false
-            error = nil
+            Logger.info("Event monitoring stopped successfully", category: .trishot)
         } catch {
-            handleError(error)
+            Logger.error("Failed to stop monitoring: \(error.localizedDescription)", category: .trishot)
         }
     }
 
@@ -118,65 +117,121 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
     }
 
     private func handleMonitoringError(_ monitorError: Error) {
+        Logger.error("EventMonitor error occurred: \(monitorError.localizedDescription)", category: .trishot)
         isMonitoring = false
-        handleError(monitorError)
+
+        if let ccapiError = monitorError as? CCAPIError {
+            Logger.error("CCAPI Error type: \(ccapiError)", category: .trishot)
+            currentError = TrishotError.fromCCAPI(ccapiError)
+        } else {
+            Logger.error("Unknown monitoring error: \(monitorError)", category: .trishot)
+        }
     }
 
     /// 프리셋 적용
-    private func applyPreset(at index: Int) async {
-        guard index < activatedPresets.count else { return }
-        
+    private func applyPreset(at index: Int, retryCount: Int = 0) async {
+        guard index < activatedPresets.count else {
+            Logger.error("Invalid preset index: \(index)", category: .trishot)
+            return
+        }
+
         let preset = activatedPresets[index]
-                
+        Logger.info("Applying preset '\(preset.name)' (index: \(index))", category: .trishot)
+        let maxRetries = 3
+
         let shootingMode = preset.shootingMode
         let pictureStyle = preset.pictureStyle
 
         do {
+            // Logger.debug("Setting ignoreShootingMode to ON", category: .trishot)
             try await ignoreShootingMode(action: "on")
-            
-            defer {
-                Task {
-                    do {
-                        try await ignoreShootingMode(action: "off")
-                    } catch {
-                        handleError(error)
-                    }
-                }
-            }
 
+            // Logger.debug("Setting shootingMode to \(shootingMode.apiValue)", category: .trishot)
             try await setShootingMode(value: shootingMode.apiValue)
+
+            // Logger.debug("Setting pictureStyle to \(pictureStyle.apiValue)", category: .trishot)
             try await setPictureStyle(value: pictureStyle.apiValue)
-            
+
             switch preset.shootingMode {
             case .av:
                 if let aperture = preset.aperture {
+                    // Logger.debug("Setting aperture to \(aperture)", category: .trishot)
                     try await setAperture(value: aperture)
                 }
             case .tv:
                 if let shutterSpeed = preset.shutterSpeed {
+                    // Logger.debug("Setting shutterSpeed to \(shutterSpeed)", category: .trishot)
                     try await setShutterSpeed(value: shutterSpeed)
                 }
             case .p:
                 break
             }
-            
+
             if let iso = preset.iso {
+                // Logger.debug("Setting ISO to \(iso)", category: .trishot)
                 try await setISO(value: iso)
             }
 
             if let exposureCompensation = preset.exposureCompensation {
+                // Logger.debug("Setting exposureCompensation to \(exposureCompensation)", category: .trishot)
                 try await setExposureCompensation(value: exposureCompensation)
             }
 
             if let colorTemperature = preset.colorTemperature {
+                // Logger.debug("Setting colorTemperature to \(colorTemperature)", category: .trishot)
                 try await setColorTemperature(value: colorTemperature)
             }
-            
+
             if let tintBlueAmber = preset.tintBlueAmber, let tintMagentaGreen = preset.tintMagentaGreen {
+                // Logger.debug("Setting WB shift to BA:\(tintBlueAmber), MG:\(tintMagentaGreen)", category: .trishot)
                 try await setWbShift(blueAmber: tintBlueAmber, magentaGreen: tintMagentaGreen)
             }
+
+            // Logger.debug("Setting ignoreShootingMode to OFF", category: .trishot)
+            try await ignoreShootingMode(action: "off")
+
+            Logger.info("Preset '\(preset.name)' applied successfully", category: .trishot)
+            presetApplicationFailureCount = 0
+        } catch let ccapiError as CCAPIError {
+            try? await ignoreShootingMode(action: "off")
+
+            let trishotError = TrishotError.fromCCAPI(ccapiError)
+
+            // 카메라 연결 끊김이면 즉시 에러 표시
+            if case .cameraDisconnected = trishotError {
+                Logger.error("Camera disconnected during preset application", category: .trishot)
+                currentError = .cameraDisconnected
+                return
+            }
+
+            // cameraBusy는 기존처럼 재시도
+            if case .cameraBusy = trishotError, retryCount < maxRetries {
+                Logger.warning("Preset application busy, retrying (\(retryCount + 1)/\(maxRetries))", category: .trishot)
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                await applyPreset(at: index, retryCount: retryCount + 1)
+                return
+            }
+
+            // 그 외 에러는 실패 카운터 증가
+            presetApplicationFailureCount += 1
+            Logger.error("Preset application failed (\(presetApplicationFailureCount)/\(maxPresetApplicationFailures)): \(ccapiError.errorDescription ?? "")", category: .trishot)
+
+            // 3회 이상 실패 시 Alert 표시
+            if presetApplicationFailureCount >= maxPresetApplicationFailures {
+                currentError = .presetApplicationFailed
+                presetApplicationFailureCount = 0
+            }
         } catch {
-            handleError(error)
+            try? await ignoreShootingMode(action: "off")
+
+            // 일반 에러도 실패 카운터 증가
+            presetApplicationFailureCount += 1
+            Logger.error("Preset application failed (\(presetApplicationFailureCount)/\(maxPresetApplicationFailures)): \(error.localizedDescription)", category: .trishot)
+
+            if presetApplicationFailureCount >= maxPresetApplicationFailures {
+                currentError = .presetApplicationFailed
+                presetApplicationFailureCount = 0
+            }
         }
     }
 }
@@ -184,103 +239,49 @@ extension TrishotActivationViewModel: TrishotErrorHandleable {
 /// Shooting Control, Shooting Settings 관련
 extension TrishotActivationViewModel {
     private func ignoreShootingMode(action: String) async throws {
-        do {
-            let request = ShootingControl.IgnoreShootingModeRequest(action: action)
-            try await container.services.shootingControlService.ignoreShootingMode(request: request)
-        } catch let ccapiError as CCAPIError {
-            throw TrishotError.from(ccapiError: ccapiError)
-        } catch {
-            throw TrishotError.shootingModeIgnoreFailed
-        }
+        let request = ShootingControl.IgnoreShootingModeRequest(action: action)
+        try await container.services.shootingControlService.ignoreShootingMode(request: request)
     }
 
     private func setShootingMode(value: String) async throws {
-        do {
-            let request = ShootingSettings.ShootingModeRequest(value: value)
-            _ = try await container.services.shootingSettingsService.putShootingMode(request: request)
-        } catch let ccapiError as CCAPIError {
-            throw TrishotError.from(ccapiError: ccapiError)
-        } catch {
-            throw TrishotError.shootingModeSetFailed
-        }
+        let request = ShootingSettings.ShootingModeRequest(value: value)
+        _ = try await container.services.shootingSettingsService.putShootingMode(request: request)
     }
 
     private func setPictureStyle(value: String) async throws {
-        do {
-            let request = ShootingSettings.PictureStyleRequest(value: value)
-            _ = try await container.services.shootingSettingsService.putPictureStyle(request: request)
-        } catch let ccapiError as CCAPIError {
-            throw TrishotError.from(ccapiError: ccapiError)
-        } catch {
-            throw TrishotError.pictureStyleSetFailed
-        }
+        let request = ShootingSettings.PictureStyleRequest(value: value)
+        _ = try await container.services.shootingSettingsService.putPictureStyle(request: request)
     }
 
     private func setAperture(value: String) async throws {
-        do {
-            let request = ShootingSettings.AVRequest(value: value)
-            _ = try await container.services.shootingSettingsService.putAV(request: request)
-        } catch let ccapiError as CCAPIError {
-            throw TrishotError.from(ccapiError: ccapiError)
-        } catch {
-            throw TrishotError.apertureSetFailed
-        }
+        let request = ShootingSettings.AVRequest(value: value)
+        _ = try await container.services.shootingSettingsService.putAV(request: request)
     }
 
     private func setShutterSpeed(value: String) async throws {
-        do {
-            let request = ShootingSettings.TVRequest(value: value)
-            _ = try await container.services.shootingSettingsService.putTV(request: request)
-        } catch let ccapiError as CCAPIError {
-            throw TrishotError.from(ccapiError: ccapiError)
-        } catch {
-            throw TrishotError.shutterSpeedSetFailed
-        }
+        let request = ShootingSettings.TVRequest(value: value)
+        _ = try await container.services.shootingSettingsService.putTV(request: request)
     }
 
     private func setISO(value: String) async throws {
-        do {
-            let request = ShootingSettings.ISORequest(value: value)
-            _ = try await container.services.shootingSettingsService.putISO(request: request)
-        } catch let ccapiError as CCAPIError {
-            throw TrishotError.from(ccapiError: ccapiError)
-        } catch {
-            throw TrishotError.isoSetFailed
-        }
+        let request = ShootingSettings.ISORequest(value: value)
+        _ = try await container.services.shootingSettingsService.putISO(request: request)
     }
 
     private func setExposureCompensation(value: String) async throws {
-        do {
-            let request = ShootingSettings.ExposureCompensationRequest(value: value)
-            _ = try await container.services.shootingSettingsService.putExposureCompensation(request: request)
-        } catch let ccapiError as CCAPIError {
-            throw TrishotError.from(ccapiError: ccapiError)
-        } catch {
-            throw TrishotError.exposureCompensationSetFailed
-        }
+        let request = ShootingSettings.ExposureCompensationRequest(value: value)
+        _ = try await container.services.shootingSettingsService.putExposureCompensation(request: request)
     }
 
     private func setColorTemperature(value: Int) async throws {
-        do {
-            let request = ShootingSettings.ColorTemperatureRequest(value: value)
-            _ = try await container.services.shootingSettingsService.putColorTemperature(request: request)
-        } catch let ccapiError as CCAPIError {
-            throw TrishotError.from(ccapiError: ccapiError)
-        } catch {
-            throw TrishotError.colorTemperatureSetFailed
-        }
+        let request = ShootingSettings.ColorTemperatureRequest(value: value)
+        _ = try await container.services.shootingSettingsService.putColorTemperature(request: request)
     }
 
     private func setWbShift(blueAmber: Int, magentaGreen: Int) async throws {
-        do {
-            let wbShift = ShootingSettings.WBShiftRequest.WBShift(blueAmber: blueAmber, magentaGreen: magentaGreen)
-            let request = ShootingSettings.WBShiftRequest(value: wbShift)
-            _ = try await container.services.shootingSettingsService.putWbShift(request: request)
-        } catch let ccapiError as CCAPIError {
-            throw TrishotError.from(ccapiError: ccapiError)
-        } catch {
-            throw TrishotError.wbShiftSetFailed
-        }
+        let wbShift = ShootingSettings.WBShiftRequest.WBShift(blueAmber: blueAmber, magentaGreen: magentaGreen)
+        let request = ShootingSettings.WBShiftRequest(value: wbShift)
+        _ = try await container.services.shootingSettingsService.putWbShift(request: request)
     }
     
     /// Ability Information 가져오기, 확인용

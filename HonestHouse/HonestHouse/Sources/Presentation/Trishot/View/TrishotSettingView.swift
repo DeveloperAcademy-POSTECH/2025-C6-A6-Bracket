@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TrishotSettingView: View {
-    @EnvironmentObject var container: DIContainer
+    @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
 
     @State var vm: TrishotSettingViewModel
     
@@ -55,7 +55,7 @@ struct TrishotSettingView: View {
                 .fontStyle(.title3)
                 .foregroundStyle(Color.g0)
             Button {
-                // TODO: Preset 생성 뷰로 이동하도록 연결
+                vm.send(action: .goToPresetCreation)
             } label: {
                 HStack {
                     Spacer()
@@ -74,6 +74,7 @@ struct TrishotSettingView: View {
     private func titleView(name: String, order: Int) -> some View {
         Text(name)
             .fontStyle(.num4)
+            .lineLimit(1)
             .foregroundStyle(Color.g0)
     }
     
@@ -93,7 +94,15 @@ struct TrishotSettingView: View {
     private func startButtonView() -> some View {
         let canStart = vm.allSelectedPresets.count == 3
         return Button {
-            vm.send(action: .goToTrishotActivation)
+            Task {
+                if await cameraConnectionManager.checkConnection() {
+                    Logger.info("Camera connected", category: .connection)
+                    vm.send(action: .goToTrishotActivation)
+                } else {
+                    Logger.info("Camera disconnected", category: .connection)
+                    cameraConnectionManager.showConnectionLostAlert()
+                }
+            }
         } label: {
             Text("Tri-shot 시작하기")
         }

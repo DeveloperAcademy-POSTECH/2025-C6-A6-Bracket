@@ -64,7 +64,7 @@ struct CameraConnectionView: View {
     }
 }
 
-#Preview {
-    CameraConnectionView()
-        .environmentObject(CameraConnectionManager())
-}
+//#Preview {
+//    CameraConnectionView()
+//        .environmentObject(CameraConnectionManager())
+//}

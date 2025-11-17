@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TrishotActivationView: View {
+    @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
+
     @State var vm: TrishotActivationViewModel
     
     var body: some View {
@@ -22,16 +24,65 @@ struct TrishotActivationView: View {
             .safeAreaPadding(.all, 0)
         }
         .task {
-            // TODO: Custom Alert(카메라로 촬영을 시작해보세요) 연결
-            vm.activateTrishot()
+            vm.showInitialGuide()
         }
         .onAppear {
             NavigationSwipeBackControl.disableSwipeBack()
         }
         .onDisappear {
             NavigationSwipeBackControl.enableSwipeBack()
+            vm.deactivateTrishot()
         }
         .navigationBarBackButtonHidden(true)
+        .customAlert(
+            title: "카메라로 촬영을 시작해보세요",
+            message: "세 가지 프리셋을 반복하여 촬영합니다.\nTri-shot을 중단하려면 하단의 슬라이더를 끝까지 밀어주세요.",
+            isPresented: $vm.showGuide
+        ) {
+            AlertButton.default("확인") {
+                vm.activateTrishot()
+            }
+        }
+        .customErrorAlert(error: $vm.currentError) { error in
+            switch error {
+            case .cameraDisconnected:
+                AlertButton.cancel("취소") {
+                    vm.deactivateTrishot()
+                    vm.send(.popToTrishotSetting)
+                }
+                AlertButton.default("다시 연결") {
+                    cameraConnectionManager.reconnectCamera()
+                    vm.deactivateTrishot()
+                    vm.send(.popToTrishotSetting)
+                }
+            case .cameraBusy:
+                AlertButton.default("확인")
+            case .monitoringStartFailed:
+                AlertButton.cancel("취소") {
+                    vm.send(.popToTrishotSetting)
+                }
+                AlertButton.default("다시 시도") {
+                    Task {
+                        try? await Task.sleep(nanoseconds: 500_000_000)
+                        vm.activateTrishot()
+                    }
+                }
+            case .presetApplicationFailed:
+                AlertButton.cancel("취소") {
+                    vm.send(.popToTrishotSetting)
+                }
+                AlertButton.default("다시 시도") {
+                    Task {
+                        try? await Task.sleep(nanoseconds: 100_000_000)
+                        vm.activateTrishot()
+                    }
+                }
+            case .unknown:
+                AlertButton.default("확인") {
+                    vm.send(.popToTrishotSetting)
+                }
+            }
+        }
     }
     
     private func triCircleListView(_ index: Int) -> some View {
