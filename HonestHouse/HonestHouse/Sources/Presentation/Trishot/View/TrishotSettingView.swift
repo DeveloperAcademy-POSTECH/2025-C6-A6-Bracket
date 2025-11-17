@@ -24,17 +24,6 @@ struct TrishotSettingView: View {
         .task {
             vm.loadPresets()
         }
-        // TODO: MainView에서 띄워야 함.
-        .customAlert(
-            title: "카메라 연결이 끊어졌습니다.",
-            message: "카메라를 다시 연결해주세요.",
-            isPresented: $vm.showConnectionAlert
-        ) {
-            AlertButton.cancel("취소")
-            AlertButton.default("다시 연결") {
-                // TODO: 카메라 연결 감지 로직 수정 후 반영
-            }
-        }
     }
     
     /// 프리셋 3개 목록 (트라이샷)
@@ -105,14 +94,15 @@ struct TrishotSettingView: View {
     private func startButtonView() -> some View {
         let canStart = vm.allSelectedPresets.count == 3
         return Button {
-            // TODO: 연결 끊김 감지 로직 수정 후 반영
-//            if cameraConnectionManager.connectionState == .connected {
-//                Logger.info("CONNECTED", category: .connection)
-//                vm.send(action: .goToTrishotActivation)
-//            } else {
-//                Logger.info("DISCONNECTED", category: .connection)
-//                vm.showConnectionAlert = true
-//            }
+            Task {
+                if await CameraConnectionManager.shared.checkConnection() {
+                    Logger.info("Camera connected", category: .connection)
+                    vm.send(action: .goToTrishotActivation)
+                } else {
+                    Logger.info("Camera disconnected", category: .connection)
+                    CameraConnectionManager.shared.showConnectionLostAlert()
+                }
+            }
         } label: {
             Text("Tri-shot 시작하기")
         }
