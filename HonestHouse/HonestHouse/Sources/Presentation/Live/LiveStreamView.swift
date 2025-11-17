@@ -16,12 +16,14 @@ struct LiveStreamView: View {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
                 Text("라이브뷰 대기 중")
                     .foregroundColor(.gray)
             }
         }
-        .padding()
+        .frame(maxWidth: .infinity)
+        .frame(height: 274)
         .task {
             await vm.observeViewLifecycle()
         }
