@@ -8,17 +8,11 @@
 import Foundation
 
 enum CameraType: String, CaseIterable {
-    case eos1DXMarkIII = "Canon EOS-1D X Mark III"
-    case eosR5 = "Canon EOS R5"
     case eosR6 = "Canon EOS R6"
-    case eosR3 = "Canon EOS R3"
     case eosR7 = "Canon EOS R7"
     case eosR6MarkII = "Canon EOS R6 Mark II"
     case eosR8 = "Canon EOS R8"
     case eosR50 = "Canon EOS R50"
-    case powerShotV10 = "Canon PowerShot V10"
-    case eosR5MARKII = "Canon EOS R5 Mark II"
-    case eosR1 = "EOS R1"
     case eosR50V = "Canon EOS R50 V"
         
     var displayName: String {
@@ -52,9 +46,9 @@ enum CameraType: String, CaseIterable {
     /// 모드 다이얼 유무
     var hasShootingModeDial: Bool {
         switch self {
-        case .eosR50, .eosR6MarkII, .eosR6, .eosR8:
+        case .eosR50, .eosR6MarkII, .eosR6, .eosR8, .eosR7:
             return true
-        case .eosR50V, .eosR1, .eosR5MARKII, .powerShotV10, .eosR7, .eosR3, .eosR5, .eos1DXMarkIII:
+        case .eosR50V:
             return false
         }
     }
@@ -62,11 +56,11 @@ enum CameraType: String, CaseIterable {
     /// Image Operations API 버전
     var imageOperationsVersion: VersionType {
         switch self {
-        case .eos1DXMarkIII, .eosR5, .eosR6, .eosR3, .eosR7:
+        case .eosR6, .eosR7:
             return .ver110
-        case .eosR50, .eosR6MarkII, .eosR8, .powerShotV10:
+        case .eosR50, .eosR6MarkII, .eosR8:
             return .ver120
-        case .eosR50V, .eosR5MARKII, .eosR1:
+        case .eosR50V:
             return .ver140
         }
     }
@@ -74,7 +68,7 @@ enum CameraType: String, CaseIterable {
     /// Event Monitor API 버전
     var eventMonitorVersion: VersionType {
         switch self {
-        case .eos1DXMarkIII, .eosR1, .eosR5, .eosR6, .eosR3, .eosR7, .eosR8, .eosR50, .powerShotV10, .eosR5MARKII, .eosR6MarkII, .eosR50V:
+        case .eosR6, .eosR7, .eosR8, .eosR50, .eosR6MarkII, .eosR50V:
             return .ver100
         }
     }
@@ -82,7 +76,7 @@ enum CameraType: String, CaseIterable {
     /// Shooting Control API 버전
     var shootingControlVersion: VersionType {
         switch self {
-        case .eos1DXMarkIII, .eosR1, .eosR5, .eosR6, .eosR3, .eosR7, .eosR8, .powerShotV10, .eosR5MARKII, .eosR50, .eosR6MarkII, .eosR50V:
+        case .eosR6, .eosR7, .eosR8, .eosR50, .eosR6MarkII, .eosR50V:
             return .ver100
         }
     }
