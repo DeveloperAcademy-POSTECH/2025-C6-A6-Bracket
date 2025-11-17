@@ -245,48 +245,48 @@ final class TrishotActivationViewModel {
 extension TrishotActivationViewModel {
     private func ignoreShootingMode(action: String) async throws {
         let request = ShootingControl.IgnoreShootingModeRequest(action: action)
-        try await container.services.shootingControlService.ignoreShootingMode(with: .ver100, request: request)
+        try await container.services.shootingControlService.ignoreShootingMode(request: request)
     }
 
     private func setShootingMode(value: String) async throws {
         let request = ShootingSettings.ShootingModeRequest(value: value)
-        _ = try await container.services.shootingSettingsService.putShootingMode(with: .ver110, request: request)
+        _ = try await container.services.shootingSettingsService.putShootingMode(request: request)
     }
 
     private func setPictureStyle(value: String) async throws {
         let request = ShootingSettings.PictureStyleRequest(value: value)
-        _ = try await container.services.shootingSettingsService.putPictureStyle(with: .ver100, request: request)
+        _ = try await container.services.shootingSettingsService.putPictureStyle(request: request)
     }
 
     private func setAperture(value: String) async throws {
         let request = ShootingSettings.AVRequest(value: value)
-        _ = try await container.services.shootingSettingsService.putAV(with: .ver100, request: request)
+        _ = try await container.services.shootingSettingsService.putAV(request: request)
     }
 
     private func setShutterSpeed(value: String) async throws {
         let request = ShootingSettings.TVRequest(value: value)
-        _ = try await container.services.shootingSettingsService.putTV(with: .ver100, request: request)
+        _ = try await container.services.shootingSettingsService.putTV(request: request)
     }
 
     private func setISO(value: String) async throws {
         let request = ShootingSettings.ISORequest(value: value)
-        _ = try await container.services.shootingSettingsService.putISO(with: .ver100, request: request)
+        _ = try await container.services.shootingSettingsService.putISO(request: request)
     }
 
     private func setExposureCompensation(value: String) async throws {
         let request = ShootingSettings.ExposureCompensationRequest(value: value)
-        _ = try await container.services.shootingSettingsService.putExposureCompensation(with: .ver100, request: request)
+        _ = try await container.services.shootingSettingsService.putExposureCompensation(request: request)
     }
 
     private func setColorTemperature(value: Int) async throws {
         let request = ShootingSettings.ColorTemperatureRequest(value: value)
-        _ = try await container.services.shootingSettingsService.putColorTemperature(with: .ver100, request: request)
+        _ = try await container.services.shootingSettingsService.putColorTemperature(request: request)
     }
 
     private func setWbShift(blueAmber: Int, magentaGreen: Int) async throws {
         let wbShift = ShootingSettings.WBShiftRequest.WBShift(blueAmber: blueAmber, magentaGreen: magentaGreen)
         let request = ShootingSettings.WBShiftRequest(value: wbShift)
-        _ = try await container.services.shootingSettingsService.putWbShift(with: .ver100, request: request)
+        _ = try await container.services.shootingSettingsService.putWbShift(request: request)
     }
     
     /// Ability Information 가져오기, 확인용
