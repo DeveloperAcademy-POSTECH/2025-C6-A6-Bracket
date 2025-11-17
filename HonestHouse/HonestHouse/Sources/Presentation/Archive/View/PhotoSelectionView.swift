@@ -142,7 +142,7 @@ struct PhotoSelectionView: View {
                 Button {
                     vm.goToGroupedPhotos()
                 } label: {
-                    Text("\(vm.selectedPhotos.count)장 분류하러 가기")
+                    Text("\(vm.selectedPhotos.count)장 분류하기")
                 }
                 .buttonStyle(DefaultButtonStyle(vm.selectedPhotos.isEmpty ? .deactivated : .activated))
                 .disabled(vm.selectedPhotos.isEmpty)
