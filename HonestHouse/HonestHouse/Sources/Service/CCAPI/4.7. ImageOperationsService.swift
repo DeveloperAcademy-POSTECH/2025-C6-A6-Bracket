@@ -96,7 +96,7 @@ final class ImageOperationsService: BaseService, ImageOperationsServiceType {
         order: String
     ) throws -> URL {
         let version = CameraType.current?.imageOperationsVersion ?? .ver100
-        let urlString = "\(BaseURLConstants.baseArchiveURL)\(version.description)/contents/\(storage)/\(directory)?type=\(type)&kind=\(kind)&order=\(order)"
+        let urlString = "\(BaseURLConstants.baseURL)\(version.description)/contents/\(storage)/\(directory)?type=\(type)&kind=\(kind)&order=\(order)"
 
         guard let url = URL(string: urlString) else {
             throw CCAPIError.invalidURL
