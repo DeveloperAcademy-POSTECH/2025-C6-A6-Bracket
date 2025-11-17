@@ -10,6 +10,7 @@ import SwiftUI
 enum MainAction {
     case goToPresetEditor(PresetDetailViewMode, Preset?)
     case goToPhotoSelection
+    case goToSettings
 }
 
 @Observable
@@ -44,6 +45,9 @@ final class MainViewModel {
             
         case .goToPhotoSelection:
             container.navigationRouter.push(to: .photoSelection)
+            
+        case .goToSettings:
+            container.navigationRouter.push(to: .settings)
         }
     }
     

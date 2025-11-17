@@ -30,6 +30,9 @@ struct NavigationRoutingView: View {
             
         case .groupedPhotos(let selectedPhotos): // ModeType을 switch로 관리하거나, 뷰 내에서 분기처리
             GroupedPhotosView(vm: GroupedPhotosViewModel(container: container, selectedPhotos: selectedPhotos))
+            
+        case .settings:
+            SettingView()
         }
     }
 }

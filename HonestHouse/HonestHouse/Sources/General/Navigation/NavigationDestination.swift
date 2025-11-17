@@ -16,4 +16,5 @@ enum NavigationDestination: Hashable {
     // Photos
     case photoSelection
     case groupedPhotos([Photo])
+    case settings
 }
