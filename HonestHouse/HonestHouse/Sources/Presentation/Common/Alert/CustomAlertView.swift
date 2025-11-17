@@ -95,6 +95,8 @@ struct CustomAlertView: View {
             return Color.g12
         case .cancel:
             return Color.g0
+        case .delete:
+            return Color.red1
         }
     }
     
@@ -104,6 +106,8 @@ struct CustomAlertView: View {
             return Color.yellow1
         case .cancel:
             return Color.clear
+        case .delete:
+            return Color.clear
         }
     }
     
@@ -112,6 +116,8 @@ struct CustomAlertView: View {
         case .default:
             return Color.clear
         case .cancel:
+            return Color.white
+        case .delete:
             return Color.white
         }
     }
