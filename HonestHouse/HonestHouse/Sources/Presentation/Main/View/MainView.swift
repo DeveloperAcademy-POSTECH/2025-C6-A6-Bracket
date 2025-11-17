@@ -20,7 +20,7 @@ struct MainView: View {
                 Color.g12.ignoresSafeArea(.all)
                 VStack(spacing: 12) {
                     headerView()
-                    VStack(spacing: 0) {
+                    VStack(spacing: vm.selectedSegment == .trishot ? 0 : 12){
                         CustomSegmentedControl(selection: $vm.selectedSegment)
                         selectedSegmentView()
                     }
