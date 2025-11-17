@@ -13,6 +13,19 @@ enum ShootingControlTarget {
 
 extension ShootingControlTarget: BaseTargetType {
     var path: String {
+        guard let cameraType = CameraType.current else {
+            return defaultPath
+        }
+
+        let version = cameraType.shootingControlVersion
+
+        switch self {
+        case .ignoreShootingMode:
+            return ShootingControlAPI.ignoreShootingMode.path(with: version)
+        }
+    }
+
+    private var defaultPath: String {
         switch self {
         case .ignoreShootingMode:
             return ShootingControlAPI.ignoreShootingMode.path(with: .ver100)

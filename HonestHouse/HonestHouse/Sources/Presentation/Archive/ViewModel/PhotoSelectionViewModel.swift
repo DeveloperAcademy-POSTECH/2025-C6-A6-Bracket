@@ -104,7 +104,7 @@ final class PhotoSelectionViewModel {
         presentStorage = storageName
     }
     
-    /// directoryList에서 첫번째 directory가져오기
+    /// directoryList에서 첫번째 directory가져오기 (ver110, ver120)
     func setPresentDirectory(storage: String) async throws {
         try await getDirectoryList(storage: storage)
         guard
@@ -114,6 +114,23 @@ final class PhotoSelectionViewModel {
             throw ArchiveError.photoLoadingFailed
         }
         presentDirectory = dirName
+    }
+    
+    /// directoryList에서 첫번째 directory가져오기 (ver140)
+    func setPresentDirectoryV140(storage: String) async throws {
+        try await getDirectoryList(storage: storage)
+        
+        guard let dirUrl = directoryList?.url?.first else {
+            throw ArchiveError.photoLoadingFailed
+        }
+        
+        let components = dirUrl.split(separator: "/")
+        
+        guard components.count >= 2 else {
+            throw ArchiveError.photoLoadingFailed
+        }
+        
+        presentDirectory = components.suffix(2).joined(separator: "/")
     }
     
     /// 새 Chunk 처리: Info 먼저 가져온 후 섹션 구성
@@ -171,13 +188,13 @@ final class PhotoSelectionViewModel {
                         )
                         
                         return Photo(
-                            url: url,
+                            url: BaseURLConstants.baseArchiveURL + url,
                             dateInfo: contentInfo.dateInfo
                         )
                     } catch {
                         print("ContentInfo 가져오기 실패: \(url), \(error)")
                         // 실패한 경우 날짜 없이 Photo 생성
-                        return Photo(url: url, dateInfo: nil)
+                        return Photo(url: BaseURLConstants.baseArchiveURL + url, dateInfo: nil)
                     }
                 }
             }
@@ -262,8 +279,19 @@ final class PhotoSelectionViewModel {
             try await setPresentStorage()
             guard let storage = presentStorage else { throw ArchiveError.photoLoadingFailed }
             
+            guard let cameraType = CameraType.current else {
+                throw ArchiveError.photoLoadingFailed
+            }
+            
             // 2. Directory 설정
-            try await setPresentDirectory(storage: storage)
+            switch cameraType.imageOperationsVersion {
+            case .ver110, .ver120:
+                try await setPresentDirectory(storage: storage)
+            case .ver140:
+                try await setPresentDirectoryV140(storage: storage)
+            default:
+                throw ArchiveError.photoLoadingFailed
+            }
             guard let directory = presentDirectory else { throw ArchiveError.photoLoadingFailed }
             
             // 3. Content List 가져오기 (점진적 로딩)

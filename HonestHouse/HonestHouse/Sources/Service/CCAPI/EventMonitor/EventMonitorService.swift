@@ -25,7 +25,12 @@ final class EventMonitorService: StreamService, EventMonitorServiceType {
     }
 
     override var endpoint: String {
-        return "ver100/event/monitoring"
+        guard let cameraType = CameraType.current else {
+            return "ver100/event/monitoring"
+        }
+
+        let version = cameraType.eventMonitorVersion
+        return "\(version.description)/event/monitoring"
     }
 
     override var httpMethod: String {
