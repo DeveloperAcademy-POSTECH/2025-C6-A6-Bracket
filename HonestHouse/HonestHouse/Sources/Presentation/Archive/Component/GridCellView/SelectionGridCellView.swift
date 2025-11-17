@@ -25,21 +25,31 @@ struct SelectionGridCellView: View {
                     )
                 
             }
-            
-            Button(action: onTapSelectionGridCell) {
-                Group {
-                    if isSelected {
-                        Image(.checkSelectBtnS)
-                            .resizable()
-                    } else {
-                        Image(.checkUnselectBtnS)
-                            .resizable()
-                    }
-                }
-                .frame(width: 24, height: 24)
+        
+            checkButtonView()
                 .padding(6)
+            
+            GeometryReader { geo in
+                Color.clear
+                    .frame(width: geo.size.width / 2, height: geo.size.height / 2)
+                    .contentShape(Rectangle())
+                    .onTapGesture(perform: onTapSelectionGridCell)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+    
+    private func checkButtonView() -> some View {
+        Group {
+            if isSelected {
+                Image(.checkSelectBtnS)
+                    .resizable()
+            } else {
+                Image(.checkUnselectBtnS)
+                    .resizable()
+            }
+        }
+        .frame(width: 24, height: 24)
     }
 }
