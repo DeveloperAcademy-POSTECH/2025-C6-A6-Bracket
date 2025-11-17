@@ -93,7 +93,6 @@ struct PresetView: View {
                 .matchedGeometryEffect(id: preset.id, in: namespace)
             }
         }
-        .padding(.top, 16)
     }
 
     private var listView: some View {
