@@ -22,7 +22,7 @@ enum TrishotError: LocalizedError, Equatable, AlertPresentable {
         switch self {
         case .cameraDisconnected:
             return AlertInfo(
-                title: "카메라 연결이 끊어졌습니다.",
+                title: "카메라 연결이 해제되었습니다.",
                 message: "카메라를 다시 연결해주세요."
             )
 
@@ -46,7 +46,7 @@ enum TrishotError: LocalizedError, Equatable, AlertPresentable {
 
         case .unknown:
             return AlertInfo(
-                title: "Tri-shot 실행 중 오류가 발생했습니다.",
+                title: "Tri-shot 실행 중 문제가 발생했습니다.",
                 message: "문제가 반복된다면, 앱을 재실행해주세요."
             )
         }
