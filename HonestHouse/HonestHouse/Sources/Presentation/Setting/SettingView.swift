@@ -13,7 +13,6 @@ struct SettingView: View {
     
     var body: some View {
         VStack(alignment: .center) {
-            NavigationStack {
                 ZStack {
                     Color.g12.ignoresSafeArea()
                     
@@ -63,7 +62,7 @@ struct SettingView: View {
                     dismiss()
                 } rightView: { EmptyView() }
                 .navigationBarTitleDisplayMode(.automatic)
-            }
+            
         }
     }
     

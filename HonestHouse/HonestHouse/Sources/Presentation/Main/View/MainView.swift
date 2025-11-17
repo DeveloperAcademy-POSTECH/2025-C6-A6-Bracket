@@ -73,9 +73,7 @@ struct MainView: View {
                 }
             } else {
                 Button {
-                    if cameraConnectionManager.connectionState != .connected {
-                        cameraConnectionManager.showConnectionSheet = true
-                    }
+                    vm.send(action: .goToSettings)
                 } label: {
                     Image(.setting)
                         .resizable()
