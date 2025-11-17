@@ -8,7 +8,7 @@
 import Foundation
 
 struct PhotoSection: Identifiable {
-    let id = UUID()
+    let id: String
     let date: Date
     let dateString: String
     var photos: [Photo]
@@ -16,6 +16,7 @@ struct PhotoSection: Identifiable {
     init(date: Date, photos: [Photo]) {
         self.date = date
         self.photos = photos
+        self.id = DateFormatter.dateKeyFormatter.string(from: date)
         self.dateString = DateFormatter.displayDateFormatter.string(from: date)
     }
 }

@@ -33,18 +33,18 @@ enum ArchiveError: LocalizedError, Equatable, AlertPresentable {
             
         case .cameraDisconnected:
             return AlertInfo(
-                title: "카메라와의 연결이 불안정합니다.",
+                title: "카메라 연결이 해제되었습니다.",
                 message: "카메라를 다시 연결해주세요."
             )
             
         case .photoLoadingFailed:
             return AlertInfo(
-                title: "이미지를 불러오는데 문제가 발생하였습니다."
+                title: "사진을 불러오는 중\n문제가 발생하였습니다."
             )
             
         case .visionAnalysisFailed:
             return AlertInfo(
-                title: "이미지를 분류하는데 오류가 발생하였습니다."
+                title: "사진을 분류하는데\n문제가 발생하였습니다."
             )
             
         case .photoPermissionDenied:
@@ -55,7 +55,7 @@ enum ArchiveError: LocalizedError, Equatable, AlertPresentable {
             
         case .photoProcessingError:
             return AlertInfo(
-                title: "이미지를 처리하는 과정에서 문제가 발생하였습니다."
+                title: "사진을 처리하는 과정에서\n문제가 발생하였습니다."
             )
         }
     }

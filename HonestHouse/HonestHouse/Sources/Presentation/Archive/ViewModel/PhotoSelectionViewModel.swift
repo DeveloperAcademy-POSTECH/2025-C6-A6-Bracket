@@ -263,6 +263,8 @@ final class PhotoSelectionViewModel {
             
             return PhotoSection(date: firstDate, photos: photos)
         }
+        
+        self.allPhotos = photoSections.flatMap { $0.photos }
     }
     
     /// 점진적 로딩으로 모든 이미지 가져오기

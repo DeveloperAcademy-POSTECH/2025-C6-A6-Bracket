@@ -10,6 +10,7 @@ import Kingfisher
 
 struct PhotoSelectionView: View {
     @State var vm: PhotoSelectionViewModel
+    @State private var scrollPosition: String?
     
     private let columnCount: Int = 3
     private var columns: [GridItem] {
@@ -90,6 +91,7 @@ struct PhotoSelectionView: View {
             .screenPadding()
         }
         .contentMargins(.bottom, 80, for: .scrollContent)
+        .scrollPosition(id: $scrollPosition, anchor: .top)
     }
     
     private func sectionHeaderView(section: PhotoSection) -> some View {
@@ -125,7 +127,7 @@ struct PhotoSelectionView: View {
                     onTapSelectionGridCell: { vm.toggleGridCell(for: photo) }
                 )
                 .environment(vm)
-                .id(photo.url)
+                .id(photo.id)
             }
         }
     }
@@ -140,7 +142,7 @@ struct PhotoSelectionView: View {
                 Button {
                     vm.goToGroupedPhotos()
                 } label: {
-                    Text("\(vm.selectedPhotos.count)장 분류하러 가기")
+                    Text("\(vm.selectedPhotos.count)장 분류하기")
                 }
                 .buttonStyle(DefaultButtonStyle(vm.selectedPhotos.isEmpty ? .deactivated : .activated))
                 .disabled(vm.selectedPhotos.isEmpty)
