@@ -38,7 +38,8 @@ extension ShootingSettingsTarget: BaseTargetType {
         }
         
         switch self {
-        case .getShootingSetting(let version):
+        case .getShootingSetting:
+            let version = cameraType.shootingSettingsVersion(for: .getShootingSetting)
             return ShootingSettingsAPI.getShootingSetting.path(with: version)
             
         case .getShootingMode, .putShootingMode:
@@ -46,7 +47,7 @@ extension ShootingSettingsTarget: BaseTargetType {
             let endpoint = cameraType.hasShootingModeDial
             ? ShootingSettingsAPI.shootingModeDial
             : ShootingSettingsAPI.shootingMode
-            return "\(version.description)/\(endpoint)"
+            return endpoint.path(with: version)
             
         case .getAv, .putAv:
             let version = cameraType.shootingSettingsVersion(for: .av)
@@ -84,8 +85,8 @@ extension ShootingSettingsTarget: BaseTargetType {
     
     private var defaultPath: String {
         switch self {
-        case .getShootingSetting(let version):
-            return ShootingSettingsAPI.getShootingSetting.path(with: version)
+        case .getShootingSetting:
+            return ShootingSettingsAPI.getShootingSetting.path(with: .ver100)
             
         case .getShootingMode, .putShootingMode:
             return ShootingSettingsAPI.shootingMode.path(with: .ver110)
