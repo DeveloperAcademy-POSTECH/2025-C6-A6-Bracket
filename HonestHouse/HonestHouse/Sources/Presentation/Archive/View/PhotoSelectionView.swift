@@ -88,7 +88,7 @@ struct PhotoSelectionView: View {
             }
             .screenPadding()
         }
-        .contentMargins(.bottom, 70, for: .scrollContent)
+        .contentMargins(.bottom, 80, for: .scrollContent)
     }
     
     private func sectionHeaderView(section: PhotoSection) -> some View {
@@ -142,6 +142,7 @@ struct PhotoSelectionView: View {
                     Text("\(vm.selectedPhotos.count)장 분류하러 가기")
                 }
                 .buttonStyle(DefaultButtonStyle(vm.selectedPhotos.isEmpty ? .deactivated : .activated))
+                .disabled(vm.selectedPhotos.isEmpty)
                 .screenPadding()
             }
         }

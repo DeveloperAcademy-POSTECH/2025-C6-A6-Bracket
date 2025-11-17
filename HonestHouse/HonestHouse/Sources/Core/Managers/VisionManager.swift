@@ -5,6 +5,7 @@
 //  Created by Rama on 10/24/25.
 //
 
+import Foundation
 import Vision
 
 final class VisionManager: VisionManagerType {
@@ -22,45 +23,49 @@ final class VisionManager: VisionManagerType {
         
         return try await groupSimilarImages(
             analyzedPhotos: features,
-            threshold: threshold
+            threshold: threshold,
+            params: .default
         )
     }
     
     /// 각 이미지의 특징을 Vision으로 추출
     private func extractFeatures(from photos: [Photo]) async throws -> [AnalyzedPhoto] {
         var features: [AnalyzedPhoto] = []
-
+        
         for photo in photos {
             do {
-                // Thumbnail 사용 (300x300, Vision에 충분)
                 let uiImage = try await imageLoader.fetchUIImage(from: photo.thumbnailURL)
-
+                
                 guard let cgImage = uiImage.cgImage else {
                     throw VisionError.cgImageConversion(url: photo.thumbnailURL)
                 }
-
-                let request = VNGenerateImageFeaturePrintRequest()
+                
+                // 1. 이미지 전체 특징 추출
+                let featureRequest = VNGenerateImageFeaturePrintRequest()
                 let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-
-                try handler.perform([request])
-
-                guard let observation = request.results?.first else {
+                try handler.perform([featureRequest])
+                
+                guard let featureObservation = featureRequest.results?.first else {
                     throw VisionError.observation(url: photo.thumbnailURL)
                 }
-
+                
+                // 2. 얼굴 감지
+                let faceRequest = VNDetectFaceLandmarksRequest()
+                try? handler.perform([faceRequest])
+                let faceObservation = faceRequest.results?.first
+                
                 features.append(
                     AnalyzedPhoto(
                         photo: photo,
-                        observation: observation
+                        observation: featureObservation,
+                        faceObservation: faceObservation
                     )
                 )
             }
             catch let imageLoadingError as ImageLoadingError {
-                // ImageLoadingError → VisionError 변환
                 throw VisionError.imageFetching(url: photo.thumbnailURL, underlyingError: imageLoadingError)
             }
             catch let visionError as VisionError {
-                // 이미 VisionError면 그대로 throw
                 throw visionError
             }
             catch {
@@ -68,14 +73,15 @@ final class VisionManager: VisionManagerType {
                 throw VisionError.imageFetching(url: photo.thumbnailURL, underlyingError: error)
             }
         }
-
+        
         return features
     }
     
     /// 비슷한 이미지를 그룹핑
     private func groupSimilarImages(
         analyzedPhotos: [AnalyzedPhoto],
-        threshold: Float
+        threshold: Float,
+        params: GroupingParams
     ) async throws -> [SimilarPhotoGroup] {
         var similarGroups: [SimilarPhotoGroup] = []
         var processedImageSet = Set<Int>()
@@ -88,6 +94,7 @@ final class VisionManager: VisionManagerType {
                 startIndex: idx,
                 photos: analyzedPhotos,
                 threshold: threshold,
+                params: params,
                 processed: &processedImageSet
             )
             
@@ -112,6 +119,7 @@ final class VisionManager: VisionManagerType {
         startIndex: Int,
         photos: [AnalyzedPhoto],
         threshold: Float,
+        params: GroupingParams,
         processed: inout Set<Int>
     ) throws -> SimilarPhotoGroup? {
         var groupImages = [photos[startIndex].photo]
@@ -121,14 +129,25 @@ final class VisionManager: VisionManagerType {
         for idx in (startIndex + 1)..<photos.count {
             if processed.contains(idx) { continue }
             
+            // 1. 평균 결합 거리 계산
             let avgDistance = try calculateAverageDistanceToGroup(
                 targetIndex: idx,
                 currentGroupIndexes: currentGroupIndexes,
-                photos: photos
+                photos: photos,
+                params: params
             )
             
-            // 그룹 내 사진과 타겟 사진 유사도의 평균값이 임계값보다 작으면 통과
-            if avgDistance < threshold {
+            // 2. 완전 링크 제약 확인 (그룹 내 모든 사진과의 거리가 threshold 이하)
+            let satisfiesCompleteLink = try fitsCompleteLinkConstraint(
+                targetIndex: idx,
+                currentGroupIndexes: currentGroupIndexes,
+                photos: photos,
+                params: params,
+                threshold: threshold
+            )
+            
+            // 3. 평균 < threshold AND 완전링크 만족 시에만 추가
+            if avgDistance < threshold && satisfiesCompleteLink {
                 groupImages.append(photos[idx].photo)
                 currentGroupIndexes.append(idx)
                 distances.append(avgDistance)
@@ -148,24 +167,122 @@ final class VisionManager: VisionManagerType {
         )
     }
     
-    /// 그룹 내 사진과 타겟 사진의 유사도 평균을 계산
+    /// 결합 거리: ImageFeature + Face + DateInfo
+    private func combinedDistance(
+        _ a: AnalyzedPhoto,
+        _ b: AnalyzedPhoto,
+        params: GroupingParams
+    ) throws -> Float {
+        // 1. Vision 시각 거리
+        var visual: Float = 0
+        try a.observation.computeDistance(&visual, to: b.observation)
+        
+        // 2. 시간 패널티 (날짜 정보 존재시에만)
+        var temporal: Float = 0
+        if let da = a.photo.dateInfo,
+           let db = b.photo.dateInfo {
+            let dt = abs(da.timeIntervalSince(db))
+            let sigma = max(params.timeSigma, 1)
+            let gaussian = 1 - Float(exp(-(dt * dt) / (2 * sigma * sigma)))
+            temporal = min(gaussian, params.maxTimePenalty)
+        }
+        
+        // 3. Face (비교하는 두 이미지 모두 인물 사진이면, 얼굴 위치/크기도 고려)
+        var facePenalty: Float = 0
+        if a.hasFace && b.hasFace,
+           let faceA = a.faceObservation,
+           let faceB = b.faceObservation {
+            let faceSimilarity = calculateFaceSimilarity(faceA, faceB)
+            // 얼굴이 다르면 패널티 (최대 0.1)
+            facePenalty = (1 - faceSimilarity) * 0.1
+        }
+        
+        // 결합
+        return params.alpha * visual + (1 - params.alpha) * temporal + facePenalty
+    }
+    
+    /// 얼굴 유사도 계산
+    private func calculateFaceSimilarity(
+        _ faceA: VNFaceObservation,
+        _ faceB: VNFaceObservation
+    ) -> Float {
+        
+        // 1. 이미지 내 얼굴 비율 비교
+        let sizeA = faceA.boundingBox.width * faceA.boundingBox.height
+        let sizeB = faceB.boundingBox.width * faceB.boundingBox.height
+        let sizeDiff = abs(sizeA - sizeB) / max(sizeA, sizeB)
+        let sizeSimilarity = 1 - sizeDiff
+        
+        // 2. 얼굴 위치 비교 (중심점)
+        let centerA = CGPoint(
+            x: faceA.boundingBox.midX,
+            y: faceA.boundingBox.midY
+        )
+        
+        let centerB = CGPoint(
+            x: faceB.boundingBox.midX,
+            y: faceB.boundingBox.midY
+        )
+        
+        let distance = sqrt(
+            pow(centerA.x - centerB.x, 2) +
+            pow(centerA.y - centerB.y, 2)
+        )
+        // distance 범위: 0 ~ sqrt(2) ≈ 1.41
+        
+        // 정규화: 대각선 거리(√2)를 1로 매핑
+        let maxDistance = sqrt(2.0)
+        let normalizedDistance = min(distance / maxDistance, 1.0)
+        let positionSimilarity = 1 - normalizedDistance
+        
+        // 3. 가중 평균 (크기 50%, 위치 50%)
+        let similarity = (sizeSimilarity + positionSimilarity) / 2
+        
+        return Float(similarity)
+    }
+    
+    /// 그룹 내 사진과 타겟 사진의 평균 결합 거리
     private func calculateAverageDistanceToGroup(
         targetIndex: Int,
         currentGroupIndexes: [Int],
-        photos: [AnalyzedPhoto]
+        photos: [AnalyzedPhoto],
+        params: GroupingParams
     ) throws -> Float {
         var sumDistance: Float = 0.0
         
         for idx in currentGroupIndexes {
-            var distance: Float = 0.0
-            try photos[idx].observation.computeDistance(
-                &distance,
-                to: photos[targetIndex].observation
+            let distance = try combinedDistance(
+                photos[idx],
+                photos[targetIndex],
+                params: params
             )
             sumDistance += distance
         }
         
         return sumDistance / Float(currentGroupIndexes.count)
+    }
+    
+    /// 완전 링크 제약 확인 (그룹 내의 모든 사진과의 거리가 threshold 이하인지)
+    private func fitsCompleteLinkConstraint(
+        targetIndex: Int,
+        currentGroupIndexes: [Int],
+        photos: [AnalyzedPhoto],
+        params: GroupingParams,
+        threshold: Float
+    ) throws -> Bool {
+        for idx in currentGroupIndexes {
+            let distance = try combinedDistance(
+                photos[idx],
+                photos[targetIndex],
+                params: params
+            )
+            
+            // 하나라도 threshold를 넘으면 실패
+            if distance >= threshold {
+                return false
+            }
+        }
+        return true
     }
     
     /// 유사 그룹 생성

@@ -37,7 +37,7 @@ final class GroupedPhotosViewModel {
         Task {
             do {
                 // Vision 처리 + 그룹 prefetch 병렬 실행
-                async let visionResult = container.managers.visionManager.analyzeImages(photosFromSelection, threshold: 0.8)
+                async let visionResult = container.managers.visionManager.analyzeImages(photosFromSelection, threshold: 0.55)
 
                 // Vision 완료 후 그룹 첫 사진 prefetch
                 let groups = try await visionResult

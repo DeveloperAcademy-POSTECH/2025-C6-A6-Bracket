@@ -115,6 +115,7 @@ struct GroupedPhotosView: View {
             }
             .screenPadding()
         }
+        .contentMargins(.bottom, 80, for: .scrollContent)
     }
     
     private func selectionCompleteButtonView() -> some View {
@@ -131,6 +132,7 @@ struct GroupedPhotosView: View {
                     Text("\(vm.selectedPhotosInGroup.count)장 사진에 저장")
                 }
                 .buttonStyle(DefaultButtonStyle(vm.selectedPhotosInGroup.isEmpty ? .deactivated : .activated))
+                .disabled(vm.selectedPhotosInGroup.isEmpty)
                 .screenPadding()
             }
         }
