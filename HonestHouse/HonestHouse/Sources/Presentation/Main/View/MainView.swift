@@ -106,7 +106,15 @@ struct MainView: View {
                 }
             } else {
                 Button {
-                    vm.send(action: .goToPhotoSelection)
+                    Task {
+                        if await cameraConnectionManager.checkConnection() {
+                            Logger.info("Camera connected", category: .connection)
+                            vm.send(action: .goToPhotoSelection)
+                        } else {
+                            Logger.info("Camera disconnected", category: .connection)
+                            cameraConnectionManager.showConnectionLostAlert()
+                        }
+                    }
                 } label: {
                     Image(.importPhoto)
                         .resizable()
