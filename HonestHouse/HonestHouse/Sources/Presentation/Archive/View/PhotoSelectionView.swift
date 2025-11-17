@@ -9,6 +9,8 @@ import SwiftUI
 import Kingfisher
 
 struct PhotoSelectionView: View {
+    @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
+    
     @State var vm: PhotoSelectionViewModel
     @State private var scrollPosition: String?
     
@@ -44,7 +46,10 @@ struct PhotoSelectionView: View {
                     }
                 case .cameraDisconnected:
                     AlertButton.cancel("취소") { vm.goToBack() }
-                    AlertButton.default("재연결") { } //TODO: - 카메라 연결 끊겼을 때
+                    AlertButton.default("재연결") {
+                        cameraConnectionManager.reconnectCamera()
+                        vm.goToBack()
+                    }
                 case .photoLoadingFailed:
                     AlertButton.cancel("취소") { vm.goToBack() }
                     AlertButton.default("재시도") {
