@@ -20,9 +20,12 @@ struct MainView: View {
                 Color.g12.ignoresSafeArea(.all)
                 VStack(spacing: 12) {
                     headerView()
-                    CustomSegmentedControl(selection: $vm.selectedSegment)
-                    selectedSegmentView()
+                    VStack(spacing: 0) {
+                        CustomSegmentedControl(selection: $vm.selectedSegment)
+                        selectedSegmentView()
+                    }
                 }
+                .safeAreaPadding(.vertical, 0)
                 .screenPadding()
                 .navigationDestination(for: NavigationDestination.self) {
                     NavigationRoutingView(destination: $0)
