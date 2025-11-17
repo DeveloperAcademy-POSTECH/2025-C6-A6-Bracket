@@ -62,7 +62,6 @@ final class CameraConnectionManager: BaseService, ObservableObject {
         Task {
             do {
                 try await networkManager.initializeAuthentication()
-                self.connectionState = .connected
                 Logger.info("카메라 연결 성공", category: .connection)
                 
                 let cameraInfo = try await getCameraInfo()
@@ -72,6 +71,7 @@ final class CameraConnectionManager: BaseService, ObservableObject {
                     self.connectedCameraType = CameraType(rawValue: productName)
                 }
                 
+                self.connectionState = .connected
             } catch {
                 let connectionError = ConnectionError.from(error)
                 self.connectionState = .failed(connectionError)

@@ -39,9 +39,6 @@ struct ConnectionGuideView: View {
                     .foregroundColor(.g0)
             }
         }
-        .navigationDestination(isPresented: $navigateToCompletion) {
-            ConnectionCompletionView()
-        }
         .onChange(of: cameraConnectionManager.connectionState) { _, newState in
             switch newState {
             case .connected:
@@ -55,10 +52,10 @@ struct ConnectionGuideView: View {
         }
         .alert("연결 성공", isPresented: $showSuccessAlert) {
             Button("확인") {
-                navigateToCompletion = true
+                cameraConnectionManager.showConnectionSheet = false
             }
         } message: {
-            Text("카메라가 성공적으로 연결되었습니다.")
+            Text("\(cameraConnectionManager.productName)와 연결되었습니다.")
         }
         .alert("연결 실패", isPresented: $showFailureAlert, presenting: connectionError) { error in
             Button("취소") { }
