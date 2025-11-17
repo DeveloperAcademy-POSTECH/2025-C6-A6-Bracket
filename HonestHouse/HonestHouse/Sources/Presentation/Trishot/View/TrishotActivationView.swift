@@ -29,8 +29,8 @@ struct TrishotActivationView: View {
         }
         .onDisappear {
             NavigationSwipeBackControl.enableSwipeBack()
+            vm.deactivateTrishot()
         }
-        // TODO: 카메라 연결 감지 로직 수정 후 sheet 반영
         .navigationBarBackButtonHidden(true)
         .customAlert(
             title: "카메라로 촬영을 시작해보세요",
