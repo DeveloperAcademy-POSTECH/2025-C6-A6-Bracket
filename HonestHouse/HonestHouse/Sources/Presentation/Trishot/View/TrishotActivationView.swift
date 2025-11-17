@@ -49,7 +49,9 @@ struct TrishotActivationView: View {
                     vm.send(.popToTrishotSetting)
                 }
                 AlertButton.default("다시 연결") {
-                    // TODO: 카메라 연결 끊김 감지 로직 수정 후 반영
+                    vm.reconnectCamera()
+                    vm.deactivateTrishot()
+                    vm.send(.popToTrishotSetting)
                 }
             case .cameraBusy:
                 AlertButton.default("확인")
