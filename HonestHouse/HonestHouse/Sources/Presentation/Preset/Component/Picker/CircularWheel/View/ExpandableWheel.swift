@@ -113,7 +113,7 @@ struct ExpandableWheel: View {
             preset.exposureCompensation = CameraConstants.exposureCompensationValues[index]
             
         case .colorTemperature:
-            preset.exposureCompensation = CameraConstants.colorTemperatureValues[index].description
+            preset.colorTemperature = CameraConstants.colorTemperatureValues[index]
         }
     }
     
