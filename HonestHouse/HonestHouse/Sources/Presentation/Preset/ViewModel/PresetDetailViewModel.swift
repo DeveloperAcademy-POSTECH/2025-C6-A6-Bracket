@@ -23,7 +23,8 @@ class PresetDetailViewModel {
     var showCameraModeSelector: Bool = false
     var activePicker: SettingType?
     var isDimmed: Bool = false
-    
+    var showDeleteAlert: Bool = false
+
     private var originalPreset: Preset?
     
     init(
@@ -237,6 +238,15 @@ class PresetDetailViewModel {
     
     func getColorTemperatureValues() -> [Int] {
         return CameraConstants.colorTemperatureValues
+    }
+
+    // TODO: 프리셋 삭제 기능 구현 후 연결 필요
+    // 사용법:
+    // 1. PresetManager에 deletePreset(by id: UUID) 메서드 호출
+    // 2. 삭제 성공 시 navigationRouter.pop()으로 이전 화면으로 이동
+    // 3. 삭제 실패 시 에러 처리
+    func deletePreset() {
+        // TODO: 삭제 기능 구현
     }
 }
 

@@ -10,7 +10,6 @@ import SwiftData
 
 struct PresetDetailView: View {
     @State var vm: PresetDetailViewModel
-    @State private var showDeleteAlert = false
     @State private var showUnsavedChangesAlert = false
     @FocusState private var isNameFieldFocused: Bool
     @Environment(\.dismiss) private var dismiss // TODO: - vm에서 nvrouter로 관리
@@ -47,6 +46,16 @@ struct PresetDetailView: View {
         } message: {
             Text("이 프리셋이 저장되지 않았습니다.\n정말 나가시겠습니까?")
         }
+        .customAlert(
+            title: "정말 삭제하시겠습니까?",
+            isPresented: $vm.showDeleteAlert
+        ) {
+            AlertButton.cancel("취소")
+            AlertButton.delete("삭제하기") {
+                // TODO: 삭제 기능 구현 후 vm.deletePreset() 호출
+                // vm.deletePreset()
+            }
+        }
     }
     
     private func saveButtonView() -> some View {
@@ -58,6 +67,15 @@ struct PresetDetailView: View {
         } label: {
             Text("저장")
                 .foregroundStyle(Color.g0)
+        }
+    }
+
+    private func deleteButtonView() -> some View {
+        Button {
+            vm.showDeleteAlert = true
+        } label: {
+            Image(systemName: "trash")
+                .foregroundStyle(Color.red1)
         }
     }
     
