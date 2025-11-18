@@ -10,6 +10,9 @@ import SwiftUI
 struct SettingView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
+    @Environment(\.openURL) var openURL
+    
+    private var email = SupportEmail(toAddress: SettingConstants.teamEmail, subject: SettingConstants.contactTitle)
     
     var body: some View {
         VStack(alignment: .center) {
@@ -26,6 +29,12 @@ struct SettingView: View {
                                         settingRow(item: item)
                                     }
                                     .buttonStyle(.plain)
+                                } else if item == .contact {
+                                    Button {
+                                        email.send(openURL: openURL)
+                                    } label: {
+                                        settingRow(item: item)
+                                    }
                                 } else if item == .instagram {
                                     Button {
                                         if let url = item.externalURL {
@@ -53,9 +62,10 @@ struct SettingView: View {
                     
                     VStack {
                         Spacer()
-                        Text("v 1.0(1)")
+                        Text("v \(SettingConstants.appVersion)")
                             .fontStyle(.num7)
                             .foregroundStyle(Color.g7)
+                            .padding(.bottom, 35)
                     }
                 }
                 .navigationBarWithBack(title: "설정", showShadow: false) {
