@@ -19,11 +19,10 @@ class PresetDetailViewModel {
     var currentPreset: Preset
     var viewMode: PresetDetailViewMode
     var isLoading: Bool = false
-    var errorMessage: String?
     var showCameraModeSelector: Bool = false
     var activePicker: SettingType?
     var isDimmed: Bool = false
-    var showDeleteAlert: Bool = false
+    var currentError: PresetError?
 
     private var originalPreset: Preset?
     
@@ -175,10 +174,8 @@ class PresetDetailViewModel {
             
             // 4. 성공 시 View 모드로 전환
             switchToViewMode()
-            
+
         } catch {
-            // 에러 처리
-            errorMessage = "저장에 실패했습니다: \(error.localizedDescription)"
             throw error
         }
     }
@@ -240,13 +237,64 @@ class PresetDetailViewModel {
         return CameraConstants.colorTemperatureValues
     }
 
-    // TODO: 프리셋 삭제 기능 구현 후 연결 필요
-    // 사용법:
-    // 1. PresetManager에 deletePreset(by id: UUID) 메서드 호출
-    // 2. 삭제 성공 시 navigationRouter.pop()으로 이전 화면으로 이동
-    // 3. 삭제 실패 시 에러 처리
-    func deletePreset() {
-        // TODO: 삭제 기능 구현
+    @MainActor
+    func fetchCurrentCameraSettings() async {
+        isLoading = true
+        currentError = nil
+
+        do {
+            async let shootingModeResponse = container.services.shootingSettingsService.getShootingMode()
+            async let pictureStyleResponse = container.services.shootingSettingsService.getPictureStyle()
+            async let avResponse = container.services.shootingSettingsService.getAV()
+            async let tvResponse = container.services.shootingSettingsService.getTV()
+            async let isoResponse = container.services.shootingSettingsService.getISO()
+            async let exposureCompResponse = container.services.shootingSettingsService.getExposureCompensation()
+            async let colorTempResponse = container.services.shootingSettingsService.getColorTemperature()
+            async let wbShiftResponse = container.services.shootingSettingsService.getWbShift()
+
+            let (shootingMode, pictureStyle, av, tv, iso, exposureComp, colorTemp, wbShift) =
+                try await (shootingModeResponse, pictureStyleResponse, avResponse, tvResponse,
+                           isoResponse, exposureCompResponse, colorTempResponse, wbShiftResponse)
+
+            let mappedShootingMode = ShootingModeType.from(apiValue: shootingMode.value ?? "") ?? .av
+            let mappedPictureStyle = PictureStyleType.from(apiValue: pictureStyle.value ?? "") ?? .auto
+
+            currentPreset.pictureStyle = mappedPictureStyle
+            currentPreset.shootingMode = mappedShootingMode
+            currentPreset.aperture = av.value
+            currentPreset.shutterSpeed = tv.value
+            currentPreset.iso = iso.value
+            currentPreset.exposureCompensation = exposureComp.value
+            currentPreset.colorTemperature = colorTemp.value
+            currentPreset.tintMagentaGreen = wbShift.value?.magentaGreen
+
+            isLoading = false
+        } catch {
+            isLoading = false
+            handleFetchError(error)
+        }
+    }
+
+    private func handleFetchError(_ error: Error) {
+        if let presetError = error as? PresetError {
+            currentError = presetError
+        } else if let ccapiError = error as? CCAPIError {
+            currentError = PresetError.fromCCAPI(ccapiError)
+        } else {
+            currentError = .cameraSettingsFetchFailed
+        }
+    }
+
+    func useDefaultPreset() {
+        currentPreset = .init(name: "새 프리셋", pictureStyle: .auto, shootingMode: .av)
+        currentError = nil
+    }
+
+    func retryFetchCameraSettings() {
+        currentError = nil
+        Task {
+            await fetchCurrentCameraSettings()
+        }
     }
 }
 
