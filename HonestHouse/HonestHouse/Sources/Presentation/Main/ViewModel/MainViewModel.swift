@@ -23,12 +23,14 @@ final class MainViewModel {
     var selectedPreset: Preset?
     var showModeChange: Bool = false
     var showDeleteAlert: Bool = false
+    var showPresetApply: Bool = false
     
     var presets: [Preset] = []
     var selectedPresets: Set<UUID> = []
     var viewMode: PresetViewMode = .list
     var currentError: PresetError?
     var currentlyAppliedPreset: Preset?
+    var presetToApply: Preset?
 
     var showEditButton: Bool {
         selectedSegment == .preset
