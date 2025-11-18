@@ -9,7 +9,8 @@ import SwiftUI
 import SwiftData
 
 struct PresetDetailView: View {
-    @State var vm: PresetDetailViewModel
+    @Bindable var vm: PresetDetailViewModel
+    @State private var showDeleteAlert = false
     @State private var showUnsavedChangesAlert = false
     @FocusState private var isNameFieldFocused: Bool
     @Environment(\.dismiss) private var dismiss // TODO: - vm에서 nvrouter로 관리
@@ -37,7 +38,6 @@ struct PresetDetailView: View {
                 saveButtonView()
             }
         }
-        // TODO: alert 변경
         .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
             Button("삭제하기", role: .destructive) {
                 dismiss()
@@ -46,14 +46,45 @@ struct PresetDetailView: View {
         } message: {
             Text("이 프리셋이 저장되지 않았습니다.\n정말 나가시겠습니까?")
         }
-        .customAlert(
-            title: "정말 삭제하시겠습니까?",
-            isPresented: $vm.showDeleteAlert
-        ) {
-            AlertButton.cancel("취소")
-            AlertButton.delete("삭제하기") {
-                // TODO: 삭제 기능 구현 후 vm.deletePreset() 호출
-                // vm.deletePreset()
+        .customErrorAlert(error: $vm.currentError) { error in
+            switch error {
+            case .cameraDisconnected:
+                AlertButton.cancel("확인") {
+                    vm.useDefaultPreset()
+                }
+                AlertButton.default("재시도") {
+                    vm.retryFetchCameraSettings()
+                }
+            case .cameraBusy:
+                AlertButton.default("재시도") {
+                    vm.retryFetchCameraSettings()
+                }
+            case .cameraSettingsFetchFailed:
+                AlertButton.cancel("확인") {
+                    vm.useDefaultPreset()
+                }
+                AlertButton.default("재시도") {
+                    vm.retryFetchCameraSettings()
+                }
+            default:
+                AlertButton.cancel("확인") {
+                    vm.useDefaultPreset()
+                }
+                AlertButton.default("재시도") {
+                    vm.retryFetchCameraSettings()
+                }
+            }
+        }
+        .overlay {
+            if vm.isLoading {
+                ProgressWithTextView(text: "카메라 설정값 가져오는 중")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black.opacity(0.8))
+            }
+        }
+        .task {
+            if vm.viewMode == .create {
+                await vm.fetchCurrentCameraSettings()
             }
         }
     }
