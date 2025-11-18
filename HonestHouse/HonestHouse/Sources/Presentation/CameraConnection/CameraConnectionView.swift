@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct CameraConnectionView: View {
-    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var container: DIContainer
     
     var body: some View {
@@ -9,42 +8,44 @@ struct CameraConnectionView: View {
             ZStack {
                 Color.g12.ignoresSafeArea()
                 
-                VStack(spacing: 78) {
-                    connectImageView()
-                    connectButtonView(type: .ip)
-                }
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        Text("카메라 연결")
-                            .fontStyle(.num4)
-                            .foregroundColor(.g0)
-                    }
+                VStack(spacing: 0) {
+                    ConnectionNavigationBar(title: "카메라 연결")
+                        .padding(.horizontal, 16)
+                        .padding(.top, 26)
                     
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(.closeIcon)
-                                .resizable()
-                                .frame(width: 36, height: 36)
-                        }
+                    Spacer().frame(height: 48)
+                    
+                    connectImageView()
+                    
+                    Spacer().frame(height: 53)
+                    
+                    VStack(spacing: 16) {
+                        connectButtonView(type: .bluetooth)
+                        connectButtonView(type: .ip)
                     }
+                    .padding(.horizontal)
+                    
+                    Spacer()
                 }
             }
+            .navigationBarHidden(true)
         }
     }
     
     private func connectImageView() -> some View {
-        Image("connectImage")
+        Image(.connectionCamera)
             .resizable()
             .scaledToFit()
-            .frame(maxWidth: .infinity)
-            .frame(width: 300, height: 115)
+            .frame(width: 264, height: 176)
     }
     
     private func connectButtonView(type: ConnectionType) -> some View {
         NavigationLink {
-            ConnectionGuideView(type: type)
+            if type == .bluetooth {
+                BluetoothConnectionGuideView()
+            } else {
+                IPConnectionGuideView()
+            }
         } label: {
             HStack(spacing: 4) {
                 type.buttonImage
@@ -63,8 +64,3 @@ struct CameraConnectionView: View {
         .padding(.horizontal)
     }
 }
-
-//#Preview {
-//    CameraConnectionView()
-//        .environmentObject(CameraConnectionManager())
-//}
