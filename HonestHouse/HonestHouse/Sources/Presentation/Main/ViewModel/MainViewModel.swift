@@ -27,7 +27,7 @@ final class MainViewModel {
     var presets: [Preset] = []
     var selectedPresets: Set<UUID> = []
     var viewMode: PresetViewMode = .list
-    var error: PresetError?
+    var currentError: PresetError?
     var currentlyAppliedPresetId: UUID?
 
     var showEditButton: Bool {
@@ -77,9 +77,13 @@ final class MainViewModel {
     func loadPresets() {
         do {
             presets = try container.managers.presetManager.fetchAllPresets()
-            error = nil
+            currentError = nil
+        } catch let presetManagerError as PresetManagerError {
+            currentError = PresetError.fromPresetManager(presetManagerError)
+        } catch let presetError as PresetError {
+            currentError = presetError
         } catch {
-            handleError(error)
+            currentError = .unknown
         }
     }
 
@@ -104,8 +108,12 @@ final class MainViewModel {
             loadPresets()
             showDeleteAlert = false
             exitEditMode()
+        } catch let presetManagerError as PresetManagerError {
+            currentError = PresetError.fromPresetManager(presetManagerError)
+        } catch let presetError as PresetError {
+            currentError = presetError
         } catch {
-            handleError(error)
+            currentError = .unknown
         }
     }
 
@@ -157,12 +165,18 @@ final class MainViewModel {
                 try await setWbShift(blueAmber: tintBlueAmber, magentaGreen: tintMagentaGreen)
             }
 
-            error = nil
+            currentError = nil
             currentlyAppliedPresetId = preset.id
             try await ignoreShootingMode(action: "off")
+        } catch let ccapiError as CCAPIError {
+            try? await ignoreShootingMode(action: "off")
+            currentError = PresetError.fromCCAPI(ccapiError)
+        } catch let presetError as PresetError {
+            try? await ignoreShootingMode(action: "off")
+            currentError = presetError
         } catch {
             try? await ignoreShootingMode(action: "off")
-            handleError(error)
+            currentError = .unknown
         }
     }
 
@@ -220,6 +234,3 @@ final class MainViewModel {
         Logger.debug("WB Shift Response: \(response)", category: .viewModel)
     }
 }
-
-// TODO: Error Handling
-extension MainViewModel: PresetErrorHandleable {}
