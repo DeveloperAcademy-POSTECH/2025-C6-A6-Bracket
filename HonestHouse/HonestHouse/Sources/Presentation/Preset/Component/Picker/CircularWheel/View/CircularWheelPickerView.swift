@@ -33,6 +33,46 @@ struct CircularWheelPickerView: View {
                 }
                 .coordinateSpace(name: coordinateSpaceName)
         }
+        .onAppear {
+            initializeIndex()
+        }
+        .onChange(of: preset.tintMagentaGreen) {
+            if vm.settingType == .tintMagentaGreen {
+                initializeIndex()
+            }
+        }
+        .onChange(of: preset.exposureCompensation) {
+            if vm.settingType == .exposureCompensation {
+                initializeIndex()
+            }
+        }
+        .onChange(of: preset.colorTemperature) {
+            if vm.settingType == .colorTemperature {
+                initializeIndex()
+            }
+        }
+    }
+
+    private func initializeIndex() {
+        switch vm.settingType {
+        case .tintMagentaGreen:
+            if let value = preset.tintMagentaGreen,
+               let idx = CameraConstants.tintMagentaGreenValues.firstIndex(of: value) {
+                index = idx
+            }
+
+        case .exposureCompensation:
+            if let value = preset.exposureCompensation,
+               let idx = CameraConstants.exposureCompensationValues.firstIndex(of: value) {
+                index = idx
+            }
+
+        case .colorTemperature:
+            if let value = preset.colorTemperature,
+               let idx = CameraConstants.colorTemperatureValues.firstIndex(of: value) {
+                index = idx
+            }
+        }
     }
     
     private func valueView() -> some View {
