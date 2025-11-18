@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SettingButtonView<SelectionType>: View {
-    let type: SettingType
+    let type: PresetSettingType
     let state: ButtonState
     let value: SelectionType
     let isSelected: Bool
@@ -87,7 +87,7 @@ struct SettingButtonView<SelectionType>: View {
         }
     }
     
-    private func buttonWidth(for type: SettingType) -> CGFloat {
+    private func buttonWidth(for type: PresetSettingType) -> CGFloat {
         switch type {
         case .cameraMode, .pictureStyle, .tintMagentaGreen, .exposure, .colorTemp:
             return 64
@@ -96,7 +96,7 @@ struct SettingButtonView<SelectionType>: View {
         }
     }
     
-    private func buttonHeight(for type: SettingType) -> CGFloat {
+    private func buttonHeight(for type: PresetSettingType) -> CGFloat {
         switch type {
         case .cameraMode, .pictureStyle, .tintMagentaGreen, .exposure, .colorTemp:
             return 64

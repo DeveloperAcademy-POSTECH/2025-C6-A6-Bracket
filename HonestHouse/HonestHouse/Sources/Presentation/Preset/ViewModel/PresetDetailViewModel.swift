@@ -20,7 +20,7 @@ class PresetDetailViewModel {
     var viewMode: PresetDetailViewMode
     var isLoading: Bool = false
     var showCameraModeSelector: Bool = false
-    var activePicker: SettingType?
+    var activePicker: PresetSettingType?
     var isDimmed: Bool = false
     var currentError: PresetError?
     var showDeleteAlert: Bool = false
@@ -105,7 +105,7 @@ class PresetDetailViewModel {
     }
 
     // Button State
-    func getButtonState(for type: SettingType) -> ButtonState {
+    func getButtonState(for type: PresetSettingType) -> ButtonState {
         // 조회 모드에서는 모든 버튼이 viewOnly
         if viewMode == .view {
             return .viewOnly
@@ -127,7 +127,7 @@ class PresetDetailViewModel {
         }
     }
     
-    func isSettingEditable(_ type: SettingType) -> Bool {
+    func isSettingEditable(_ type: PresetSettingType) -> Bool {
         return getButtonState(for: type) == .active
     }
     

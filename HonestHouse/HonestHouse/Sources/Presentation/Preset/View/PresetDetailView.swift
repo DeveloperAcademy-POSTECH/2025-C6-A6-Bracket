@@ -231,7 +231,7 @@ struct PresetDetailView: View {
     }
     
     @ViewBuilder
-    private func pickerView(for type: SettingType) -> some View {
+    private func pickerView(for type: PresetSettingType) -> some View {
         switch type {
         case .cameraMode:
             NonOptionalLinearWheelPickerView(
@@ -366,7 +366,7 @@ struct PresetDetailView: View {
         .frame(maxWidth: .infinity)
     }
     
-    private func handleSettingButtonTap(_ type: SettingType){
+    private func handleSettingButtonTap(_ type: PresetSettingType){
         guard vm.viewMode != .view else {
             vm.switchToEditMode()
             return

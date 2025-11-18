@@ -20,7 +20,7 @@ enum ButtonState {
     case viewOnly   // 노란색 - 조회 전용
 }
 
-enum SettingType: String {
+enum PresetSettingType: String {
     case cameraMode = "Camera Mode"
     case aperture = "f"
     case shutterSpeed = "s"
