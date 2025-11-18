@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum SettingConstants {
     static let termsOfService = """
@@ -113,4 +114,35 @@ enum SettingConstants {
         """
     
     static let teamEmail = "honesthouse2025@gmail.com"
+    
+    static let contactTitle = "[Bracket 건의사항]"
+    
+    static func getDeviceModel() -> String {
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        
+        let machineMirror = Mirror(reflecting: systemInfo.machine)
+        let identifier = machineMirror.children.compactMap { $0.value as? Int8 }
+            .filter { $0 != 0 }
+            .map { String(UnicodeScalar(UInt8($0))) }
+            .joined()
+        
+        return identifier
+    }
+    
+    static var contactBody: String {
+        """
+                
+        Device OS : \(UIDevice.current.systemVersion)
+        App Version : \(SettingConstants.appVersion)
+        Device Model : \(getDeviceModel())
+                                            
+        ================================
+        """
+    }
+    
+    static var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+        return "\(version)"
+    }
 }
