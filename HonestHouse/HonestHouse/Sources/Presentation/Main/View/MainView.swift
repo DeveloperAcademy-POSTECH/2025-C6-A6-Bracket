@@ -58,7 +58,7 @@ struct MainView: View {
             isPresented: $cameraConnectionManager.showDisconnectionAlert
         ) {
             AlertButton.cancel("취소")
-            AlertButton.default("다시 연결") {
+            AlertButton.default("재연결") {
                 cameraConnectionManager.reconnectCamera()
             }
         }
