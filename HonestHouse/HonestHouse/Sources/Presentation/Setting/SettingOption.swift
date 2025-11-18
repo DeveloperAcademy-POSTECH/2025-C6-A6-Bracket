@@ -50,4 +50,15 @@ enum SettingOption: CaseIterable {
             return nil
         }
     }
+    
+    var textContetns: String? {
+        switch self {
+        case .termsOfService:
+            return SettingConstants.termsOfService
+        case .privacyPolicy:
+            return SettingConstants.privacyPolicy
+        default:
+            return nil
+        }
+    }
 }
