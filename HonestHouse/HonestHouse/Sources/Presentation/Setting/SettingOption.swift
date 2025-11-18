@@ -26,9 +26,9 @@ enum SettingOption: CaseIterable {
         case .contact:
             return "문의하기"
         case .team:
-            return "떳떳 Team"
+            return "Bracket Team"
         case .instagram:
-            return "떳떳z Instagram"
+            return "Instagram"
         }
     }
     
