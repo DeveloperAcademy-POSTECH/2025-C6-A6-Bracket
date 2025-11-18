@@ -7,65 +7,115 @@
 
 import Foundation
 
-enum PresetError: Error, LocalizedError {
-    // SwiftData Errors
+enum PresetError: LocalizedError, Equatable, AlertPresentable {
     case fetchFailed
     case createFailed
     case updateFailed
     case deleteFailed
     case presetNotFound
 
-    // Data Integrity Errors
-    case invalidPictureStyle(String)
-    case invalidShootingMode(String)
-    case invalidOrder(Int)
-
-    // CCAPI Errors
     case cameraBusy
-    case cameraUnavailable
-    case settingFailed
+    case cameraDisconnected
+    case cameraSettingsFetchFailed
+    case settingApplicationFailed
 
-    // General
     case unknown
 
     var errorDescription: String? {
+        alertInfo.title
+    }
+
+    var alertInfo: AlertInfo {
         switch self {
-        case .fetchFailed: return "프리셋을 불러오는 데 실패했습니다. 다시 시도해주세요."
-        case .createFailed: return "프리셋을 생성하는 데 실패했습니다. 다시 시도해주세요."
-        case .updateFailed: return "프리셋을 업데이트하는 데 실패했습니다. 다시 시도해주세요."
-        case .deleteFailed: return "프리셋을 삭제하는 데 실패했습니다. 다시 시도해주세요."
-        case .presetNotFound: return "프리셋을 찾을 수 없습니다."
-        case .invalidPictureStyle(let value): return "잘못된 픽쳐스타일입니다: \(value)"
-        case .invalidShootingMode(let value): return "잘못된 촬영 모드입니다: \(value)"
-        case .invalidOrder(let order): return "잘못된 순서입니다: \(order). 순서는 0~2 사이여야 합니다."
-        case .cameraBusy: return "카메라가 사용 중입니다. 잠시 후 다시 시도해주세요."
-        case .cameraUnavailable: return "카메라 연결이 불안정합니다. 다시 연결해주세요."
-        case .settingFailed: return "프리셋 적용 중 오류가 발생했습니다. 다시 시도해주세요."
-        case .unknown: return "알 수 없는 오류가 발생했습니다. 다시 시도해주세요."
+        case .fetchFailed:
+            return AlertInfo(
+                title: "프리셋을 불러오는데\n문제가 발생했습니다."
+            )
+
+        case .createFailed:
+            return AlertInfo(
+                title: "프리셋을 생성하는데\n문제가 발생했습니다."
+            )
+
+        case .updateFailed:
+            return AlertInfo(
+                title: "프리셋을 업데이트하는데\n문제가 발생했습니다."
+            )
+
+        case .deleteFailed:
+            return AlertInfo(
+                title: "프리셋을 삭제하는데\n문제가 발생했습니다."
+            )
+
+        case .presetNotFound:
+            return AlertInfo(
+                title: "프리셋을 찾을 수 없습니다."
+            )
+
+        case .cameraBusy:
+            return AlertInfo(
+                title: "카메라가 사용 중입니다.",
+                message: "잠시 후 다시 시도해주세요."
+            )
+
+        case .cameraDisconnected:
+            return AlertInfo(
+                title: "카메라 연결이 해제되었습니다.",
+                message: "카메라를 다시 연결해주세요."
+            )
+
+        case .cameraSettingsFetchFailed:
+            return AlertInfo(
+                title: "현재 카메라 값을 불러오는데\n문제가 발생했습니다."
+            )
+
+        case .settingApplicationFailed:
+            return AlertInfo(
+                title: "프리셋 적용 중\n문제가 발생했습니다.",
+                message: "문제가 반복된다면, 앱을 재실행해주세요."
+            )
+
+        case .unknown:
+            return AlertInfo(
+                title: "알 수 없는 문제가 발생했습니다.",
+                message: "문제가 반복된다면, 앱을 재실행해주세요."
+            )
         }
     }
 }
 
-extension PresetError: Equatable {
-    static func from(presetServiceError: PresetManagerError) -> PresetError {
-        switch presetServiceError {
-        case .presetNotFound, .selectedPresetNotFound(_):
+extension PresetError {
+    static func fromPresetManager(_ error: PresetManagerError) -> PresetError {
+        switch error {
+        case .presetNotFound, .selectedPresetNotFound:
             return .presetNotFound
-        case .invalidOrder(let order):
-            return .invalidOrder(order)
-        case .saveFailed(_):
-            return .cameraBusy
+        case .invalidOrder:
+            return .unknown
+        case .saveFailed:
+            return .createFailed
         }
     }
 
-    static func from(ccapiError: CCAPIError) -> PresetError {
-        switch ccapiError {
-        case .deviceBusy, .deviceShooting:
+    static func fromCCAPI(_ error: CCAPIError) -> PresetError {
+        if error.isDisconnected {
+            return .cameraDisconnected
+        }
+
+        if error.isTemporarilyBusy {
             return .cameraBusy
-        case .invalidResponse, .unexpectedStatusCode, .urlNotFound, .badRequest:
-            return .settingFailed
+        }
+
+        if error.isClientError {
+            return .settingApplicationFailed
+        }
+
+        switch error {
+        case .notAuthenticated, .noWWWAuthenticateHeader,
+                .authHeaderGenerationFailed, .maxRetriesExceeded:
+            return .cameraDisconnected
+
         default:
-            return .cameraUnavailable
+            return .settingApplicationFailed
         }
     }
 }
