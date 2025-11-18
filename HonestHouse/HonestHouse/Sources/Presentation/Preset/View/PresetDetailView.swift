@@ -9,22 +9,35 @@ import SwiftUI
 import SwiftData
 
 struct PresetDetailView: View {
-    @Bindable var vm: PresetDetailViewModel
+    @State private var wheelManager = WheelStateManager()
+    @State var vm: PresetDetailViewModel
     @State private var showDeleteAlert = false
     @State private var showUnsavedChangesAlert = false
     @FocusState private var isNameFieldFocused: Bool
-//    @Environment(\.dismiss) private var dismiss // TODO: - vm에서 nvrouter로 관리
     
     var body: some View {
         ZStack {
             Color.g12.ignoresSafeArea(.all)
-            
+        
             VStack(spacing: 0) {
                 nameView()
                 previewView()
-                settingsView()
+                
+                ZStack {
+                    if wheelManager.isAnyWheelActive {
+                        Color.black
+                            .opacity(0.8)
+                            .onTapGesture {
+                                wheelManager.deactivateWheel()
+                            }
+                        .ignoresSafeArea()
+                    }
+                    
+                    settingsView()
+                }
             }
         }
+        .environment(wheelManager)
         .navigationBarWithBack(title: "", showShadow: false) {
             if vm.viewMode == .create {
                 showUnsavedChangesAlert = true
@@ -40,7 +53,6 @@ struct PresetDetailView: View {
         }
         .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
             Button("삭제하기", role: .destructive) {
-//                dismiss()
                 vm.send(.popToPresetView)
             }
             Button("취소", role: .cancel) { }
@@ -134,7 +146,6 @@ struct PresetDetailView: View {
                     .truncationMode(.tail)
             } else {
                 PresetNameTextFieldView(placeholder: "프리셋 이름", text: $vm.currentPreset.name)
-                    
             }
         }
         .padding(.horizontal, 20)
@@ -154,11 +165,21 @@ struct PresetDetailView: View {
     
     private func settingsView() -> some View {
         VStack(spacing: 52) {
+            // Primary Settings - dim 처리
             primarySettingsView()
+                .blur(radius: wheelManager.isAnyWheelActive ? 3 : 0)
+                .opacity(wheelManager.isAnyWheelActive ? 0.5 : 1)
+                .allowsHitTesting(!wheelManager.isAnyWheelActive)
             
+            // Picker View - dim 처리
             if let activePicker = vm.activePicker {
                 pickerView(for: activePicker)
+                    .blur(radius: wheelManager.isAnyWheelActive ? 3 : 0)
+                    .opacity(wheelManager.isAnyWheelActive ? 0.5 : 1)
+                    .allowsHitTesting(!wheelManager.isAnyWheelActive)
             }
+            
+            // Secondary Settings (3개 휠) - 자체 dim 관리
             secondarySettingsSView()
         }
         .frame(maxHeight: .infinity)
@@ -226,7 +247,6 @@ struct PresetDetailView: View {
                     handleSettingButtonTap(.pictureStyle)
                 }
             )
-            
         }
         .frame(maxWidth: .infinity)
     }
@@ -354,15 +374,23 @@ struct PresetDetailView: View {
     // Secondary Settings Section
     private func secondarySettingsSView() -> some View {
         HStack(alignment: .center, spacing: 54) {
-            
             // Tint Magenta Green (마젠타-그린)
-            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .tintMagentaGreen, isDimmed: $vm.isDimmed))
+            CircularWheelPickerView(
+                preset: $vm.currentPreset,
+                vm: .init(settingType: .tintMagentaGreen)
+            )
             
             // Exposure Compensation (노출 보정)
-            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .exposureCompensation, isDimmed: $vm.isDimmed))
+            CircularWheelPickerView(
+                preset: $vm.currentPreset,
+                vm: .init(settingType: .exposureCompensation)
+            )
             
             // Color Temperature (색온도)
-            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .colorTemperature, isDimmed: $vm.isDimmed))
+            CircularWheelPickerView(
+                preset: $vm.currentPreset,
+                vm: .init(settingType: .colorTemperature)
+            )
         }
         .frame(maxWidth: .infinity)
     }
@@ -397,5 +425,3 @@ struct PresetDetailView: View {
 #Preview("Create Mode") {
     PresetDetailView(vm: .init(container: .stub, mode: .create, preset: .stub3))
 }
-
-

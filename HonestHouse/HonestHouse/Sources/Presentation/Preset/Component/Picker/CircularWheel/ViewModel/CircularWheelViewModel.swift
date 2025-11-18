@@ -13,21 +13,18 @@ final class CircularWheelViewModel {
     var circleSize: CGFloat = 120
     var isDragging = false
     let settingType: WheelSettingType
-    @ObservationIgnored @Binding var isDimmed: Bool
 
     var circleSizeType: CircularWheelSizeType {
         CircularWheelCalculator.wheelSizeType(from: circleSize)
     }
     
-    init(settingType: WheelSettingType, isDimmed: Binding<Bool>) {
+    init(settingType: WheelSettingType) {
         self.settingType = settingType
-        self._isDimmed = isDimmed
     }
     
     func toggleCircle() {
         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
             isCircleVisible.toggle()
-            isDimmed = isCircleVisible
             if !isCircleVisible {
                 circleSize = 120
             }
@@ -36,7 +33,6 @@ final class CircularWheelViewModel {
     
     func startDragging() {
         isDragging = true
-        isDimmed = true
         if !isCircleVisible {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 isCircleVisible = true
@@ -51,7 +47,6 @@ final class CircularWheelViewModel {
     
     func endDragging() {
         isDragging = false
-        isDimmed = false
         
         withAnimation {
             circleSize = 120

@@ -7,31 +7,59 @@
 
 import SwiftUI
 
-// ExpandableWheel + ExpandableButton을 오버레이
 struct CircularWheelPickerView: View {
-    
     @Binding var preset: Preset
     @State var vm: CircularWheelViewModel
     @State var index: Int = 0
+    
+    // 휠 상태 매니저
+    @Environment(WheelStateManager.self) private var wheelManager
+    
     private let coordinateSpaceName = "circleExpandSpace"
-
+    
+    // 이 휠이 dim 되어야 하는지 확인
+    private var shouldBeDimmed: Bool {
+        wheelManager.shouldDim(vm.settingType)
+    }
+    
+    // 이 휠이 활성화되어 있는지 확인
+    private var isActive: Bool {
+        wheelManager.isActive(vm.settingType)
+    }
     
     var body: some View {
         VStack {
             valueView()
-            ExpandableButton(viewModel: vm, value: $index, coordinateSpace: coordinateSpaceName)
-                .overlay {
-                    if vm.isCircleVisible {
-                        ExpandableWheel(
-                            viewModel: vm,
-                            index: $index,
-                            preset: $preset,
-                            type: vm.settingType,
-                            isVisible: vm.isCircleVisible
-                        )
-                    }
+                .opacity(shouldBeDimmed ? 0.3 : 1)
+                .blur(radius: shouldBeDimmed ? 1 : 0)
+            
+            ExpandableButton(
+                viewModel: vm,
+                value: $index,
+                coordinateSpace: coordinateSpaceName
+            )
+            .overlay {
+                if vm.isCircleVisible && isActive {
+                    ExpandableWheel(
+                        viewModel: vm,
+                        index: $index,
+                        preset: $preset,
+                        type: vm.settingType,
+                        isVisible: vm.isCircleVisible
+                    )
                 }
-                .coordinateSpace(name: coordinateSpaceName)
+            }
+            .coordinateSpace(name: coordinateSpaceName)
+            .opacity(shouldBeDimmed ? 0.3 : 1)
+            .blur(radius: shouldBeDimmed ? 1 : 0)
+            .allowsHitTesting(!shouldBeDimmed)
+        }
+        .onChange(of: vm.isCircleVisible) { _, isVisible in
+            if isVisible {
+                wheelManager.activateWheel(vm.settingType)
+            } else if isActive {
+                wheelManager.deactivateWheel()
+            }
         }
         .onAppear {
             initializeIndex()
@@ -80,19 +108,19 @@ struct CircularWheelPickerView: View {
             .fontStyle(.num6)
             .foregroundStyle(Color.g0)
     }
-    
 }
 
 #Preview {
     ZStack {
         Color.g12
         HStack {
-            CircularWheelPickerView(preset: .constant(.stub1), vm: .init(settingType: .tintMagentaGreen, isDimmed: .constant(true)))
+            CircularWheelPickerView(preset: .constant(.stub1), vm: .init(settingType: .tintMagentaGreen))
             Spacer()
-            CircularWheelPickerView(preset: .constant(.stub2), vm: .init(settingType: .exposureCompensation, isDimmed: .constant(false)))
+            CircularWheelPickerView(preset: .constant(.stub2), vm: .init(settingType: .exposureCompensation))
             Spacer()
-            CircularWheelPickerView(preset: .constant(.stub3), vm: .init(settingType: .colorTemperature, isDimmed: .constant(false)))
+            CircularWheelPickerView(preset: .constant(.stub3), vm: .init(settingType: .colorTemperature))
         }
     }
     .preferredColorScheme(.dark)
+    .environment(WheelStateManager())
 }

@@ -21,10 +21,9 @@ class PresetDetailViewModel {
     var isLoading: Bool = false
     var showCameraModeSelector: Bool = false
     var activePicker: PresetSettingType?
-    var isDimmed: Bool = false
     var currentError: PresetError?
     var showDeleteAlert: Bool = false
-
+    
     private var originalPreset: Preset?
     
     init(
@@ -153,10 +152,6 @@ class PresetDetailViewModel {
     
     func updateColorTemperature(_ value: Int) {
         currentPreset.colorTemperature = value
-    }
-    
-    func formatColorTemperature(_ value: Int) -> String {
-        return "\(value)K"
     }
     
     // Data Persistence
