@@ -13,7 +13,7 @@ struct PresetDetailView: View {
     @State private var showDeleteAlert = false
     @State private var showUnsavedChangesAlert = false
     @FocusState private var isNameFieldFocused: Bool
-    @Environment(\.dismiss) private var dismiss // TODO: - vm에서 nvrouter로 관리
+//    @Environment(\.dismiss) private var dismiss // TODO: - vm에서 nvrouter로 관리
     
     var body: some View {
         ZStack {
@@ -31,7 +31,7 @@ struct PresetDetailView: View {
             } else if vm.hasUnsavedChanges() {
                 showUnsavedChangesAlert = true
             } else {
-                dismiss()
+                vm.send(.popToPresetView)
             }
         } rightView: {
             if vm.viewMode == .create {
@@ -40,7 +40,8 @@ struct PresetDetailView: View {
         }
         .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
             Button("삭제하기", role: .destructive) {
-                dismiss()
+//                dismiss()
+                vm.send(.popToPresetView)
             }
             Button("취소", role: .cancel) { }
         } message: {
