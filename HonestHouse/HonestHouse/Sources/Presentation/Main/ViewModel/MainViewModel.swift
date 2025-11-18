@@ -28,7 +28,7 @@ final class MainViewModel {
     var selectedPresets: Set<UUID> = []
     var viewMode: PresetViewMode = .list
     var currentError: PresetError?
-    var currentlyAppliedPresetId: UUID?
+    var currentlyAppliedPreset: Preset?
 
     var showEditButton: Bool {
         selectedSegment == .preset
@@ -55,6 +55,7 @@ final class MainViewModel {
         guard selectedSegment != segment else { return }
         selectedSegment = segment
         exitEditMode()
+        currentlyAppliedPreset = nil
     }
     
     func toggleEditMode() {
@@ -120,7 +121,7 @@ final class MainViewModel {
     func getDisplayType(for preset: Preset) -> PresetCapsuleDisplayType {
         if isPresetEditMode && selectedPresets.contains(preset.id) {
             return .selected
-        } else if currentlyAppliedPresetId == preset.id {
+        } else if currentlyAppliedPreset == preset {
             return .currentlyApplied
         } else {
             return .default
@@ -166,7 +167,7 @@ final class MainViewModel {
             }
 
             currentError = nil
-            currentlyAppliedPresetId = preset.id
+            currentlyAppliedPreset = preset
             try await ignoreShootingMode(action: "off")
         } catch let ccapiError as CCAPIError {
             try? await ignoreShootingMode(action: "off")
