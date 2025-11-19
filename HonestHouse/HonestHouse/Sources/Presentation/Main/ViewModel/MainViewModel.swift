@@ -236,4 +236,36 @@ final class MainViewModel {
         let response = try await container.services.shootingSettingsService.putWbShift(request: request)
         Logger.debug("WB Shift Response: \(response)", category: .viewModel)
     }
+    
+    // Options Menu
+    
+    func getMenuItems() -> [MenuItem] {
+        let editModeItem = MenuItem(
+            icon: .presetSelect,
+            label: "Preset 선택",
+            action: { [weak self] in
+                self?.handleEditModeToggle()
+            }
+        )
+        
+        let viewModeItem = MenuItem(
+            icon: viewMode == .grid ? .list : .squareGrid,
+            label: viewMode == .grid ? "목록으로 보기" : "갤러리로 보기",
+            action: { [weak self] in
+                self?.handleViewModeToggle()
+            }
+        )
+        
+        return [editModeItem, viewModeItem]
+    }
+    
+    func handleEditModeToggle() {
+        toggleEditMode()
+        showModeChange = false
+    }
+    
+    func handleViewModeToggle() {
+        viewMode = viewMode == .grid ? .list : .grid
+        showModeChange = false
+    }
 }
