@@ -36,6 +36,7 @@ enum LogCategory: String {
     case coreData = "CoreData"
     case eventMonitor = "EventMonitor"
     case trishot = "Trishot"
+    case preset = "Preset"
     case general = "General"
 
     var osLog: OSLog {
