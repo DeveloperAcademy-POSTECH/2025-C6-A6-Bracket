@@ -23,14 +23,19 @@ struct CustomAlertConfig {
         enum ButtonStyle {
             case `default`
             case cancel
+            case delete
+        }
+        
+        static func `default`(_ title: String, action: @escaping () -> Void = {}) -> Self {
+            AlertButton(title: title, style: .default, action: action)
         }
         
         static func cancel(_ title: String = "취소", action: @escaping () -> Void = {}) -> Self {
             AlertButton(title: title, style: .cancel, action: action)
         }
         
-        static func `default`(_ title: String, action: @escaping () -> Void = {}) -> Self {
-            AlertButton(title: title, style: .default, action: action)
+        static func delete(_ title: String = "삭제하기", action: @escaping () -> Void = {}) -> Self {
+            AlertButton(title: title, style: .delete, action: action)
         }
     }
 }
