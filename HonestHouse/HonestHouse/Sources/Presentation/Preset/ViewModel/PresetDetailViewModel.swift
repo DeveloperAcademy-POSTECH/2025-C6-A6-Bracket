@@ -105,30 +105,24 @@ class PresetDetailViewModel {
 
     // Button State 판단
     func getButtonState(for type: PresetSettingType) -> PresetButtonState {
-        // 1. View 모드 처리
         if viewMode == .view {
             if isValueSetToAutoOrZero(for: type) {
                 return .deactivated
             }
-            return .selected  // 값이 설정되어 있음
+            return .selected
         }
         
-        // 2. Create/Edit 모드 처리
-        // 2-1. 값 설정 불가능한 경우 (촬영 모드에 따라)
         if !isSettingEditable(type) {
             return .deactivated
         }
-        
-        // 2-2. 현재 picker가 활성화된 버튼
+
         if activePicker == type {
             return .selected
         }
         
-        // 2-3. 기본 상태
         return .activated
     }
     
-    // Auto 또는 0 값 판단
     private func isValueSetToAutoOrZero(for type: PresetSettingType) -> Bool {
         switch type {
         case .aperture:
@@ -145,13 +139,13 @@ class PresetDetailViewModel {
             
         case .exposure:
             guard let value = currentPreset.exposureCompensation else { return true }
-            return value == "0" || value == "+0" || value.isEmpty
+            return value == "0" || value.isEmpty
             
         case .colorTemp:
             return currentPreset.colorTemperature == 0
             
         case .pictureStyle, .cameraMode:
-            return false  // 이 타입들은 항상 값이 있음
+            return false
         }
     }
     
@@ -162,7 +156,7 @@ class PresetDetailViewModel {
         
         switch type {
         case .cameraMode, .pictureStyle:
-            return true  // 항상 편집 가능
+            return true
             
         case .aperture:
             return currentPreset.shootingMode == .av
@@ -171,7 +165,7 @@ class PresetDetailViewModel {
             return currentPreset.shootingMode == .tv
             
         case .iso, .tintMagentaGreen, .exposure, .colorTemp:
-            return true  // 항상 편집 가능
+            return true
         }
     }
     
@@ -359,7 +353,7 @@ extension PresetDetailViewModel {
 }
 
 extension PresetDetailViewModel {
-    func applyCameraSettings(for type: SettingType, value: Any) async {
+    func applyCameraSettings(for type: PresetSettingType, value: Any) async {
         Logger.info("Applying camera settings for \(type)", category: .preset)
 
         do {
@@ -373,30 +367,56 @@ extension PresetDetailViewModel {
                     try await setShootingMode(mode: mode)
                     Logger.info("Camera mode set successfully to \(mode.apiValue)", category: .preset)
                 }
+                
             case .aperture:
                 if let aperture = value as? String {
                     Logger.debug("Setting aperture to \(aperture)", category: .preset)
                     try await setAperture(value: aperture)
                     Logger.info("Aperture set successfully to \(aperture)", category: .preset)
                 }
+                
             case .shutterSpeed:
                 if let shutterSpeed = value as? String {
                     Logger.debug("Setting shutter speed to \(shutterSpeed)", category: .preset)
                     try await setShutterSpeed(value: shutterSpeed)
                     Logger.info("Shutter speed set successfully to \(shutterSpeed)", category: .preset)
                 }
+                
             case .iso:
                 if let iso = value as? String {
                     Logger.debug("Setting ISO to \(iso)", category: .preset)
                     try await setISO(value: iso)
                     Logger.info("ISO set successfully to \(iso)", category: .preset)
                 }
+                
             case .pictureStyle:
                 if let style = value as? PictureStyleType {
                     Logger.debug("Setting picture style to \(style.apiValue)", category: .preset)
                     try await setPictureStyle(style: style)
                     Logger.info("Picture style set successfully to \(style.apiValue)", category: .preset)
                 }
+                
+            case .tintMagentaGreen:
+                if let tint = value as? Int {
+                    Logger.debug("Setting tintMagentaGreen to \(tint)", category: .preset)
+                    try await setTintMagentGreen(value: tint)
+                    Logger.info("tintMagentaGreen set successfully to \(tint)", category: .preset)
+                }
+                
+            case .exposure:
+                if let exposure = value as? String {
+                    Logger.debug("Setting exposure to \(exposure)", category: .preset)
+                    try await setExposureCompensation(value: exposure)
+                    Logger.info("Exposure set successfully to \(exposure)", category: .preset)
+                }
+                
+            case .colorTemp:
+                if let temp = value as? Int {
+                    Logger.debug("Setting color temp to \(temp)", category: .preset)
+                    try await setColorTemperature(value: temp)
+                    Logger.info("Color temp set successfully to \(temp)", category: .preset)
+                }
+                
             default:
                 Logger.warning("Unsupported setting type: \(type)", category: .preset)
                 break
@@ -448,5 +468,20 @@ extension PresetDetailViewModel {
     private func setISO(value: String) async throws {
         let request = ShootingSettings.ISORequest(value: value)
         _ = try await container.services.shootingSettingsService.putISO(request: request)
+    }
+    
+    private func setTintMagentGreen(value: Int) async throws {
+        let request = ShootingSettings.WBShiftRequest(value: .init(blueAmber: 0, magentaGreen: value))
+        _ = try await container.services.shootingSettingsService.putWbShift(request: request)
+    }
+    
+    private func setExposureCompensation(value: String) async throws {
+        let request = ShootingSettings.ExposureCompensationRequest(value: value)
+        _ = try await container.services.shootingSettingsService.putExposureCompensation(request: request)
+    }
+    
+    private func setColorTemperature(value: Int) async throws {
+        let request = ShootingSettings.ColorTemperatureRequest(value: value)
+        _ = try await container.services.shootingSettingsService.putColorTemperature(request: request)
     }
 }

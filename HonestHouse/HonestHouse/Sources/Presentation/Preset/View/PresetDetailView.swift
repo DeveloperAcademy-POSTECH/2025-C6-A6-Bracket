@@ -379,21 +379,24 @@ struct PresetDetailView: View {
             CircularWheelPickerView(
                 preset: $vm.currentPreset,
                 vm: .init(viewMode: vm.viewMode, settingType: .tintMagentaGreen),
-                baseButtonState: vm.getButtonState(for: .tintMagentaGreen)
+                baseButtonState: vm.getButtonState(for: .tintMagentaGreen),
+                presetViewModel: vm
             )
             
             // Exposure Compensation (노출 보정)
             CircularWheelPickerView(
                 preset: $vm.currentPreset,
                 vm: .init(viewMode: vm.viewMode, settingType: .exposureCompensation),
-                baseButtonState: vm.getButtonState(for: .exposure)
+                baseButtonState: vm.getButtonState(for: .exposure),
+                presetViewModel: vm
             )
             
             // Color Temperature (색온도)
             CircularWheelPickerView(
                 preset: $vm.currentPreset,
                 vm: .init(viewMode: vm.viewMode, settingType: .colorTemperature),
-                baseButtonState: vm.getButtonState(for: .colorTemp)
+                baseButtonState: vm.getButtonState(for: .colorTemp),
+                presetViewModel: vm
             )
         }
         .frame(maxWidth: .infinity)

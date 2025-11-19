@@ -17,6 +17,7 @@ struct ExpandableWheel: View {
     
     let type: WheelSettingType
     let isVisible: Bool
+    let presetViewModel: PresetDetailViewModel
     
     private var currentAngle: Double {
         CircularWheelCalculator.indexToAngle(index: index, type: type)
@@ -72,12 +73,26 @@ struct ExpandableWheel: View {
                             withAnimation {
                                 viewModel.isCircleVisible.toggle()
                             }
+                            // 드래그 종료 시 preset 값만 업데이트
                             setValue()
                         }
                 )
         }
         .frame(width: viewModel.circleSize, height: viewModel.circleSize)
         .sensoryFeedback(.selection, trigger: index)
+        // index가 변경될 때마다 카메라 설정 적용
+        .onChange(of: index) { oldValue, newValue in
+            // View 모드가 아니고, 실제로 값이 변경되었을 때만 적용
+            guard viewModel.viewMode != .view, oldValue != newValue else { return }
+            
+            // Preset 값 업데이트
+            setValue()
+            
+            // 카메라 설정 적용
+            Task {
+                await applyCameraSetting()
+            }
+        }
     }
     
     // 휠 제스처
@@ -103,6 +118,7 @@ struct ExpandableWheel: View {
         )
     }
     
+    // Preset 값 업데이트
     private func setValue() {
         switch type {
         case .tintMagentaGreen:
@@ -113,6 +129,23 @@ struct ExpandableWheel: View {
             
         case .colorTemperature:
             preset.colorTemperature = CameraConstants.colorTemperatureValues[index]
+        }
+    }
+    
+    // 카메라 설정 적용
+    private func applyCameraSetting() async {
+        switch type {
+        case .tintMagentaGreen:
+            let value = CameraConstants.tintMagentaGreenValues[index]
+            await presetViewModel.applyCameraSettings(for: .tintMagentaGreen, value: value)
+            
+        case .exposureCompensation:
+            let value = CameraConstants.exposureCompensationValues[index]
+            await presetViewModel.applyCameraSettings(for: .exposure, value: value)
+            
+        case .colorTemperature:
+            let value = CameraConstants.colorTemperatureValues[index]
+            await presetViewModel.applyCameraSettings(for: .colorTemp, value: value)
         }
     }
     

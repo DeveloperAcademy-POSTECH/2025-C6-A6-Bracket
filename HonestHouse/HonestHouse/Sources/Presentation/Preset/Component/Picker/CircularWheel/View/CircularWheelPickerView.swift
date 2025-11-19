@@ -11,19 +11,17 @@ struct CircularWheelPickerView: View {
     @Binding var preset: Preset
     @State var vm: CircularWheelViewModel
     @State var index: Int = 0
-    let baseButtonState: PresetButtonState  // 기본 상태
+    let baseButtonState: PresetButtonState
+    let presetViewModel: PresetDetailViewModel
     
-    // 휠 상태 매니저
     @Environment(WheelStateManager.self) private var wheelManager
     
     private let coordinateSpaceName = "circleExpandSpace"
     
-    // 이 휠이 dim 되어야 하는지 확인
     private var shouldBeDimmed: Bool {
         wheelManager.shouldDim(vm.settingType)
     }
     
-    // 이 휠이 활성화되어 있는지 확인
     private var isActive: Bool {
         wheelManager.isActive(vm.settingType)
     }
@@ -53,7 +51,7 @@ struct CircularWheelPickerView: View {
                 viewModel: vm,
                 value: $index,
                 coordinateSpace: coordinateSpaceName,
-                buttonState: currentButtonState,  // 동적 상태 전달
+                buttonState: currentButtonState,
                 viewMode: vm.viewMode
             )
             .overlay {
@@ -63,7 +61,8 @@ struct CircularWheelPickerView: View {
                         index: $index,
                         preset: $preset,
                         type: vm.settingType,
-                        isVisible: vm.isCircleVisible
+                        isVisible: vm.isCircleVisible,
+                        presetViewModel: presetViewModel  // 전달
                     )
                 }
             }
@@ -77,46 +76,6 @@ struct CircularWheelPickerView: View {
                 wheelManager.activateWheel(vm.settingType)
             } else if isActive {
                 wheelManager.deactivateWheel()
-            }
-        }
-        .onAppear {
-            initializeIndex()
-        }
-        .onChange(of: preset.tintMagentaGreen) {
-            if vm.settingType == .tintMagentaGreen {
-                initializeIndex()
-            }
-        }
-        .onChange(of: preset.exposureCompensation) {
-            if vm.settingType == .exposureCompensation {
-                initializeIndex()
-            }
-        }
-        .onChange(of: preset.colorTemperature) {
-            if vm.settingType == .colorTemperature {
-                initializeIndex()
-            }
-        }
-    }
-
-    private func initializeIndex() {
-        switch vm.settingType {
-        case .tintMagentaGreen:
-            if let value = preset.tintMagentaGreen,
-               let idx = CameraConstants.tintMagentaGreenValues.firstIndex(of: value) {
-                index = idx
-            }
-
-        case .exposureCompensation:
-            if let value = preset.exposureCompensation,
-               let idx = CameraConstants.exposureCompensationValues.firstIndex(of: value) {
-                index = idx
-            }
-
-        case .colorTemperature:
-            if let value = preset.colorTemperature,
-               let idx = CameraConstants.colorTemperatureValues.firstIndex(of: value) {
-                index = idx
             }
         }
     }
@@ -135,19 +94,22 @@ struct CircularWheelPickerView: View {
             CircularWheelPickerView(
                 preset: .constant(.stub1),
                 vm: .init(viewMode: .create, settingType: .tintMagentaGreen),
-                baseButtonState: .activated
+                baseButtonState: .activated,
+                presetViewModel: .init(container: .stub, mode: .create, preset: .stub1)
             )
             Spacer()
             CircularWheelPickerView(
                 preset: .constant(.stub2),
                 vm: .init(viewMode: .create, settingType: .exposureCompensation),
-                baseButtonState: .activated
+                baseButtonState: .activated,
+                presetViewModel: .init(container: .stub, mode: .create, preset: .stub2)
             )
             Spacer()
             CircularWheelPickerView(
                 preset: .constant(.stub3),
                 vm: .init(viewMode: .create, settingType: .colorTemperature),
-                baseButtonState: .activated
+                baseButtonState: .activated,
+                presetViewModel: .init(container: .stub, mode: .create, preset: .stub3)
             )
         }
     }
