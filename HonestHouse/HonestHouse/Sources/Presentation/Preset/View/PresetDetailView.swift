@@ -165,21 +165,16 @@ struct PresetDetailView: View {
     
     private func settingsView() -> some View {
         VStack(spacing: 52) {
-            // Primary Settings - dim 처리
             primarySettingsView()
                 .blur(radius: wheelManager.isAnyWheelActive ? 3 : 0)
                 .opacity(wheelManager.isAnyWheelActive ? 0.5 : 1)
                 .allowsHitTesting(!wheelManager.isAnyWheelActive)
             
-            // Picker View - dim 처리
             if let activePicker = vm.activePicker {
                 pickerView(for: activePicker)
-                    .blur(radius: wheelManager.isAnyWheelActive ? 3 : 0)
-                    .opacity(wheelManager.isAnyWheelActive ? 0.5 : 1)
                     .allowsHitTesting(!wheelManager.isAnyWheelActive)
             }
             
-            // Secondary Settings (3개 휠) - 자체 dim 관리
             secondarySettingsSView()
         }
         .frame(maxHeight: .infinity)
