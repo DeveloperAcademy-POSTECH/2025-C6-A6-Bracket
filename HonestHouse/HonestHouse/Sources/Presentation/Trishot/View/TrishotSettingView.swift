@@ -16,6 +16,7 @@ struct TrishotSettingView: View {
         ZStack {
             Color.g12.ignoresSafeArea(.all)
             VStack {
+                Spacer()
                 presetListView()
                 Spacer()
                 startButtonView()
@@ -37,7 +38,6 @@ struct TrishotSettingView: View {
                 }
             }
         }
-        .padding(.top, 27)
     }
     
     /// 프리셋 타이틀 + 내용
