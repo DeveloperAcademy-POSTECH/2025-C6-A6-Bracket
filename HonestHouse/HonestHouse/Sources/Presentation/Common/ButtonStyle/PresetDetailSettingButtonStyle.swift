@@ -44,8 +44,8 @@ struct PresetDetailSettingButtonStyle: ButtonStyle {
             
         case .selected:
             configuration.label
-                .foregroundStyle(Color.g0)
-                .background(Color.g11)
+                .foregroundStyle(Color.g12)
+                .background(Color.g0)
                 .fontStyle(.num6)
                 .clipShape(Circle())
                 .overlay {

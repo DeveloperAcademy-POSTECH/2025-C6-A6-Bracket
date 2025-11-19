@@ -12,6 +12,7 @@ final class CircularWheelViewModel {
     var isCircleVisible = false
     var circleSize: CGFloat = 120
     var isDragging = false
+    var buttonType: PresetDetailSettingButtonType = .activated
     let settingType: WheelSettingType
 
     var circleSizeType: CircularWheelSizeType {
@@ -33,9 +34,11 @@ final class CircularWheelViewModel {
     
     func startDragging() {
         isDragging = true
+        
         if !isCircleVisible {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 isCircleVisible = true
+                buttonType = .selected
                 circleSize = 120
             }
         }
@@ -50,6 +53,7 @@ final class CircularWheelViewModel {
         
         withAnimation {
             circleSize = 120
+            buttonType = .activated
         }
         
         toggleCircle()

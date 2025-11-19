@@ -17,9 +17,10 @@ struct ExpandableButton: View {
             viewModel.toggleCircle()
         } label: {
             viewModel.settingType.icon
+                .renderingMode(.template)
                 .frame(width: 64, height: 64)
         }
-        .buttonStyle(PresetDetailSettingButtonStyle(.activated))
+        .buttonStyle(PresetDetailSettingButtonStyle(viewModel.buttonType))
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { dragValue in
