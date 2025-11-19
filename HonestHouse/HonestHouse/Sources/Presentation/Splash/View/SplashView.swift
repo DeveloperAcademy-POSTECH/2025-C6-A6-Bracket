@@ -10,15 +10,25 @@ import Lottie
 
 struct SplashView: View {
     var body: some View {
-        ZStack {
-            Color.g12.ignoresSafeArea(.all)
-            
-            LottieView(animation: .named("BracketLottie.json"))
-                .playing()
-                .padding(.horizontal, 130)
+        GeometryReader { geo in
+            ZStack {
+                Color.g12.ignoresSafeArea()
+                
+                VStack(spacing: 0) {
+                    Spacer()
+                        .frame(height: geo.size.height * 0.37)
+                    
+                    LottieView(animation: .named("BracketLottie"))
+                        .playing()
+                    
+                    Spacer()
+                        .frame(height: geo.size.height * 0.48)
+                }
+            }
         }
     }
 }
+
 
 #Preview {
     SplashView()

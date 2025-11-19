@@ -10,57 +10,72 @@ import SwiftUI
 struct SettingView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
+    @Environment(\.openURL) var openURL
+    
+    private let email = SupportEmail(toAddress: SettingConstants.teamEmail, subject: SettingConstants.contactTitle)
     
     var body: some View {
         VStack(alignment: .center) {
-                ZStack {
-                    Color.g12.ignoresSafeArea()
-                    
-                    ScrollView {
-                        VStack(spacing: 0) {
-                            ForEach(SettingOption.allCases, id: \.self) { item in
-                                if item == .connectCamera {
-                                    Button {
-                                        cameraConnectionManager.showConnectionSheet = true
-                                    } label: {
-                                        settingRow(item: item)
-                                    }
-                                    .buttonStyle(.plain)
-                                } else if item == .instagram {
-                                    Button {
-                                        if let url = item.externalURL {
-                                            UIApplication.shared.open(url)
-                                        }
-                                    } label: {
-                                        settingRow(item: item)
-                                    }
-                                    .buttonStyle(.plain)
-                                } else {
-                                    NavigationLink(destination: item.destination) {
-                                        settingRow(item: item)
-                                    }
-                                    .buttonStyle(.plain)
+            ZStack {
+                Color.g12.ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(SettingOption.allCases, id: \.self) { item in
+                            switch item {
+                            case .connectCamera:
+                                Button {
+                                    cameraConnectionManager.showConnectionSheet = true
+                                } label: {
+                                    settingRow(item: item)
                                 }
+                                .buttonStyle(.plain)
                                 
-                                if item != SettingOption.allCases.last {
-                                    Divider()
-                                        .background(Color.g9)
+                            case .contact:
+                                Button {
+                                    email.send(openURL: openURL)
+                                } label: {
+                                    settingRow(item: item)
                                 }
+                                .buttonStyle(.plain)
+                                
+                            case .instagram:
+                                Button {
+                                    if let url = item.externalURL {
+                                        openURL(url)
+                                    }
+                                } label: {
+                                    settingRow(item: item)
+                                }
+                                .buttonStyle(.plain)
+                                
+                            default:
+                                NavigationLink(destination: item.destination) {
+                                    settingRow(item: item)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            
+                            if item != SettingOption.allCases.last {
+                                Divider()
+                                    .background(Color.g9)
                             }
                         }
-                        .padding(.horizontal, 16)
                     }
-                    
-                    VStack {
-                        Spacer()
-                        Text("v 1.0(1)")
-                            .fontStyle(.num7)
-                            .foregroundStyle(Color.g7)
-                    }
+                    .padding(.horizontal, 16)
                 }
-                .navigationBarWithBack(title: "설정", showShadow: false) {
-                    dismiss()
-                } rightView: { EmptyView() }
+                
+                VStack {
+                    Spacer()
+                    Text("v \(SettingConstants.appVersion)")
+                        .fontStyle(.num7)
+                        .foregroundStyle(Color.g7)
+                        .padding(.bottom, 35)
+                }
+            }
+            .navigationBarWithBack(title: "설정", showShadow: false) {
+                dismiss()
+            } rightView: { EmptyView() }
                 .navigationBarTitleDisplayMode(.automatic)
             
         }

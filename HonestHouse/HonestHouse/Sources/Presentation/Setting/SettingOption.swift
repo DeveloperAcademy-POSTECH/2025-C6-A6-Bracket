@@ -26,9 +26,9 @@ enum SettingOption: CaseIterable {
         case .contact:
             return "문의하기"
         case .team:
-            return "떳떳 Team"
+            return "Bracket Team"
         case .instagram:
-            return "떳떳z Instagram"
+            return "Instagram"
         }
     }
     
@@ -46,6 +46,17 @@ enum SettingOption: CaseIterable {
         switch self {
         case .instagram:
             return URL(string: "http://instagram.com/bracket.house")
+        default:
+            return nil
+        }
+    }
+    
+    var textContetns: String? {
+        switch self {
+        case .termsOfService:
+            return SettingConstants.termsOfService
+        case .privacyPolicy:
+            return SettingConstants.privacyPolicy
         default:
             return nil
         }

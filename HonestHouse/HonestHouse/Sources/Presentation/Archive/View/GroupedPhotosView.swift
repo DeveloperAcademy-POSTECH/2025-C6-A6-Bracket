@@ -60,7 +60,6 @@ struct GroupedPhotosView: View {
                             UIApplication.shared.open(url)
                         }
                     }
-                    
                 case .photoProcessingError:
                     AlertButton.cancel("취소") { }
                     AlertButton.default("재시도") { vm.saveSelectedPhotos() }
