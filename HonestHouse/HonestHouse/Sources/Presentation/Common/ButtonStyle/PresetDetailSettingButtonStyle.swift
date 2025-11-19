@@ -15,9 +15,11 @@ enum PresetDetailSettingButtonType {
 
 struct PresetDetailSettingButtonStyle: ButtonStyle {
     private let type: PresetDetailSettingButtonType
+    private let viewMode: PresetDetailViewMode
     
-    init(_ type: PresetDetailSettingButtonType) {
+    init(_ type: PresetDetailSettingButtonType, _ viewMode: PresetDetailViewMode) {
         self.type = type
+        self.viewMode = viewMode
     }
     
     func makeBody(configuration: Configuration) -> some View {

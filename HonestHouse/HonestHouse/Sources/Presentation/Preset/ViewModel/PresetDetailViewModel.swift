@@ -78,14 +78,14 @@ class PresetDetailViewModel {
             currentPreset.shutterSpeed = nil
 
         case .av:
-            // Av모드: 셔터스피드 Auto (nil)
+            // AV모드: 셔터스피드 Auto (nil)
             currentPreset.shutterSpeed = nil
             if currentPreset.aperture == nil {
                 currentPreset.aperture = CameraConstants.apertureValues.first ?? "f4.5"
             }
 
         case .tv:
-            // Tv모드: 조리개 Auto (nil)
+            // TV모드: 조리개 Auto (nil)
             currentPreset.aperture = nil
             if currentPreset.shutterSpeed == nil {
                 currentPreset.shutterSpeed = CameraConstants.shutterSpeedValues.first ?? "1/125"
@@ -103,31 +103,76 @@ class PresetDetailViewModel {
         }
     }
 
-    // Button State
-    func getButtonState(for type: PresetSettingType) -> ButtonState {
-        // 조회 모드에서는 모든 버튼이 viewOnly
+    // Button State 판단
+    func getButtonState(for type: PresetSettingType) -> PresetButtonState {
+        // 1. View 모드 처리
         if viewMode == .view {
-            return .viewOnly
+            if isValueSetToAutoOrZero(for: type) {
+                return .deactivated
+            }
+            return .selected  // 값이 설정되어 있음
         }
         
-        // 수정/생성 모드
+        // 2. Create/Edit 모드 처리
+        // 2-1. 값 설정 불가능한 경우 (촬영 모드에 따라)
+        if !isSettingEditable(type) {
+            return .deactivated
+        }
+        
+        // 2-2. 현재 picker가 활성화된 버튼
+        if activePicker == type {
+            return .selected
+        }
+        
+        // 2-3. 기본 상태
+        return .activated
+    }
+    
+    // Auto 또는 0 값 판단
+    private func isValueSetToAutoOrZero(for type: PresetSettingType) -> Bool {
         switch type {
-        case .cameraMode:
-            return .active
-            
         case .aperture:
-            return currentPreset.shootingMode == .av ? .active : .disabled
+            return currentPreset.aperture == nil
             
         case .shutterSpeed:
-            return currentPreset.shootingMode == .tv ? .active : .disabled
+            return currentPreset.shutterSpeed == nil
             
-        case .iso, .pictureStyle, .tintMagentaGreen, .exposure, .colorTemp:
-            return .active
+        case .iso:
+            return currentPreset.iso == nil
+            
+        case .tintMagentaGreen:
+            return currentPreset.tintMagentaGreen == 0
+            
+        case .exposure:
+            guard let value = currentPreset.exposureCompensation else { return true }
+            return value == "0" || value == "+0" || value.isEmpty
+            
+        case .colorTemp:
+            return currentPreset.colorTemperature == 0
+            
+        case .pictureStyle, .cameraMode:
+            return false  // 이 타입들은 항상 값이 있음
         }
     }
     
+    // 설정 편집 가능 여부
     func isSettingEditable(_ type: PresetSettingType) -> Bool {
-        return getButtonState(for: type) == .active
+        // View 모드에서는 모두 편집 불가
+        guard viewMode != .view else { return false }
+        
+        switch type {
+        case .cameraMode, .pictureStyle:
+            return true  // 항상 편집 가능
+            
+        case .aperture:
+            return currentPreset.shootingMode == .av
+            
+        case .shutterSpeed:
+            return currentPreset.shootingMode == .tv
+            
+        case .iso, .tintMagentaGreen, .exposure, .colorTemp:
+            return true  // 항상 편집 가능
+        }
     }
     
     // Value Updates
@@ -165,8 +210,6 @@ class PresetDetailViewModel {
             currentPreset.updatedAt = Date()
             
             switch viewMode {
-                
-                
             case .create:
                 // 새 프리셋 생성
                 try presetManager.createPreset(currentPreset)
@@ -180,7 +223,7 @@ class PresetDetailViewModel {
                 break
             }
             
-            // 4. 성공 시 View 모드로 전환
+            // 성공 시 View 모드로 전환
             switchToViewMode()
 
         } catch {

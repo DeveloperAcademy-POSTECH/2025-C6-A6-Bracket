@@ -11,6 +11,7 @@ struct CircularWheelPickerView: View {
     @Binding var preset: Preset
     @State var vm: CircularWheelViewModel
     @State var index: Int = 0
+    let buttonState: PresetButtonState  // 추가
     
     // 휠 상태 매니저
     @Environment(WheelStateManager.self) private var wheelManager
@@ -36,7 +37,9 @@ struct CircularWheelPickerView: View {
             ExpandableButton(
                 viewModel: vm,
                 value: $index,
-                coordinateSpace: coordinateSpaceName
+                coordinateSpace: coordinateSpaceName,
+                buttonState: buttonState,  // 전달
+                viewMode: vm.viewMode  // 전달
             )
             .overlay {
                 if vm.isCircleVisible && isActive {
@@ -114,11 +117,23 @@ struct CircularWheelPickerView: View {
     ZStack {
         Color.g12
         HStack {
-            CircularWheelPickerView(preset: .constant(.stub1), vm: .init(settingType: .tintMagentaGreen))
+            CircularWheelPickerView(
+                preset: .constant(.stub1),
+                vm: .init(viewMode: .create, settingType: .tintMagentaGreen),
+                buttonState: .activated
+            )
             Spacer()
-            CircularWheelPickerView(preset: .constant(.stub2), vm: .init(settingType: .exposureCompensation))
+            CircularWheelPickerView(
+                preset: .constant(.stub2),
+                vm: .init(viewMode: .create, settingType: .exposureCompensation),
+                buttonState: .activated
+            )
             Spacer()
-            CircularWheelPickerView(preset: .constant(.stub3), vm: .init(settingType: .colorTemperature))
+            CircularWheelPickerView(
+                preset: .constant(.stub3),
+                vm: .init(viewMode: .create, settingType: .colorTemperature),
+                buttonState: .activated
+            )
         }
     }
     .preferredColorScheme(.dark)

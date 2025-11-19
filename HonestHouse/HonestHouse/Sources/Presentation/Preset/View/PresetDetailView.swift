@@ -205,6 +205,7 @@ struct PresetDetailView: View {
             SettingButtonView(
                 type: .aperture,
                 state: vm.getButtonState(for: .aperture),
+                viewMode: vm.viewMode,
                 value: vm.currentPreset.displayAperture,
                 isSelected: vm.activePicker == .aperture,
                 action: {
@@ -216,6 +217,7 @@ struct PresetDetailView: View {
             SettingButtonView(
                 type: .shutterSpeed,
                 state: vm.getButtonState(for: .shutterSpeed),
+                viewMode: vm.viewMode,
                 value: vm.currentPreset.displayShutterSpeed,
                 isSelected: vm.activePicker == .shutterSpeed,
                 action: {
@@ -227,6 +229,7 @@ struct PresetDetailView: View {
             SettingButtonView(
                 type: .iso,
                 state: vm.getButtonState(for: .iso),
+                viewMode: vm.viewMode,
                 value: vm.currentPreset.displayISO,
                 isSelected: vm.activePicker == .iso,
                 action: {
@@ -234,10 +237,11 @@ struct PresetDetailView: View {
                 }
             )
             
-            // Picture Style (픽쳐 스타일)
+            // Picture Style (픽처 스타일)
             SettingButtonView(
                 type: .pictureStyle,
                 state: vm.getButtonState(for: .pictureStyle),
+                viewMode: vm.viewMode,
                 value: vm.currentPreset.pictureStyle.rawValue,
                 isSelected: vm.activePicker == .pictureStyle,
                 action: {
@@ -374,35 +378,39 @@ struct PresetDetailView: View {
             // Tint Magenta Green (마젠타-그린)
             CircularWheelPickerView(
                 preset: $vm.currentPreset,
-                vm: .init(settingType: .tintMagentaGreen)
+                vm: .init(viewMode: vm.viewMode, settingType: .tintMagentaGreen),
+                buttonState: vm.getButtonState(for: .tintMagentaGreen)
             )
             
             // Exposure Compensation (노출 보정)
             CircularWheelPickerView(
                 preset: $vm.currentPreset,
-                vm: .init(settingType: .exposureCompensation)
+                vm: .init(viewMode: vm.viewMode, settingType: .exposureCompensation),
+                buttonState: vm.getButtonState(for: .exposure)
             )
             
             // Color Temperature (색온도)
             CircularWheelPickerView(
                 preset: $vm.currentPreset,
-                vm: .init(settingType: .colorTemperature)
+                vm: .init(viewMode: vm.viewMode, settingType: .colorTemperature),
+                buttonState: vm.getButtonState(for: .colorTemp)
             )
         }
         .frame(maxWidth: .infinity)
     }
     
-    private func handleSettingButtonTap(_ type: PresetSettingType){
+    private func handleSettingButtonTap(_ type: PresetSettingType) {
+        // View 모드는 일단 무시 (나중에 Edit 전환 구현 예정)
         guard vm.viewMode != .view else {
-            vm.switchToEditMode()
             return
         }
-        
+
         // 편집 불가능한 설정은 무시
         guard vm.isSettingEditable(type) else {
             return
         }
         
+        // Picker 토글
         if vm.activePicker == type {
             vm.activePicker = nil
         } else {
