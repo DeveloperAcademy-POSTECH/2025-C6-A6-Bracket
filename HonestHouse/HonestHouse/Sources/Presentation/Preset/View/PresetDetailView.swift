@@ -172,6 +172,8 @@ struct PresetDetailView: View {
             
             if let activePicker = vm.activePicker {
                 pickerView(for: activePicker)
+                    .blur(radius: wheelManager.isAnyWheelActive ? 3 : 0)
+                    .opacity(wheelManager.isAnyWheelActive ? 0.5 : 1)
                     .allowsHitTesting(!wheelManager.isAnyWheelActive)
             }
             
