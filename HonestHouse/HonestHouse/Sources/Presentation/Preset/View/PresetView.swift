@@ -62,10 +62,10 @@ struct PresetView: View {
     private var gridView: some View {
         LazyVGrid(
             columns: [
-                GridItem(.flexible(), spacing: 10),
-                GridItem(.flexible(), spacing: 10)
+                GridItem(.flexible(), spacing: 9),
+                GridItem(.flexible(), spacing: 9)
             ],
-            spacing: 10
+            spacing: 9
         ) {
             ForEach(vm.presets) { preset in
                 PresetGridItemView(
@@ -93,7 +93,6 @@ struct PresetView: View {
                 .matchedGeometryEffect(id: preset.id, in: namespace)
             }
         }
-        .padding(.top, 16)
     }
 
     private var listView: some View {
