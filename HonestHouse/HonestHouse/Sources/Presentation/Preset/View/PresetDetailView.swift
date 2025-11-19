@@ -66,6 +66,8 @@ struct PresetDetailView: View {
                 AlertButton.default("재시도") {
                     vm.retryFetchCameraSettings()
                 }
+            case .settingApplicationFailed:
+                AlertButton.cancel("확인")
             default:
                 AlertButton.cancel("확인") {
                     vm.useDefaultPreset()
@@ -159,8 +161,12 @@ struct PresetDetailView: View {
             // 촬영 모드
             ShootingModeSettingButtonView(
                 selectedMode: Binding(
-                    get: { vm.currentPreset.shootingMode },
-                    set: { vm.changeCameraMode(to: $0) }
+                    get: {
+                        return vm.currentPreset.shootingMode
+                    },
+                    set: { newValue in
+                        vm.changeCameraMode(to: newValue)
+                    }
                 ),
                 isEnabled: vm.viewMode != .view
             )
@@ -225,11 +231,34 @@ struct PresetDetailView: View {
                     itemSize: .init(width: 50, height: 24)
                 )
             )
-            
+            .onChange(of: vm.currentPreset.shootingMode) { oldValue, newValue in
+                Logger.info("Shooting mode changed from \(oldValue) to \(newValue)", category: .preset)
+                guard vm.viewMode != .view else {
+                    Logger.warning("View mode is .view, skipping camera setting application", category: .preset)
+                    return
+                }
+                Task {
+                    await vm.applyCameraSettings(for: .cameraMode, value: newValue)
+                }
+            }
+
         case .aperture:
             if vm.currentPreset.shootingMode == .av {
                 LinearWheelPickerView(
-                    selectedValue: $vm.currentPreset.aperture,
+                    selectedValue: Binding(
+                        get: { vm.currentPreset.aperture },
+                        set: { newValue in
+                            Logger.info("Aperture binding set called: \(newValue ?? "nil")", category: .preset)
+                            vm.currentPreset.aperture = newValue
+                            guard vm.viewMode != .view, let newValue = newValue else {
+                                Logger.warning("View mode is .view or newValue is nil, skipping camera setting application", category: .preset)
+                                return
+                            }
+                            Task {
+                                await vm.applyCameraSettings(for: .aperture, value: newValue)
+                            }
+                        }
+                    ),
                     items: vm.getApertureValues(),
                     config: .init(
                         spacing: 22,
@@ -241,7 +270,20 @@ struct PresetDetailView: View {
         case .shutterSpeed:
             if vm.currentPreset.shootingMode == .tv {
                 LinearWheelPickerView(
-                    selectedValue: $vm.currentPreset.shutterSpeed,
+                    selectedValue: Binding(
+                        get: { vm.currentPreset.shutterSpeed },
+                        set: { newValue in
+                            Logger.info("Shutter speed binding set called: \(newValue ?? "nil")", category: .preset)
+                            vm.currentPreset.shutterSpeed = newValue
+                            guard vm.viewMode != .view, let newValue = newValue else {
+                                Logger.warning("View mode is .view or newValue is nil, skipping camera setting application", category: .preset)
+                                return
+                            }
+                            Task {
+                                await vm.applyCameraSettings(for: .shutterSpeed, value: newValue)
+                            }
+                        }
+                    ),
                     items: vm.getShutterSpeedValues(),
                     config: .init(
                         spacing: 22,
@@ -252,7 +294,20 @@ struct PresetDetailView: View {
             
         case .iso:
             LinearWheelPickerView(
-                selectedValue: $vm.currentPreset.iso,
+                selectedValue: Binding(
+                    get: { vm.currentPreset.iso },
+                    set: { newValue in
+                        Logger.info("ISO binding set called: \(newValue ?? "nil")", category: .preset)
+                        vm.currentPreset.iso = newValue
+                        guard vm.viewMode != .view, let newValue = newValue else {
+                            Logger.warning("View mode is .view or newValue is nil, skipping camera setting application", category: .preset)
+                            return
+                        }
+                        Task {
+                            await vm.applyCameraSettings(for: .iso, value: newValue)
+                        }
+                    }
+                ),
                 items: vm.getISOValues(),
                 config: .init(
                     spacing: 22,
@@ -262,7 +317,20 @@ struct PresetDetailView: View {
             
         case .pictureStyle:
             NonOptionalLinearWheelPickerView(
-                selectedValue: $vm.currentPreset.pictureStyle,
+                selectedValue: Binding(
+                    get: { vm.currentPreset.pictureStyle },
+                    set: { newValue in
+                        Logger.info("Picture style binding set called: \(newValue)", category: .preset)
+                        vm.currentPreset.pictureStyle = newValue
+                        guard vm.viewMode != .view else {
+                            Logger.warning("View mode is .view, skipping camera setting application", category: .preset)
+                            return
+                        }
+                        Task {
+                            await vm.applyCameraSettings(for: .pictureStyle, value: newValue)
+                        }
+                    }
+                ),
                 items: vm.getPictureStyleValues(),
                 config: .init(
                     spacing: 6,
