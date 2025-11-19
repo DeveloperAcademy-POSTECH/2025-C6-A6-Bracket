@@ -46,6 +46,16 @@ struct PresetDetailView: View {
         } message: {
             Text("이 프리셋이 저장되지 않았습니다.\n정말 나가시겠습니까?")
         }
+        .customAlert(
+            title: "정말 삭제하시겠습니까?",
+            isPresented: $vm.showDeleteAlert
+        ) {
+            AlertButton.cancel("취소")
+            AlertButton.delete("삭제하기") {
+                // TODO: 삭제 기능 구현 후 vm.deletePreset() 호출
+                // vm.deletePreset()
+            }
+        }
         .customErrorAlert(error: $vm.currentError) { error in
             switch error {
             case .cameraDisconnected:
@@ -103,6 +113,7 @@ struct PresetDetailView: View {
         }
     }
 
+    // TODO: 임의로 구현해둔 deleteButton이므로 추후 수정 필요
     private func deleteButtonView() -> some View {
         Button {
             vm.showDeleteAlert = true
