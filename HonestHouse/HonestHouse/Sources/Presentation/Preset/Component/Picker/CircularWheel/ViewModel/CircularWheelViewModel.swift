@@ -14,6 +14,11 @@ final class CircularWheelViewModel {
     var isDragging = false
     var viewMode: PresetDetailViewMode
     let settingType: WheelSettingType
+    
+    // Dragging 또는 Circle이 보이는 경우 selected 상태로 판단
+    var isActiveState: Bool {
+        isCircleVisible || isDragging
+    }
 
     var circleSizeType: CircularWheelSizeType {
         CircularWheelCalculator.wheelSizeType(from: circleSize)

@@ -11,8 +11,8 @@ struct ExpandableButton: View {
     @Bindable var viewModel: CircularWheelViewModel
     @Binding var value: Int
     let coordinateSpace: String
-    let buttonState: PresetButtonState  // 추가
-    let viewMode: PresetDetailViewMode  // 추가
+    let buttonState: PresetButtonState
+    let viewMode: PresetDetailViewMode
     
     private var backgroundColor: Color {
         buttonState.backgroundColor(viewMode: viewMode)
@@ -28,7 +28,7 @@ struct ExpandableButton: View {
     
     var body: some View {
         Button {
-            viewModel.toggleCircle()
+//            viewModel.toggleCircle()
         } label: {
             viewModel.settingType.icon
                 .renderingMode(.template)

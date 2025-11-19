@@ -14,7 +14,6 @@ enum PresetDetailViewMode {
     case create
 }
 
-// 기존 ButtonState 제거, PresetButtonState로 통합
 enum PresetButtonState {
     case activated      // 편집 가능 기본 상태 (Create/Edit)
     case selected       // 선택됨 (picker 열림 or View 모드 값 설정됨)

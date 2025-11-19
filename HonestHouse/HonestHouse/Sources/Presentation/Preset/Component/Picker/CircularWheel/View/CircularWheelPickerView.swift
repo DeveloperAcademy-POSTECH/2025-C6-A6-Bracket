@@ -11,7 +11,7 @@ struct CircularWheelPickerView: View {
     @Binding var preset: Preset
     @State var vm: CircularWheelViewModel
     @State var index: Int = 0
-    let buttonState: PresetButtonState  // 추가
+    let baseButtonState: PresetButtonState  // 기본 상태
     
     // 휠 상태 매니저
     @Environment(WheelStateManager.self) private var wheelManager
@@ -28,6 +28,21 @@ struct CircularWheelPickerView: View {
         wheelManager.isActive(vm.settingType)
     }
     
+    // 동적으로 계산되는 버튼 상태
+    private var currentButtonState: PresetButtonState {
+        // View 모드는 기본 상태 유지
+        guard vm.viewMode != .view else {
+            return baseButtonState
+        }
+        
+        // Dragging 중이거나 Circle이 보이면 selected
+        if vm.isActiveState {
+            return .selected
+        }
+        
+        return baseButtonState
+    }
+    
     var body: some View {
         VStack {
             valueView()
@@ -38,8 +53,8 @@ struct CircularWheelPickerView: View {
                 viewModel: vm,
                 value: $index,
                 coordinateSpace: coordinateSpaceName,
-                buttonState: buttonState,  // 전달
-                viewMode: vm.viewMode  // 전달
+                buttonState: currentButtonState,  // 동적 상태 전달
+                viewMode: vm.viewMode
             )
             .overlay {
                 if vm.isCircleVisible && isActive {
@@ -120,19 +135,19 @@ struct CircularWheelPickerView: View {
             CircularWheelPickerView(
                 preset: .constant(.stub1),
                 vm: .init(viewMode: .create, settingType: .tintMagentaGreen),
-                buttonState: .activated
+                baseButtonState: .activated
             )
             Spacer()
             CircularWheelPickerView(
                 preset: .constant(.stub2),
                 vm: .init(viewMode: .create, settingType: .exposureCompensation),
-                buttonState: .activated
+                baseButtonState: .activated
             )
             Spacer()
             CircularWheelPickerView(
                 preset: .constant(.stub3),
                 vm: .init(viewMode: .create, settingType: .colorTemperature),
-                buttonState: .activated
+                baseButtonState: .activated
             )
         }
     }
