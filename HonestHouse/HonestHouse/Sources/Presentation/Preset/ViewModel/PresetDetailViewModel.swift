@@ -23,6 +23,7 @@ class PresetDetailViewModel {
     var activePicker: SettingType?
     var isDimmed: Bool = false
     var currentError: PresetError?
+    var showDeleteAlert: Bool = false
 
     private var originalPreset: Preset?
     
@@ -64,30 +65,42 @@ class PresetDetailViewModel {
     // Camera Mode Management
     func changeCameraMode(to mode: ShootingModeType) {
         guard currentPreset.shootingMode != mode else { return }
-        
+
+        Logger.info("Changing camera mode from \(currentPreset.shootingMode) to \(mode)", category: .preset)
+
         currentPreset.shootingMode = mode
         activePicker = nil
-        
+
         // Auto 처리를 위해 적절한 nil 설정
         switch mode {
         case .p:
             // P모드: 조리개와 셔터스피드 Auto (nil)
             currentPreset.aperture = nil
             currentPreset.shutterSpeed = nil
-            
+
         case .av:
             // Av모드: 셔터스피드 Auto (nil)
             currentPreset.shutterSpeed = nil
             if currentPreset.aperture == nil {
                 currentPreset.aperture = CameraConstants.apertureValues.first ?? "f4.5"
             }
-            
+
         case .tv:
             // Tv모드: 조리개 Auto (nil)
             currentPreset.aperture = nil
             if currentPreset.shutterSpeed == nil {
                 currentPreset.shutterSpeed = CameraConstants.shutterSpeedValues.first ?? "1/125"
             }
+        }
+
+        // viewMode가 view가 아닐 때만 카메라 설정 적용
+        guard viewMode != .view else {
+            Logger.warning("View mode is .view, skipping camera setting application", category: .preset)
+            return
+        }
+
+        Task {
+            await applyCameraSettings(for: .cameraMode, value: mode)
         }
     }
 
@@ -304,5 +317,98 @@ extension PresetDetailViewModel {
         case .popToPresetView:
             container.navigationRouter.pop()
         }
+    }
+}
+
+extension PresetDetailViewModel {
+    func applyCameraSettings(for type: SettingType, value: Any) async {
+        Logger.info("Applying camera settings for \(type)", category: .preset)
+
+        do {
+            Logger.debug("Setting ignoreShootingMode to ON", category: .preset)
+            try await ignoreShootingMode(action: "on")
+
+            switch type {
+            case .cameraMode:
+                if let mode = value as? ShootingModeType {
+                    Logger.debug("Setting camera mode to \(mode.apiValue)", category: .preset)
+                    try await setShootingMode(mode: mode)
+                    Logger.info("Camera mode set successfully to \(mode.apiValue)", category: .preset)
+                }
+            case .aperture:
+                if let aperture = value as? String {
+                    Logger.debug("Setting aperture to \(aperture)", category: .preset)
+                    try await setAperture(value: aperture)
+                    Logger.info("Aperture set successfully to \(aperture)", category: .preset)
+                }
+            case .shutterSpeed:
+                if let shutterSpeed = value as? String {
+                    Logger.debug("Setting shutter speed to \(shutterSpeed)", category: .preset)
+                    try await setShutterSpeed(value: shutterSpeed)
+                    Logger.info("Shutter speed set successfully to \(shutterSpeed)", category: .preset)
+                }
+            case .iso:
+                if let iso = value as? String {
+                    Logger.debug("Setting ISO to \(iso)", category: .preset)
+                    try await setISO(value: iso)
+                    Logger.info("ISO set successfully to \(iso)", category: .preset)
+                }
+            case .pictureStyle:
+                if let style = value as? PictureStyleType {
+                    Logger.debug("Setting picture style to \(style.apiValue)", category: .preset)
+                    try await setPictureStyle(style: style)
+                    Logger.info("Picture style set successfully to \(style.apiValue)", category: .preset)
+                }
+            default:
+                Logger.warning("Unsupported setting type: \(type)", category: .preset)
+                break
+            }
+
+            Logger.debug("Setting ignoreShootingMode to OFF", category: .preset)
+            try await ignoreShootingMode(action: "off")
+
+        } catch let ccapiError as CCAPIError {
+            try? await ignoreShootingMode(action: "off")
+            Logger.error("Camera setting application failed: \(ccapiError.errorDescription ?? "unknown error")", category: .preset)
+            handleSettingApplicationError(ccapiError)
+        } catch {
+            try? await ignoreShootingMode(action: "off")
+            Logger.error("Camera setting application failed with unknown error: \(error.localizedDescription)", category: .preset)
+            currentError = .settingApplicationFailed
+        }
+    }
+
+    private func handleSettingApplicationError(_ error: CCAPIError) {
+        currentError = PresetError.fromCCAPI(error)
+    }
+
+    private func ignoreShootingMode(action: String) async throws {
+        let request = ShootingControl.IgnoreShootingModeRequest(action: action)
+        try await container.services.shootingControlService.ignoreShootingMode(request: request)
+    }
+
+    private func setShootingMode(mode: ShootingModeType) async throws {
+        let request = ShootingSettings.ShootingModeRequest(value: mode.apiValue)
+        _ = try await container.services.shootingSettingsService.putShootingMode(request: request)
+    }
+
+    private func setPictureStyle(style: PictureStyleType) async throws {
+        let request = ShootingSettings.PictureStyleRequest(value: style.apiValue)
+        _ = try await container.services.shootingSettingsService.putPictureStyle(request: request)
+    }
+
+    private func setAperture(value: String) async throws {
+        let request = ShootingSettings.AVRequest(value: value)
+        _ = try await container.services.shootingSettingsService.putAV(request: request)
+    }
+
+    private func setShutterSpeed(value: String) async throws {
+        let request = ShootingSettings.TVRequest(value: value)
+        _ = try await container.services.shootingSettingsService.putTV(request: request)
+    }
+
+    private func setISO(value: String) async throws {
+        let request = ShootingSettings.ISORequest(value: value)
+        _ = try await container.services.shootingSettingsService.putISO(request: request)
     }
 }
