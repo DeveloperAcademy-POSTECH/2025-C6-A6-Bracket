@@ -32,4 +32,27 @@ enum PictureStyleType: String, Codable, CaseIterable {
     var displayValue: String {
         return rawValue
     }
+
+    static func from(apiValue: String) -> PictureStyleType? {
+        switch apiValue.lowercased() {
+        case "auto":
+            return .auto
+        case "standard":
+            return .standard
+        case "portrait":
+            return .portrait
+        case "landscape":
+            return .landscape
+        case "finedetail":
+            return .finedetail
+        case "neutral":
+            return .neutral
+        case "faithful":
+            return .faithful
+        case "monochrome":
+            return .monochrome
+        default:
+            return nil
+        }
+    }
 }

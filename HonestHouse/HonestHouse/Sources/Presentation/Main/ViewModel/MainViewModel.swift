@@ -23,12 +23,14 @@ final class MainViewModel {
     var selectedPreset: Preset?
     var showModeChange: Bool = false
     var showDeleteAlert: Bool = false
+    var showPresetApply: Bool = false
     
     var presets: [Preset] = []
     var selectedPresets: Set<UUID> = []
     var viewMode: PresetViewMode = .list
-    var error: PresetError?
-    var currentlyAppliedPresetId: UUID?
+    var currentError: PresetError?
+    var currentlyAppliedPreset: Preset?
+    var presetToApply: Preset?
 
     var showEditButton: Bool {
         selectedSegment == .preset
@@ -55,6 +57,7 @@ final class MainViewModel {
         guard selectedSegment != segment else { return }
         selectedSegment = segment
         exitEditMode()
+        currentlyAppliedPreset = nil
     }
     
     func toggleEditMode() {
@@ -77,9 +80,13 @@ final class MainViewModel {
     func loadPresets() {
         do {
             presets = try container.managers.presetManager.fetchAllPresets()
-            error = nil
+            currentError = nil
+        } catch let presetManagerError as PresetManagerError {
+            currentError = PresetError.fromPresetManager(presetManagerError)
+        } catch let presetError as PresetError {
+            currentError = presetError
         } catch {
-            handleError(error)
+            currentError = .unknown
         }
     }
 
@@ -104,15 +111,19 @@ final class MainViewModel {
             loadPresets()
             showDeleteAlert = false
             exitEditMode()
+        } catch let presetManagerError as PresetManagerError {
+            currentError = PresetError.fromPresetManager(presetManagerError)
+        } catch let presetError as PresetError {
+            currentError = presetError
         } catch {
-            handleError(error)
+            currentError = .unknown
         }
     }
 
     func getDisplayType(for preset: Preset) -> PresetCapsuleDisplayType {
         if isPresetEditMode && selectedPresets.contains(preset.id) {
             return .selected
-        } else if currentlyAppliedPresetId == preset.id {
+        } else if currentlyAppliedPreset == preset {
             return .currentlyApplied
         } else {
             return .default
@@ -157,12 +168,18 @@ final class MainViewModel {
                 try await setWbShift(blueAmber: tintBlueAmber, magentaGreen: tintMagentaGreen)
             }
 
-            error = nil
-            currentlyAppliedPresetId = preset.id
+            currentError = nil
+            currentlyAppliedPreset = preset
             try await ignoreShootingMode(action: "off")
+        } catch let ccapiError as CCAPIError {
+            try? await ignoreShootingMode(action: "off")
+            currentError = PresetError.fromCCAPI(ccapiError)
+        } catch let presetError as PresetError {
+            try? await ignoreShootingMode(action: "off")
+            currentError = presetError
         } catch {
             try? await ignoreShootingMode(action: "off")
-            handleError(error)
+            currentError = .unknown
         }
     }
 
@@ -220,6 +237,3 @@ final class MainViewModel {
         Logger.debug("WB Shift Response: \(response)", category: .viewModel)
     }
 }
-
-// TODO: Error Handling
-extension MainViewModel: PresetErrorHandleable {}

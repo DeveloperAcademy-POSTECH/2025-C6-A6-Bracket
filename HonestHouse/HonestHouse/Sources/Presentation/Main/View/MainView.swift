@@ -58,8 +58,26 @@ struct MainView: View {
             isPresented: $cameraConnectionManager.showDisconnectionAlert
         ) {
             AlertButton.cancel("취소")
-            AlertButton.default("다시 연결") {
+            AlertButton.default("재연결") {
                 cameraConnectionManager.reconnectCamera()
+            }
+        }
+        .customAlert(title: "이 프리셋을 적용하시겠습니까?", isPresented: $vm.showPresetApply) {
+            AlertButton.cancel("취소")
+            AlertButton.default("확인") {
+                guard let preset = vm.presetToApply else { return }
+                Task {
+                    await vm.setCurrentPreset(preset)
+                    vm.presetToApply = nil
+                }
+            }
+        }
+        .customErrorAlert(error: $vm.currentError) { error in
+            switch error {
+            case .settingApplicationFailed:
+                AlertButton.default("확인")
+            default:
+                AlertButton.default("확인")
             }
         }
     }

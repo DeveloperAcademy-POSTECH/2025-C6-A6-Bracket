@@ -17,4 +17,17 @@ enum ShootingModeType: String, Codable, CaseIterable {
     var displayValue: String {
         return rawValue
     }
+
+    static func from(apiValue: String) -> ShootingModeType? {
+        switch apiValue.lowercased() {
+        case "av":
+            return .av
+        case "tv":
+            return .tv
+        case "p":
+            return .p
+        default:
+            return nil
+        }
+    }
 }

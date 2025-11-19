@@ -9,6 +9,8 @@ import SwiftUI
 import SwiftData
 
 struct PresetView: View {
+    @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
+
     @State var vm: MainViewModel
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
@@ -40,8 +42,9 @@ struct PresetView: View {
                     .safeAreaPadding(.bottom, 28)
             }
         }
-        .onAppear {
+        .task {
             vm.loadPresets()
+            vm.currentlyAppliedPreset = nil
         }
     }
     
@@ -76,7 +79,13 @@ struct PresetView: View {
                         if vm.isPresetEditMode {
                             vm.toggleSelection(for: preset)
                         } else {
-                            vm.send(action: .goToPresetEditor(.view, preset))
+                            Task {
+                                if await cameraConnectionManager.checkConnection() {
+                                    vm.send(action: .goToPresetEditor(.view, preset))
+                                } else {
+                                    cameraConnectionManager.showConnectionLostAlert()
+                                }
+                            }
                         }
                     },
                     onActionTap: {
@@ -84,8 +93,12 @@ struct PresetView: View {
                             vm.toggleSelection(for: preset)
                         } else {
                             Task {
-                                // TODO: Custom Alert("이 프리셋을 적용하시겠습니까?") 적용
-                                await vm.setCurrentPreset(preset)
+                                if await cameraConnectionManager.checkConnection() {
+                                    vm.presetToApply = preset
+                                    vm.showPresetApply = true
+                                } else {
+                                    cameraConnectionManager.showConnectionLostAlert()
+                                }
                             }
                         }
                     }
@@ -106,7 +119,13 @@ struct PresetView: View {
                         if vm.isPresetEditMode {
                             vm.toggleSelection(for: preset)
                         } else {
-                            vm.send(action: .goToPresetEditor(.view, preset))
+                            Task {
+                                if await cameraConnectionManager.checkConnection() {
+                                    vm.send(action: .goToPresetEditor(.view, preset))
+                                } else {
+                                    cameraConnectionManager.showConnectionLostAlert()
+                                }
+                            }
                         }
                     },
                     onActionTap: {
@@ -114,8 +133,12 @@ struct PresetView: View {
                             vm.toggleSelection(for: preset)
                         } else {
                             Task {
-                                // TODO: Custom Alert("이 프리셋을 적용하시겠습니까?") 적용
-                                await vm.setCurrentPreset(preset)
+                                if await cameraConnectionManager.checkConnection() {
+                                    vm.presetToApply = preset
+                                    vm.showPresetApply = true
+                                } else {
+                                    cameraConnectionManager.showConnectionLostAlert()
+                                }
                             }
                         }
                     }
@@ -151,7 +174,13 @@ struct PresetView: View {
     // Buttons
     private func addButtonView() -> some View {
         Button {
-            vm.send(action: .goToPresetEditor(.create, nil))
+            Task {
+                if await cameraConnectionManager.checkConnection() {
+                    vm.send(action: .goToPresetEditor(.create, nil))
+                } else {
+                    cameraConnectionManager.showConnectionLostAlert()
+                }
+            }
         } label: {
             Image(.plus)
                 .resizable()

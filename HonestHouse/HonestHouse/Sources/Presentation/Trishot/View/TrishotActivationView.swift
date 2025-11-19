@@ -50,7 +50,7 @@ struct TrishotActivationView: View {
                     vm.deactivateTrishot()
                     vm.send(.popToTrishotSetting)
                 }
-                AlertButton.default("다시 연결") {
+                AlertButton.default("재연결") {
                     cameraConnectionManager.reconnectCamera()
                     vm.deactivateTrishot()
                     vm.send(.popToTrishotSetting)
