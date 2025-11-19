@@ -30,8 +30,8 @@ struct CircularWheelPickerView: View {
     var body: some View {
         VStack {
             valueView()
-                .opacity(shouldBeDimmed ? 0.3 : 1)
-                .blur(radius: shouldBeDimmed ? 1 : 0)
+                .opacity(shouldBeDimmed ? 0.5 : 1)
+                .blur(radius: shouldBeDimmed ? 3 : 0)
             
             ExpandableButton(
                 viewModel: vm,
@@ -50,8 +50,8 @@ struct CircularWheelPickerView: View {
                 }
             }
             .coordinateSpace(name: coordinateSpaceName)
-            .opacity(shouldBeDimmed ? 0.3 : 1)
-            .blur(radius: shouldBeDimmed ? 1 : 0)
+            .opacity(shouldBeDimmed ? 0.5 : 1)
+            .blur(radius: shouldBeDimmed ? 3 : 0)
             .allowsHitTesting(!shouldBeDimmed)
         }
         .onChange(of: vm.isCircleVisible) { _, isVisible in
