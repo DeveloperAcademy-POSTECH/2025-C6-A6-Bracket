@@ -12,7 +12,7 @@ struct SettingView: View {
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
     @Environment(\.openURL) var openURL
     
-    private var email = SupportEmail(toAddress: SettingConstants.teamEmail, subject: SettingConstants.contactTitle)
+    private let email = SupportEmail(toAddress: SettingConstants.teamEmail, subject: SettingConstants.contactTitle)
     
     var body: some View {
         VStack(alignment: .center) {
@@ -37,11 +37,12 @@ struct SettingView: View {
                                 } label: {
                                     settingRow(item: item)
                                 }
+                                .buttonStyle(.plain)
                                 
                             case .instagram:
                                 Button {
                                     if let url = item.externalURL {
-                                        UIApplication.shared.open(url)
+                                        openURL(url)
                                     }
                                 } label: {
                                     settingRow(item: item)
