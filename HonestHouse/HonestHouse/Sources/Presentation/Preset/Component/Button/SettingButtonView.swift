@@ -17,7 +17,7 @@ struct SettingButtonView<SelectionType>: View {
     private var backgroundColor: Color {
         switch state {
         case .active:
-            return isSelected ? Color.g0 : Color.g11
+            return isSelected ? Color.g0 : Color.g12
         case .disabled:
             return Color.g11
         case .viewOnly:
