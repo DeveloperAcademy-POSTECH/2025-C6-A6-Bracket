@@ -235,23 +235,18 @@ struct PresetDetailView: View {
         switch type {
         case .cameraMode:
             NonOptionalLinearWheelPickerView(
-                selectedValue: $vm.currentPreset.shootingMode,
+                selectedValue: Binding(
+                    get: { vm.currentPreset.shootingMode },
+                    set: { newValue in
+                        vm.changeCameraMode(to: newValue)
+                    }
+                ),
                 items: vm.getCameraShootingModeValues(),
                 config: .init(
                     spacing: 22,
                     itemSize: .init(width: 50, height: 24)
                 )
             )
-            .onChange(of: vm.currentPreset.shootingMode) { oldValue, newValue in
-                Logger.info("Shooting mode changed from \(oldValue) to \(newValue)", category: .preset)
-                guard vm.viewMode != .view else {
-                    Logger.warning("View mode is .view, skipping camera setting application", category: .preset)
-                    return
-                }
-                Task {
-                    await vm.applyCameraSettings(for: .cameraMode, value: newValue)
-                }
-            }
 
         case .aperture:
             if vm.currentPreset.shootingMode == .av {
