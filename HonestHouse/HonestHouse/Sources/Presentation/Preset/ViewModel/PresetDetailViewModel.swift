@@ -23,6 +23,7 @@ class PresetDetailViewModel {
     var activePicker: PresetSettingType?
     var currentError: PresetError?
     var showDeleteAlert: Bool = false
+    var showOptionsMenu: Bool = false
     
     private var originalPreset: Preset?
     
@@ -37,7 +38,6 @@ class PresetDetailViewModel {
             self.currentPreset = preset
             self.viewMode = mode
         } else {
-            // Create mode with default preset
             self.currentPreset = .init(name: "새 프리셋", pictureStyle: .auto, shootingMode: .av)
             self.viewMode = .create
         }
@@ -47,6 +47,7 @@ class PresetDetailViewModel {
         guard viewMode == .view else { return }
         originalPreset = currentPreset.copy()
         viewMode = .edit
+        showOptionsMenu = false  // 메뉴 닫기
     }
     
     func switchToViewMode() {
@@ -70,7 +71,6 @@ class PresetDetailViewModel {
         currentPreset.shootingMode = mode
         activePicker = nil
 
-        // Auto 처리를 위해 적절한 nil 설정
         switch mode {
         case .p:
             // P모드: 조리개와 셔터스피드 Auto (nil)
@@ -103,8 +103,9 @@ class PresetDetailViewModel {
         }
     }
 
-    // Button State 판단
+    // Button State
     func getButtonState(for type: PresetSettingType) -> PresetButtonState {
+        // View 모드 처리
         if viewMode == .view {
             if isValueSetToAutoOrZero(for: type) {
                 return .deactivated
@@ -112,10 +113,13 @@ class PresetDetailViewModel {
             return .selected
         }
         
+        // Create/Edit 모드 처리
+        // 값 설정 불가능한 경우 (촬영 모드에 따라)
         if !isSettingEditable(type) {
             return .deactivated
         }
-
+        
+        // 현재 picker가 활성화된 버튼
         if activePicker == type {
             return .selected
         }
@@ -123,6 +127,7 @@ class PresetDetailViewModel {
         return .activated
     }
     
+    // Auto 또는 0 값 판단
     private func isValueSetToAutoOrZero(for type: PresetSettingType) -> Bool {
         switch type {
         case .aperture:
@@ -139,7 +144,7 @@ class PresetDetailViewModel {
             
         case .exposure:
             guard let value = currentPreset.exposureCompensation else { return true }
-            return value == "0" || value.isEmpty
+            return value == "0" || value == "+0" || value.isEmpty
             
         case .colorTemp:
             return currentPreset.colorTemperature == 0
@@ -247,6 +252,60 @@ class PresetDetailViewModel {
         lhs.tintMagentaGreen == rhs.tintMagentaGreen &&
         lhs.exposureCompensation == rhs.exposureCompensation &&
         lhs.colorTemperature == rhs.colorTemperature
+    }
+    
+    // Delete Preset
+    func deletePreset() {
+        do {
+            try container.managers.presetManager.deletePreset(by: currentPreset.id)
+            Logger.info("Preset deleted successfully: \(currentPreset.id)", category: .preset)
+            // 삭제 성공 시 PresetView로 이동
+            send(.popToPresetView)
+        } catch let presetManagerError as PresetManagerError {
+            Logger.error("Failed to delete preset: \(presetManagerError)", category: .preset)
+            currentError = PresetError.fromPresetManager(presetManagerError)
+            // 에러 발생해도 화면은 pop
+            send(.popToPresetView)
+        } catch let presetError as PresetError {
+            Logger.error("Failed to delete preset: \(presetError)", category: .preset)
+            currentError = presetError
+            send(.popToPresetView)
+        } catch {
+            Logger.error("Failed to delete preset with unknown error: \(error)", category: .preset)
+            currentError = .unknown
+            send(.popToPresetView)
+        }
+    }
+    
+    // Options Menu
+    func getMenuItems() -> [MenuItem] {
+        let editItem = MenuItem(
+            icon: .presetSelect,  // 적절한 아이콘으로 변경 필요
+            label: "수정",
+            action: { [weak self] in
+                self?.handleEditMode()
+            }
+        )
+        
+        let deleteItem = MenuItem(
+            icon: .trash,
+            label: "삭제",
+            action: { [weak self] in
+                self?.handleDeleteMode()
+            }
+        )
+        
+        return [editItem, deleteItem]
+    }
+    
+    private func handleEditMode() {
+        showOptionsMenu = false
+        switchToEditMode()
+    }
+    
+    private func handleDeleteMode() {
+        showOptionsMenu = false
+        showDeleteAlert = true
     }
     
     // Get Setting Values

@@ -11,7 +11,6 @@ import SwiftData
 struct PresetDetailView: View {
     @State private var wheelManager = WheelStateManager()
     @State var vm: PresetDetailViewModel
-    @State private var showDeleteAlert = false
     @State private var showUnsavedChangesAlert = false
     @FocusState private var isNameFieldFocused: Bool
     
@@ -36,6 +35,24 @@ struct PresetDetailView: View {
                     settingsView()
                 }
             }
+            
+            if vm.showOptionsMenu {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        vm.showOptionsMenu = false
+                    }
+                
+                VStack {
+                    HStack {
+                        Spacer()
+                        OptionsMenuView(items: vm.getMenuItems())
+                            .padding(.top, 8)
+                            .padding(.trailing, 20)
+                    }
+                    Spacer()
+                }
+            }
         }
         .environment(wheelManager)
         .navigationBarWithBack(title: "", showShadow: false) {
@@ -47,9 +64,7 @@ struct PresetDetailView: View {
                 vm.send(.popToPresetView)
             }
         } rightView: {
-            if vm.viewMode == .create {
-                saveButtonView()
-            }
+            navigationRightView()
         }
         .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
             Button("삭제하기", role: .destructive) {
@@ -61,12 +76,12 @@ struct PresetDetailView: View {
         }
         .customAlert(
             title: "정말 삭제하시겠습니까?",
+            message: "",
             isPresented: $vm.showDeleteAlert
         ) {
             AlertButton.cancel("취소")
             AlertButton.delete("삭제하기") {
-                // TODO: 삭제 기능 구현 후 vm.deletePreset() 호출
-                // vm.deletePreset()
+                vm.deletePreset()
             }
         }
         .customErrorAlert(error: $vm.currentError) { error in
@@ -114,6 +129,31 @@ struct PresetDetailView: View {
         }
     }
     
+    // Navigation Right View
+    @ViewBuilder
+    private func navigationRightView() -> some View {
+        switch vm.viewMode {
+        case .view:
+            // View 모드: 3점 메뉴만
+            optionsMenuButton()
+            
+        case .edit, .create:
+            // Edit/Create 모드: 저장 버튼만
+            saveButtonView()
+        }
+    }
+    
+    private func optionsMenuButton() -> some View {
+        Button {
+            vm.showOptionsMenu.toggle()
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 18))
+                .foregroundStyle(Color.g0)
+                .rotationEffect(.degrees(90))
+        }
+    }
+    
     private func saveButtonView() -> some View {
         Button {
             Task {
@@ -123,16 +163,6 @@ struct PresetDetailView: View {
         } label: {
             Text("저장")
                 .foregroundStyle(Color.g0)
-        }
-    }
-
-    // TODO: 임의로 구현해둔 deleteButton이므로 추후 수정 필요
-    private func deleteButtonView() -> some View {
-        Button {
-            vm.showDeleteAlert = true
-        } label: {
-            Image(systemName: "trash")
-                .foregroundStyle(Color.red1)
         }
     }
     
