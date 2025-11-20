@@ -192,8 +192,8 @@ final class ImagePrefetchManager: ImagePrefetchManagerType {
             let interval: TimeInterval = {
                 switch priority {
                 case .high: return 0.0
-                case .medium: return 0.5
-                case .low: return 1.0
+                case .medium: return 0.3
+                case .low: return 0.2  // 1.0 → 0.2 (503 에러 방지하면서도 빠른 로딩)
                 }
             }()
 

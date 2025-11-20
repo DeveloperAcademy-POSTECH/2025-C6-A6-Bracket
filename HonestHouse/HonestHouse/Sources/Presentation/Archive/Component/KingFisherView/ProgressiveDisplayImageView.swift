@@ -14,7 +14,6 @@ struct ProgressiveDisplayImageView: View {
     
     let photo: Photo
     
-    
     var body: some View {
         Group {
             if shouldUseFallback {

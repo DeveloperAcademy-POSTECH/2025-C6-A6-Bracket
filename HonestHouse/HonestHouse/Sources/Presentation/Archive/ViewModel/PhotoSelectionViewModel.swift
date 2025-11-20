@@ -144,28 +144,28 @@ final class PhotoSelectionViewModel {
         // ContentInfo 배치 처리
         await fetchContentInfoBatch(urls: uniqueUrls)
         
-        // Prefetch 시작 (첫 100장 도착 시)
-        if !hasStartedInitialPrefetch && allPhotos.count >= 100 {
+        // Prefetch 시작 (첫 20장 도착 시로 변경 - 503 에러 방지)
+        if !hasStartedInitialPrefetch && allPhotos.count >= 20 {
             hasStartedInitialPrefetch = true
             container.managers.imagePrefetchManager.startInitialPrefetch(
-                photos: allPhotos, count: 50
+                photos: allPhotos, count: 30
             )
         }
     }
     
     /// ContentInfo 배치 처리 (동시 요청 수 제한)
     private func fetchContentInfoBatch(urls: [String]) async {
-        let batchSize = 10
-        
+        let batchSize = 5  // 10 → 5 (503 에러 방지)
+
         // 100개를 batchSize씩 나눠서 순차 처리
         for i in stride(from: 0, to: urls.count, by: batchSize) {
             let end = min(i + batchSize, urls.count)
             let batch = Array(urls[i..<end])
-            
+
             await processBatch(batch)
-            
-            // 배치 간 짧은 지연 (네트워크 부하 방지)
-            try? await Task.sleep(nanoseconds: 50_000_000) // 0.05초
+
+            // 배치 간 지연 (ver140 카메라 503 에러 방지)
+            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1초
         }
     }
     
