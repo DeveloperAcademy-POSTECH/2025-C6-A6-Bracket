@@ -103,6 +103,10 @@ struct IPConnectionGuideView: View {
             
             if !ipAddress.isEmpty {
                 parseAndSetURLComponents(from: ipAddress)
+            } else {
+                BaseURLConstants.scheme = "http"
+                BaseURLConstants.cameraIP = "192.168.1.2"
+                BaseURLConstants.port = "8080"
             }
             
             cameraConnectionManager.connectCamera(ipAddress: BaseURLConstants.cameraIP)
