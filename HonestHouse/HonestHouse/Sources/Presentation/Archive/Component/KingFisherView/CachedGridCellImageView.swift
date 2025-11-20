@@ -40,7 +40,6 @@ struct CachedGridCellImageView: View {
             .onFailure { _ in
                 shouldUseFallback = true
             }
-            .cacheOriginalImage()  // 디스크+메모리 캐싱
             .cacheOriginalImage()
             .fade(duration: 0.2)
             .resizable()
