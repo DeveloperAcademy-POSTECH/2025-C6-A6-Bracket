@@ -29,7 +29,7 @@ struct GroupedPhotosGridCellView: View {
     }
     
     private func thumbnailView(for photo: Photo) -> some View {
-        CachedGridCellImageView(url: photo.displayURL, originalURL: photo.url)
+        CachedGridCellImageView(url: photo.displayURL, fallbackURL: photo.url)
             .overlay {
                 thumbnailBorder()
             }

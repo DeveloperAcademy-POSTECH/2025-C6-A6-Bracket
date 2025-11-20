@@ -18,7 +18,7 @@ struct SelectionGridCellView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             NavigationLink(destination: PhotoSelectionDetailView(initialPhoto: photo).environment(vm)) {
-                CachedGridCellImageView(url: photo.thumbnailURL, originalURL: photo.url)
+                CachedGridCellImageView(url: photo.thumbnailURL, fallbackURL: photo.thumbnailURL)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
                             .strokeBorder(isSelected ? Color.yellow1 : Color.clear, lineWidth: 1)

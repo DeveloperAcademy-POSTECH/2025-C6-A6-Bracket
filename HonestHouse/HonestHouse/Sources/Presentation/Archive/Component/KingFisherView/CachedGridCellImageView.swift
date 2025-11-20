@@ -11,7 +11,7 @@ import Kingfisher
 /// 그리드, 그룹 대표 이미지 (GridCell)
 struct CachedGridCellImageView: View {
     let url: String
-    let originalURL: String
+    let fallbackURL: String
     
     @State private var shouldUseFallback = false
     
@@ -40,7 +40,7 @@ struct CachedGridCellImageView: View {
             .onFailure { _ in
                 shouldUseFallback = true
             }
-            .cacheOriginalImage()  // 디스크+메모리 캐싱
+            .cacheOriginalImage()
             .fade(duration: 0.2)
             .resizable()
             .scaledToFit()
@@ -48,7 +48,7 @@ struct CachedGridCellImageView: View {
     }
     
     private func fallbackImageView() -> some View {
-        KFImage(URL(string: originalURL))
+        KFImage(URL(string: fallbackURL))
             .placeholder {
                 Color.clear
             }
@@ -57,5 +57,6 @@ struct CachedGridCellImageView: View {
             .fade(duration: 0.2)
             .resizable()
             .scaledToFit()
+            .scaleEffect(1.12)
     }
 }
