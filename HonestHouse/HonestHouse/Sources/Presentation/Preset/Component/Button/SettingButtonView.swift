@@ -8,54 +8,33 @@
 import SwiftUI
 
 struct SettingButtonView<SelectionType>: View {
-    let type: SettingType
-    let state: ButtonState
+    let type: PresetSettingType
+    let state: PresetButtonState  // 변경
+    let viewMode: PresetDetailViewMode  // 추가
     let value: SelectionType
     let isSelected: Bool
     let action: () -> Void
     
     private var backgroundColor: Color {
-        switch state {
-        case .active:
-            return isSelected ? Color.g0 : Color.g11
-        case .disabled:
-            return Color.g11
-        case .viewOnly:
-            return Color.yellow1
-        }
+        state.backgroundColor(viewMode: viewMode)
     }
     
     private var foregroundColor: Color {
-        switch state {
-        case .active:
-            return isSelected ? Color.g12 : Color.g0
-        case .disabled:
-            return Color.g7
-        case .viewOnly:
-            return Color.g12
-        }
+        state.foregroundColor(viewMode: viewMode)
     }
     
     private var strokeColor: Color {
-        switch state {
-        case .active:
-            return Color.g0
-        case .disabled:
-            return Color.g7
-        case .viewOnly:
-            return Color.clear
-        }
+        state.strokeColor(viewMode: viewMode)
     }
     
-    
     private var isInteractive: Bool {
-        state == .active
+        state.isInteractive
     }
     
     var body: some View {
         VStack(spacing: 16) {
             // 값 표시
-            if type != .cameraMode || type != .pictureStyle {
+            if type != .cameraMode && type != .pictureStyle {
                 Text("\(value)")
                     .fontStyle(.num6)
                     .foregroundColor(Color.g0)
@@ -65,7 +44,6 @@ struct SettingButtonView<SelectionType>: View {
                 if isInteractive {
                     action()
                 }
-                
             } label: {
                 Circle()
                     .frame(width: buttonWidth(for: type), height: buttonHeight(for: type))
@@ -77,17 +55,16 @@ struct SettingButtonView<SelectionType>: View {
                     }
                     .overlay {
                         Circle()
-                            .stroke(strokeColor)
+                            .stroke(strokeColor, lineWidth: 1)
                     }
             }
-            
             .disabled(!isInteractive)
             .animation(.easeInOut(duration: 0.15), value: isSelected)
             .buttonStyle(NoHighlightButtonStyle())
         }
     }
     
-    private func buttonWidth(for type: SettingType) -> CGFloat {
+    private func buttonWidth(for type: PresetSettingType) -> CGFloat {
         switch type {
         case .cameraMode, .pictureStyle, .tintMagentaGreen, .exposure, .colorTemp:
             return 64
@@ -96,7 +73,7 @@ struct SettingButtonView<SelectionType>: View {
         }
     }
     
-    private func buttonHeight(for type: SettingType) -> CGFloat {
+    private func buttonHeight(for type: PresetSettingType) -> CGFloat {
         switch type {
         case .cameraMode, .pictureStyle, .tintMagentaGreen, .exposure, .colorTemp:
             return 64
@@ -105,4 +82,3 @@ struct SettingButtonView<SelectionType>: View {
         }
     }
 }
-

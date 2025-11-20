@@ -12,22 +12,28 @@ final class CircularWheelViewModel {
     var isCircleVisible = false
     var circleSize: CGFloat = 120
     var isDragging = false
+    var viewMode: PresetDetailViewMode
     let settingType: WheelSettingType
-    @ObservationIgnored @Binding var isDimmed: Bool
+    
+    // Dragging 또는 Circle이 보이는 경우 selected 상태로 판단
+    var isActiveState: Bool {
+        isCircleVisible || isDragging
+    }
 
     var circleSizeType: CircularWheelSizeType {
         CircularWheelCalculator.wheelSizeType(from: circleSize)
     }
     
-    init(settingType: WheelSettingType, isDimmed: Binding<Bool>) {
+    init(viewMode: PresetDetailViewMode, settingType: WheelSettingType) {
+        self.viewMode = viewMode
         self.settingType = settingType
-        self._isDimmed = isDimmed
     }
     
     func toggleCircle() {
+        if viewMode == .view { return }
+        
         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
             isCircleVisible.toggle()
-            isDimmed = isCircleVisible
             if !isCircleVisible {
                 circleSize = 120
             }
@@ -35,8 +41,10 @@ final class CircularWheelViewModel {
     }
     
     func startDragging() {
+        if viewMode == .view { return }
+        
         isDragging = true
-        isDimmed = true
+        
         if !isCircleVisible {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 isCircleVisible = true
@@ -46,12 +54,15 @@ final class CircularWheelViewModel {
     }
     
     func updateCircleSize(with distance: CGFloat) {
+        if viewMode == .view { return }
+        
         circleSize = CircularWheelCalculator.mapDragTowheelSize(distance)
     }
     
     func endDragging() {
+        if viewMode == .view { return }
+        
         isDragging = false
-        isDimmed = false
         
         withAnimation {
             circleSize = 120
@@ -60,4 +71,3 @@ final class CircularWheelViewModel {
         toggleCircle()
     }
 }
-

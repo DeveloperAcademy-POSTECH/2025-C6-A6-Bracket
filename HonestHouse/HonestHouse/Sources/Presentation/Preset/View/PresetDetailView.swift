@@ -9,38 +9,66 @@ import SwiftUI
 import SwiftData
 
 struct PresetDetailView: View {
-    @Bindable var vm: PresetDetailViewModel
-    @State private var showDeleteAlert = false
+    @State private var wheelManager = WheelStateManager()
+    @State var vm: PresetDetailViewModel
     @State private var showUnsavedChangesAlert = false
     @FocusState private var isNameFieldFocused: Bool
-    @Environment(\.dismiss) private var dismiss // TODO: - vm에서 nvrouter로 관리
     
     var body: some View {
         ZStack {
             Color.g12.ignoresSafeArea(.all)
-            
+        
             VStack(spacing: 0) {
                 nameView()
                 previewView()
-                settingsView()
+                
+                ZStack {
+                    if wheelManager.isAnyWheelActive {
+                        Color.black
+                            .opacity(0.8)
+                            .onTapGesture {
+                                wheelManager.deactivateWheel()
+                            }
+                        .ignoresSafeArea()
+                    }
+                    
+                    settingsView()
+                }
+            }
+            
+            if vm.showOptionsMenu {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        vm.showOptionsMenu = false
+                    }
+                
+                VStack {
+                    HStack {
+                        Spacer()
+                        OptionsMenuView(items: vm.getMenuItems())
+                            .padding(.top, 8)
+                            .padding(.trailing, 20)
+                    }
+                    Spacer()
+                }
             }
         }
+        .environment(wheelManager)
         .navigationBarWithBack(title: "", showShadow: false) {
             if vm.viewMode == .create {
                 showUnsavedChangesAlert = true
             } else if vm.hasUnsavedChanges() {
                 showUnsavedChangesAlert = true
             } else {
-                dismiss()
+                vm.send(.popToPresetView)
             }
         } rightView: {
-            if vm.viewMode == .create {
-                saveButtonView()
-            }
+            navigationRightView()
         }
         .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
             Button("삭제하기", role: .destructive) {
-                dismiss()
+                vm.send(.popToPresetView)
             }
             Button("취소", role: .cancel) { }
         } message: {
@@ -48,12 +76,12 @@ struct PresetDetailView: View {
         }
         .customAlert(
             title: "정말 삭제하시겠습니까?",
+            message: "",
             isPresented: $vm.showDeleteAlert
         ) {
             AlertButton.cancel("취소")
             AlertButton.delete("삭제하기") {
-                // TODO: 삭제 기능 구현 후 vm.deletePreset() 호출
-                // vm.deletePreset()
+                vm.deletePreset()
             }
         }
         .customErrorAlert(error: $vm.currentError) { error in
@@ -101,6 +129,31 @@ struct PresetDetailView: View {
         }
     }
     
+    // Navigation Right View
+    @ViewBuilder
+    private func navigationRightView() -> some View {
+        switch vm.viewMode {
+        case .view:
+            // View 모드: 3점 메뉴만
+            optionsMenuButton()
+            
+        case .edit, .create:
+            // Edit/Create 모드: 저장 버튼만
+            saveButtonView()
+        }
+    }
+    
+    private func optionsMenuButton() -> some View {
+        Button {
+            vm.showOptionsMenu.toggle()
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 18))
+                .foregroundStyle(Color.g0)
+                .rotationEffect(.degrees(90))
+        }
+    }
+    
     private func saveButtonView() -> some View {
         Button {
             Task {
@@ -110,16 +163,6 @@ struct PresetDetailView: View {
         } label: {
             Text("저장")
                 .foregroundStyle(Color.g0)
-        }
-    }
-
-    // TODO: 임의로 구현해둔 deleteButton이므로 추후 수정 필요
-    private func deleteButtonView() -> some View {
-        Button {
-            vm.showDeleteAlert = true
-        } label: {
-            Image(systemName: "trash")
-                .foregroundStyle(Color.red1)
         }
     }
     
@@ -133,7 +176,6 @@ struct PresetDetailView: View {
                     .truncationMode(.tail)
             } else {
                 PresetNameTextFieldView(placeholder: "프리셋 이름", text: $vm.currentPreset.name)
-                    
             }
         }
         .padding(.horizontal, 20)
@@ -154,10 +196,17 @@ struct PresetDetailView: View {
     private func settingsView() -> some View {
         VStack(spacing: 52) {
             primarySettingsView()
+                .blur(radius: wheelManager.isAnyWheelActive ? 3 : 0)
+                .opacity(wheelManager.isAnyWheelActive ? 0.5 : 1)
+                .allowsHitTesting(!wheelManager.isAnyWheelActive)
             
             if let activePicker = vm.activePicker {
                 pickerView(for: activePicker)
+                    .blur(radius: wheelManager.isAnyWheelActive ? 3 : 0)
+                    .opacity(wheelManager.isAnyWheelActive ? 0.5 : 1)
+                    .allowsHitTesting(!wheelManager.isAnyWheelActive)
             }
+            
             secondarySettingsSView()
         }
         .frame(maxHeight: .infinity)
@@ -186,6 +235,7 @@ struct PresetDetailView: View {
             SettingButtonView(
                 type: .aperture,
                 state: vm.getButtonState(for: .aperture),
+                viewMode: vm.viewMode,
                 value: vm.currentPreset.displayAperture,
                 isSelected: vm.activePicker == .aperture,
                 action: {
@@ -197,6 +247,7 @@ struct PresetDetailView: View {
             SettingButtonView(
                 type: .shutterSpeed,
                 state: vm.getButtonState(for: .shutterSpeed),
+                viewMode: vm.viewMode,
                 value: vm.currentPreset.displayShutterSpeed,
                 isSelected: vm.activePicker == .shutterSpeed,
                 action: {
@@ -208,6 +259,7 @@ struct PresetDetailView: View {
             SettingButtonView(
                 type: .iso,
                 state: vm.getButtonState(for: .iso),
+                viewMode: vm.viewMode,
                 value: vm.currentPreset.displayISO,
                 isSelected: vm.activePicker == .iso,
                 action: {
@@ -215,23 +267,23 @@ struct PresetDetailView: View {
                 }
             )
             
-            // Picture Style (픽쳐 스타일)
+            // Picture Style (픽처 스타일)
             SettingButtonView(
                 type: .pictureStyle,
                 state: vm.getButtonState(for: .pictureStyle),
+                viewMode: vm.viewMode,
                 value: vm.currentPreset.pictureStyle.rawValue,
                 isSelected: vm.activePicker == .pictureStyle,
                 action: {
                     handleSettingButtonTap(.pictureStyle)
                 }
             )
-            
         }
         .frame(maxWidth: .infinity)
     }
     
     @ViewBuilder
-    private func pickerView(for type: SettingType) -> some View {
+    private func pickerView(for type: PresetSettingType) -> some View {
         switch type {
         case .cameraMode:
             NonOptionalLinearWheelPickerView(
@@ -353,30 +405,45 @@ struct PresetDetailView: View {
     // Secondary Settings Section
     private func secondarySettingsSView() -> some View {
         HStack(alignment: .center, spacing: 54) {
-            
             // Tint Magenta Green (마젠타-그린)
-            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .tintMagentaGreen, isDimmed: $vm.isDimmed))
+            CircularWheelPickerView(
+                preset: $vm.currentPreset,
+                vm: .init(viewMode: vm.viewMode, settingType: .tintMagentaGreen),
+                baseButtonState: vm.getButtonState(for: .tintMagentaGreen),
+                presetViewModel: vm
+            )
             
             // Exposure Compensation (노출 보정)
-            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .exposureCompensation, isDimmed: $vm.isDimmed))
+            CircularWheelPickerView(
+                preset: $vm.currentPreset,
+                vm: .init(viewMode: vm.viewMode, settingType: .exposureCompensation),
+                baseButtonState: vm.getButtonState(for: .exposure),
+                presetViewModel: vm
+            )
             
             // Color Temperature (색온도)
-            CircularWheelPickerView(preset: $vm.currentPreset, vm: .init(settingType: .colorTemperature, isDimmed: $vm.isDimmed))
+            CircularWheelPickerView(
+                preset: $vm.currentPreset,
+                vm: .init(viewMode: vm.viewMode, settingType: .colorTemperature),
+                baseButtonState: vm.getButtonState(for: .colorTemp),
+                presetViewModel: vm
+            )
         }
         .frame(maxWidth: .infinity)
     }
     
-    private func handleSettingButtonTap(_ type: SettingType){
+    private func handleSettingButtonTap(_ type: PresetSettingType) {
+        // View 모드는 일단 무시 (나중에 Edit 전환 구현 예정)
         guard vm.viewMode != .view else {
-            vm.switchToEditMode()
             return
         }
-        
+
         // 편집 불가능한 설정은 무시
         guard vm.isSettingEditable(type) else {
             return
         }
         
+        // Picker 토글
         if vm.activePicker == type {
             vm.activePicker = nil
         } else {
@@ -396,5 +463,3 @@ struct PresetDetailView: View {
 #Preview("Create Mode") {
     PresetDetailView(vm: .init(container: .stub, mode: .create, preset: .stub3))
 }
-
-

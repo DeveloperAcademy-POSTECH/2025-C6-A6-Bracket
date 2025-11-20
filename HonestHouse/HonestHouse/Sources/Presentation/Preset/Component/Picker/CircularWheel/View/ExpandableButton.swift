@@ -11,15 +11,37 @@ struct ExpandableButton: View {
     @Bindable var viewModel: CircularWheelViewModel
     @Binding var value: Int
     let coordinateSpace: String
+    let buttonState: PresetButtonState
+    let viewMode: PresetDetailViewMode
+    
+    private var backgroundColor: Color {
+        buttonState.backgroundColor(viewMode: viewMode)
+    }
+    
+    private var foregroundColor: Color {
+        buttonState.foregroundColor(viewMode: viewMode)
+    }
+    
+    private var strokeColor: Color {
+        buttonState.strokeColor(viewMode: viewMode)
+    }
     
     var body: some View {
         Button {
-            viewModel.toggleCircle()
+//            viewModel.toggleCircle()
         } label: {
             viewModel.settingType.icon
+                .renderingMode(.template)
+                .foregroundStyle(foregroundColor)
                 .frame(width: 64, height: 64)
+                .background(backgroundColor)
+                .clipShape(Circle())
+                .overlay {
+                    Circle()
+                        .stroke(strokeColor, lineWidth: 1)
+                }
         }
-        .buttonStyle(PresetDetailSettingButtonStyle(.activated))
+        .buttonStyle(NoHighlightButtonStyle())
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { dragValue in

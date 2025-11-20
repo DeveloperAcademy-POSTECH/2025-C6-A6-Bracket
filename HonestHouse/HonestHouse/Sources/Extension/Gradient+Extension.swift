@@ -11,9 +11,9 @@ extension LinearGradient {
     
     static let magentaGreenGradient: LinearGradient = .init(
         colors: [
-            .init(hex: "FF5CC6"),
+            .init(hex: "59FF6D"),
             .init(hex: "FFFFFF"),
-            .init(hex: "59FF6D")
+            .init(hex: "FF5CC6")
         ],
         startPoint: .topLeading,
         endPoint: .bottomTrailing

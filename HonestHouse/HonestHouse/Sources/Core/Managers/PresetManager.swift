@@ -28,7 +28,7 @@ final class PresetManager: PresetManagerType {
     /// ID로 Preset 조회
     func fetchPreset(by id: UUID) throws -> Preset? {
         let request = PresetEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        request.predicate = NSPredicate(format: "presetId == %@", id as CVarArg)
         request.fetchLimit = 1
         
         let entities = try viewContext.fetch(request)
@@ -132,7 +132,7 @@ final class PresetManager: PresetManagerType {
         Logger.info("Updating preset: \(preset.name)", category: .coreData)
         
         let request = PresetEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", preset.id as CVarArg)
+        request.predicate = NSPredicate(format: "presetId == %@", preset.id as CVarArg)
         request.fetchLimit = 1
         
         guard let entity = try viewContext.fetch(request).first else {
@@ -157,7 +157,7 @@ final class PresetManager: PresetManagerType {
         Logger.info("Deleting preset with id: \(id)", category: .coreData)
         
         let request = PresetEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        request.predicate = NSPredicate(format: "presetId == %@", id as CVarArg)
         request.fetchLimit = 1
         
         guard let entity = try viewContext.fetch(request).first else {

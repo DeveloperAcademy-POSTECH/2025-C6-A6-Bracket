@@ -38,7 +38,7 @@ struct MainView: View {
                             vm.showModeChange = false
                         }
 
-                    modeChangeView()
+                    OptionsMenuView(items: vm.getMenuItems())
                         .safeAreaPadding(.top, 34)
                         .safeAreaPadding(.trailing, 52)
                 }
@@ -144,54 +144,6 @@ struct MainView: View {
         .padding(.vertical, 10)
     }
     
-    private func modeChangeView() -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Button {
-                vm.toggleEditMode()
-                vm.showModeChange = false
-            } label: {
-                HStack(spacing: 10) {
-                    Image(.presetSelect)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                    Text("Preset 선택")
-                        .fontStyle(.num3)
-                        .foregroundStyle(Color.g0)
-                }
-            }
-            Divider()
-                .foregroundStyle(Color.g7)
-                .frame(height: 0.5)
-            Button {
-                vm.viewMode = vm.viewMode == .grid ? .list : .grid
-                vm.showModeChange = false
-            } label: {
-                HStack(spacing: 10) {
-                    Image(vm.viewMode == .grid ? .list : .squareGrid)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                    Text(vm.viewMode == .grid ? "목록으로 보기" : "갤러리로 보기")
-                        .fontStyle(.num3)
-                        .foregroundStyle(Color.g0)
-                }
-            }
-        }
-        .frame(width: 250)
-        .padding(.vertical, 24)
-        .padding(.horizontal, 21)
-        .background {
-            VisualEffectBlurView()
-                .blur(radius: 6, opaque: true)
-                .overlay {
-                    (Color.g10.opacity(0.8))
-                }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-        .shadow(radius: 20, x: 0, y: 4)
-    }
-    
     private func segmentedControlView() -> some View {
         Picker("", selection: Binding(
             get: { vm.selectedSegment },
@@ -220,4 +172,5 @@ struct MainView: View {
 #Preview {
     MainView(vm: .init(container: .stub))
         .environmentObject(DIContainer.stub)
+        .environmentObject(CameraConnectionManager.init())
 }

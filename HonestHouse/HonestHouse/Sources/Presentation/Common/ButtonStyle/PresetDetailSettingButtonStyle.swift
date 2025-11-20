@@ -15,9 +15,11 @@ enum PresetDetailSettingButtonType {
 
 struct PresetDetailSettingButtonStyle: ButtonStyle {
     private let type: PresetDetailSettingButtonType
+    private let viewMode: PresetDetailViewMode
     
-    init(_ type: PresetDetailSettingButtonType) {
+    init(_ type: PresetDetailSettingButtonType, _ viewMode: PresetDetailViewMode) {
         self.type = type
+        self.viewMode = viewMode
     }
     
     func makeBody(configuration: Configuration) -> some View {
@@ -44,8 +46,8 @@ struct PresetDetailSettingButtonStyle: ButtonStyle {
             
         case .selected:
             configuration.label
-                .foregroundStyle(Color.g0)
-                .background(Color.g11)
+                .foregroundStyle(Color.g12)
+                .background(Color.g0)
                 .fontStyle(.num6)
                 .clipShape(Circle())
                 .overlay {
