@@ -298,6 +298,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HonestHouse/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Bracket;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "앨범의 사진을 가져와서 확인하고 기기에 저장하기 위해 사진 앱에 접근 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -333,6 +334,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HonestHouse/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Bracket;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "앨범의 사진을 가져와서 확인하고 기기에 저장하기 위해 사진 앱에 접근 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

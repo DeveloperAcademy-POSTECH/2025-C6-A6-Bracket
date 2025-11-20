@@ -1,43 +1,48 @@
 //
-//  ConnectionGuideView.swift
+//  IPConnectionGuideView.swift
 //  HonestHouse
 //
-//  Created by Rama on 11/3/25.
+//  Created by Rama on 11/18/25.
 //
 
 import SwiftUI
 
-struct ConnectionGuideView: View {
+struct IPConnectionGuideView: View {
     @EnvironmentObject var cameraConnectionManager: CameraConnectionManager
     
     @State private var ipAddress: String = ""
     @State private var showSuccessAlert = false
     @State private var showFailureAlert = false
     @State private var connectionError: ConnectionError?
-    @State private var navigateToCompletion = false
-    
-    let type: ConnectionType
     
     var body: some View {
-        VStack(spacing: 24) {
-            if type == .ip { ipAddressTextField() }
-            
-            ForEach(Array(type.guideDescription.enumerated()), id: \.offset) { index, description in
-                guideStepView(number: index + 1, description: description)
+        ZStack {
+            VStack(spacing: 36) {
+                ConnectionNavigationBar(title: "주소 연결")
+                    .padding(.top, 26)
+                
+                ipAddressTextField()
+                
+                VStack(spacing: 24) {
+                    ForEach(Array(ConnectionType.ip.guideDescription.enumerated()), id: \.offset) { index, description in
+                        GuideStepView(number: index + 1, description: description)
+                    }
+                }
+                
+                Spacer()
             }
             
-            Spacer()
-            
-            connectButton()
+            VStack {
+                Spacer()
+                
+                connectButton()
+            }
         }
-        .padding(.vertical, 38)
         .padding(.horizontal, 16)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                Text("\(type.guideTitle)")
-                    .fontStyle(.num4)
-                    .foregroundColor(.g0)
-            }
+        .navigationBarHidden(true)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            hideKeyboard()
         }
         .onChange(of: cameraConnectionManager.connectionState) { _, newState in
             switch newState {
@@ -64,24 +69,10 @@ struct ConnectionGuideView: View {
         }
     }
     
-    private func guideStepView(number: Int, description: String) -> some View {
-        HStack(alignment: .top, spacing: 20) {
-            Image("guideNumber\(number)")
-                .resizable()
-                .frame(width: 28, height: 28)
-            
-            Text(description)
-                .fontStyle(.num4)
-                .foregroundStyle(Color.g0)
-            
-            Spacer()
-        }
-    }
-    
     private func ipAddressTextField() -> some View {
         ZStack(alignment: .center) {
             if ipAddress.isEmpty {
-                Text("예시) https://192.168.1.2:443")
+                Text("192.168.1.2:443")
                     .fontStyle(.num4)
                     .foregroundColor(.g6)
             }
@@ -109,37 +100,31 @@ struct ConnectionGuideView: View {
             if cameraConnectionManager.connectionState != .connecting {
                 cameraConnectionManager.connectionState = .disconnected
             }
-
+            
             if !ipAddress.isEmpty {
                 parseAndSetURLComponents(from: ipAddress)
             }
-
+            
             cameraConnectionManager.connectCamera(ipAddress: BaseURLConstants.cameraIP)
         } label: {
             Text("연결하기")
                 .fontStyle(.num3)
                 .foregroundColor(.g12)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 15)
-                .background(Color.g0)
+                .padding(.vertical, 14)
+                .background(Color.yellow1)
                 .cornerRadius(62)
         }
         .padding(.horizontal, 16)
     }
+}
 
+extension IPConnectionGuideView {
     private func parseAndSetURLComponents(from urlString: String) {
         guard let url = URL(string: urlString) else { return }
         
-        if let scheme = url.scheme {
-            BaseURLConstants.scheme = scheme
-        }
-        
-        if let host = url.host {
-            BaseURLConstants.cameraIP = host
-        }
-
-        if let port = url.port {
-            BaseURLConstants.port = String(port)
-        }
+        if let scheme = url.scheme { BaseURLConstants.scheme = scheme }
+        if let host = url.host { BaseURLConstants.cameraIP = host }
+        if let port = url.port { BaseURLConstants.port = String(port) }
     }
 }
