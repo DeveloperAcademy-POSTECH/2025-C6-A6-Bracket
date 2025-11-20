@@ -20,7 +20,6 @@ struct CameraConnectionView: View {
                     Spacer().frame(height: 53)
                     
                     VStack(spacing: 16) {
-                        connectButtonView(type: .bluetooth)
                         connectButtonView(type: .ip)
                     }
                     .padding(.horizontal)
