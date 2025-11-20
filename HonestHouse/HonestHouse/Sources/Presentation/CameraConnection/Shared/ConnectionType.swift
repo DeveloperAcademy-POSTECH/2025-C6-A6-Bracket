@@ -23,9 +23,9 @@ enum ConnectionType {
     var title: String {
         switch self {
         case .bluetooth:
-            return "블루투스 연결"
+            return "블루투스"
         case .ip:
-            return "주소 연결"
+            return "주소"
         }
     }
     

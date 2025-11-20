@@ -11,5 +11,9 @@
 		<string>SFMonoMedium.otf</string>
 		<string>SFMonoSemibold.otf</string>
 	</array>
+	<key>UIDeviceFamily</key>
+	<array>
+		<integer>1</integer>
+	</array>
 </dict>
 </plist>
