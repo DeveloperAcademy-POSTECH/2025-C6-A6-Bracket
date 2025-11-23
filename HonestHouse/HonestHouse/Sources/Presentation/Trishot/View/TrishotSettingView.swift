@@ -52,7 +52,7 @@ struct TrishotSettingView: View {
     private func emptySlotView(_ index: Int) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Preset \(index + 1)")
-                .fontStyle(.title3)
+                .fontStyle(.num4)
                 .foregroundStyle(Color.g0)
             Button {
                 vm.send(action: .goToPresetCreation)
