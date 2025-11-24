@@ -51,8 +51,8 @@ struct TrishotSettingView: View {
     /// 등록된 프리셋 없는 경우
     private func emptySlotView(_ index: Int) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("프리셋 \(index + 1)")
-                .fontStyle(.title3)
+            Text("Preset \(index + 1)")
+                .fontStyle(.num4)
                 .foregroundStyle(Color.g0)
             Button {
                 vm.send(action: .goToPresetCreation)
