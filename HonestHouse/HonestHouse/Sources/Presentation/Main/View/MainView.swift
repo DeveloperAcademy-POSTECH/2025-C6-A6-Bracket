@@ -31,6 +31,10 @@ struct MainView: View {
                     NavigationRoutingView(destination: $0)
                 }
 
+                if vm.selectedSegment == .preset && vm.presets.isEmpty {
+                    presetEmptyStateView
+                }
+
                 if vm.showModeChange {
                     Color.clear
                         .contentShape(Rectangle())
@@ -166,6 +170,41 @@ struct MainView: View {
         } else if vm.selectedSegment == .preset {
             PresetView(vm: vm)
         }
+    }
+
+    private var presetEmptyStateView: some View {
+        VStack(spacing: 0) {
+            Spacer()
+            HStack(spacing: 0) {
+                Text("하단의")
+                    .fontStyle(.num4)
+                    .foregroundStyle(Color.g9)
+                    .padding(.trailing, 8)
+                Image(.plus)
+                    .resizable()
+                    .renderingMode(.template)
+                    .scaledToFit()
+                    .frame(width: 12, height: 12)
+                    .foregroundStyle(Color.g9)
+                    .padding(2.5)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(Color.g9, lineWidth: 1)
+                    )
+                Text("버튼을 눌러")
+                    .fontStyle(.num4)
+                    .foregroundStyle(Color.g9)
+                    .padding(.leading, 4)
+            }
+
+            Text("Preset을 생성해보세요!")
+                .fontStyle(.num4)
+                .foregroundStyle(Color.g9)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .allowsHitTesting(false)
     }
 }
 
