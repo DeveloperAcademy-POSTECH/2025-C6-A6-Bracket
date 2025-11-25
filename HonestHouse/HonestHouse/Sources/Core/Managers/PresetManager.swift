@@ -193,26 +193,6 @@ final class PresetManager: PresetManagerType {
         entity.updatedAt = preset.updatedAt
     }
     
-    /// Preset 상세 정보 로깅
-    private func logPresetDetails(_ preset: Preset) {
-        Logger.debug("""
-        📋 Preset Details:
-          - Name: \(preset.name)
-          - ID: \(preset.id)
-          - PictureStyle: \(preset.pictureStyle.rawValue)
-          - ShootingMode: \(preset.shootingMode.rawValue)
-          - Aperture: \(preset.aperture ?? "nil")
-          - ShutterSpeed: \(preset.shutterSpeed ?? "nil")
-          - ISO: \(preset.iso ?? "nil")
-          - ExposureCompensation: \(preset.exposureCompensation ?? "nil")
-          - ColorTemperature: \(preset.colorTemperature?.description ?? "nil")
-          - TintBlueAmber: \(preset.tintBlueAmber?.description ?? "nil")
-          - TintMagentaGreen: \(preset.tintMagentaGreen?.description ?? "nil")
-          - CreatedAt: \(preset.createdAt)
-          - UpdatedAt: \(preset.updatedAt)
-        """, category: .coreData)
-    }
-    
     /// Context 저장
     private func saveContext() throws {
         if viewContext.hasChanges {
