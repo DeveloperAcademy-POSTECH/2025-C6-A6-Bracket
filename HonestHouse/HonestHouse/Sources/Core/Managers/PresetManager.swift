@@ -155,15 +155,26 @@ final class PresetManager: PresetManagerType {
     /// ID로 Preset 삭제
     func deletePreset(by id: UUID) throws {
         Logger.info("Deleting preset with id: \(id)", category: .coreData)
-        
-        let request = PresetEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "presetId == %@", id as CVarArg)
-        request.fetchLimit = 1
-        
-        guard let entity = try viewContext.fetch(request).first else {
+
+        let presetRequest = PresetEntity.fetchRequest()
+        presetRequest.predicate = NSPredicate(format: "presetId == %@", id as CVarArg)
+        presetRequest.fetchLimit = 1
+
+        guard let entity = try viewContext.fetch(presetRequest).first else {
             throw PresetManagerError.presetNotFound(id)
         }
         
+        // 먼저 관련된 SelectedPresetEntity 삭제
+        let selectedPresetRequest = SelectedPresetEntity.fetchRequest()
+        selectedPresetRequest.predicate = NSPredicate(format: "preset.presetId == %@", id as CVarArg)
+
+        let selectedPresetEntities = try viewContext.fetch(selectedPresetRequest)
+        for selectedPresetEntity in selectedPresetEntities {
+            viewContext.delete(selectedPresetEntity)
+            Logger.debug("Deleted related SelectedPresetEntity (order: \(selectedPresetEntity.order))", category: .coreData)
+        }
+
+        // 그 다음 PresetEntity 삭제
         viewContext.delete(entity)
         
         try saveContext()
