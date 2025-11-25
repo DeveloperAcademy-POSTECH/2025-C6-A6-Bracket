@@ -35,6 +35,18 @@ struct PresetDetailView: View {
                     settingsView()
                 }
             }
+            .padding(.top, isNameFieldFocused ? 44 : 0)
+            .animation(.easeInOut(duration: 0.25), value: isNameFieldFocused)
+
+            // 키보드 떴을 때 배경 터치로 키보드 내리기
+            if isNameFieldFocused {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        isNameFieldFocused = false
+                    }
+            }
             
             if vm.showOptionsMenu {
                 Color.clear
