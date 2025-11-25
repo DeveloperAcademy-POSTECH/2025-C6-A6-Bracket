@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import CoreData
+import Combine
 
 enum TrishotSettingAction {
     case goToTrishotSelection(order: Int)
@@ -18,12 +19,14 @@ enum TrishotSettingAction {
 @Observable
 final class TrishotSettingViewModel {
     private let container: DIContainer
+    private var cancellables = Set<AnyCancellable>()
 
     var allSelectedPresets: [Preset] = []
 
     init(container: DIContainer) {
         self.container = container
         loadPresets()
+        observePresetChanges()
     }
 
     func loadPresets() {
@@ -32,6 +35,14 @@ final class TrishotSettingViewModel {
         } catch {
             Logger.error("Failed to load selected presets: \(error.localizedDescription)", category: .trishot)
         }
+    }
+
+    private func observePresetChanges() {
+        container.presetStateObserver.$didChange
+            .sink { [weak self] _ in
+                self?.loadPresets()
+            }
+            .store(in: &cancellables)
     }
 }
 

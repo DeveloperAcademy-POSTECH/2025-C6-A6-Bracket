@@ -225,6 +225,9 @@ class PresetDetailViewModel {
             // 성공 시 View 모드로 전환
             switchToViewMode()
 
+            // 프리셋 변경 알림
+            container.presetStateObserver.notifyPresetChanged()
+            
         } catch {
             throw error
         }
@@ -259,6 +262,10 @@ class PresetDetailViewModel {
         do {
             try container.managers.presetManager.deletePreset(by: currentPreset.id)
             Logger.info("Preset deleted successfully: \(currentPreset.id)", category: .preset)
+            
+            // 프리셋 변경 알림
+            container.presetStateObserver.notifyPresetChanged()
+            
             // 삭제 성공 시 PresetView로 이동
             send(.popToPresetView)
         } catch let presetManagerError as PresetManagerError {

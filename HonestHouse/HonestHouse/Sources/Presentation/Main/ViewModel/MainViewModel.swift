@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 enum MainAction {
     case goToPresetEditor(PresetDetailViewMode, Preset?)
@@ -16,6 +17,7 @@ enum MainAction {
 @Observable
 final class MainViewModel {
     private let container: DIContainer
+    private var cancellables = Set<AnyCancellable>()
 
     var selectedSegment: MainViewSegmentType = .trishot
     var segments: [MainViewSegmentType] = [.trishot, .preset]
@@ -38,6 +40,15 @@ final class MainViewModel {
     
     init(container: DIContainer) {
         self.container = container
+        observePresetChanges()
+    }
+    
+    private func observePresetChanges() {
+        container.presetStateObserver.$didChange
+            .sink { [weak self] _ in
+                self?.loadPresets()
+            }
+            .store(in: &cancellables)
     }
     
     func send(action: MainAction) {
@@ -108,9 +119,11 @@ final class MainViewModel {
                 try container.managers.presetManager.deletePreset(by: id)
             }
             selectedPresets.removeAll()
-            loadPresets()
             showDeleteAlert = false
             exitEditMode()
+            
+            // 프리셋 변경 알림 (observePresetChanges가 자동으로 loadPresets 호출)
+            container.presetStateObserver.notifyPresetChanged()
         } catch let presetManagerError as PresetManagerError {
             currentError = PresetError.fromPresetManager(presetManagerError)
         } catch let presetError as PresetError {
