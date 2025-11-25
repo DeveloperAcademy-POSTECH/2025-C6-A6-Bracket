@@ -78,13 +78,13 @@ struct PresetDetailView: View {
         } rightView: {
             navigationRightView()
         }
-        .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
-            Button("삭제하기", role: .destructive) {
+        .customAlert(title: "이 프리셋이 저장되지 않았습니다.\n정말 나가시겠습니까?",
+                     isPresented: $showUnsavedChangesAlert
+        ) {
+            AlertButton.cancel("취소")
+            AlertButton.delete("삭제하기") {
                 vm.send(.popToPresetView)
             }
-            Button("취소", role: .cancel) { }
-        } message: {
-            Text("이 프리셋이 저장되지 않았습니다.\n정말 나가시겠습니까?")
         }
         .customAlert(
             title: "정말 삭제하시겠습니까?",
