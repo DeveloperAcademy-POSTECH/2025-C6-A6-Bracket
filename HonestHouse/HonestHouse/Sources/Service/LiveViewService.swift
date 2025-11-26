@@ -57,7 +57,7 @@ final class LiveViewService: StreamService, LiveViewServiceType {
                         await self.parser.appendChunk(data)
                         let frames = await self.parser.extractFrames()
                         if !frames.isEmpty {
-                            Logger.debug("Parsed \(frames.count) frame(s)", category: .network)
+//                            Logger.debug("Parsed \(frames.count) frame(s)", category: .network)
                             await MainActor.run {
                                 for frame in frames {
                                     onFrame(frame)
@@ -173,7 +173,7 @@ final class LiveViewService: StreamService, LiveViewServiceType {
                 Logger.debug("Buffer content (hex): \(buffer.prefix(50).map { String(format: "%02X", $0) }.joined(separator: " "))", category: .network)
             }
         } else {
-            Logger.debug("Parsed \(frameCount) frame(s), \(buffer.count) bytes remaining", category: .network)
+//            Logger.debug("Parsed \(frameCount) frame(s), \(buffer.count) bytes remaining", category: .network)
         }
     }
 
@@ -181,7 +181,7 @@ final class LiveViewService: StreamService, LiveViewServiceType {
         Logger.debug("parseFrame: buffer size = \(buffer.count) bytes", category: .network)
 
         guard buffer.count >= 9 else {
-            Logger.debug("Buffer too small (< 9 bytes), waiting for more data", category: .network)
+//            Logger.debug("Buffer too small (< 9 bytes), waiting for more data", category: .network)
             return nil
         }
 
@@ -219,25 +219,25 @@ final class LiveViewService: StreamService, LiveViewServiceType {
         Logger.debug("Total frame size = \(totalSize) bytes (header:7 + data:\(dataSize) + end:2)", category: .network)
 
         guard buffer.count >= totalSize else {
-            Logger.debug("Buffer too small (need \(totalSize), have \(buffer.count)), waiting for more data", category: .network)
+//            Logger.debug("Buffer too small (need \(totalSize), have \(buffer.count)), waiting for more data", category: .network)
             return nil
         }
 
         let endByteIndex = 7 + Int(dataSize)
-        Logger.debug("Checking End Byte at index \(endByteIndex): [0x\(String(format: "%02X", buffer[endByteIndex]))] [0x\(String(format: "%02X", buffer[endByteIndex + 1]))]", category: .network)
+//        Logger.debug("Checking End Byte at index \(endByteIndex): [0x\(String(format: "%02X", buffer[endByteIndex]))] [0x\(String(format: "%02X", buffer[endByteIndex + 1]))]", category: .network)
         
         guard buffer[endByteIndex] == 0xFF && buffer[endByteIndex + 1] == 0xFF else {
-            Logger.warning("Invalid End Byte (expected 0xFF 0xFF)", category: .network)
+//            Logger.warning("Invalid End Byte (expected 0xFF 0xFF)", category: .network)
             buffer.removeFirst(7)
             return nil
         }
         Logger.debug("End Byte OK", category: .network)
 
         let frameData = buffer[7..<(7 + Int(dataSize))]
-        Logger.debug("Extracting frame data: \(frameData.count) bytes", category: .network)
+//        Logger.debug("Extracting frame data: \(frameData.count) bytes", category: .network)
 
         buffer.removeFirst(totalSize)
-        Logger.debug("Removed \(totalSize) bytes from buffer, remaining: \(buffer.count) bytes", category: .network)
+//        Logger.debug("Removed \(totalSize) bytes from buffer, remaining: \(buffer.count) bytes", category: .network)
 
         let frame = ParsedFrame(
             type: dataType,
@@ -245,22 +245,22 @@ final class LiveViewService: StreamService, LiveViewServiceType {
             timestamp: Date()
         )
 
-        switch dataType {
-        case .image:
-            if let image = frame.image {
-                Logger.debug("JPEG decoded successfully: \(image.size.width)x\(image.size.height)", category: .network)
-            } else {
-                Logger.warning("JPEG decoding failed", category: .network)
-            }
-        case .info:
-            if let info = frame.info {
-                Logger.debug("Info decoded successfully: \(info.afFrame?.count ?? 0) AF frames", category: .network)
-            } else {
-                Logger.warning("Info decoding failed", category: .network)
-            }
-        case .event:
-            Logger.debug("Event frame received", category: .network)
-        }
+//        switch dataType {
+//        case .image:
+//            if let image = frame.image {
+//                Logger.debug("JPEG decoded successfully: \(image.size.width)x\(image.size.height)", category: .network)
+//            } else {
+//                Logger.warning("JPEG decoding failed", category: .network)
+//            }
+//        case .info:
+//            if let info = frame.info {
+//                Logger.debug("Info decoded successfully: \(info.afFrame?.count ?? 0) AF frames", category: .network)
+//            } else {
+//                Logger.warning("Info decoding failed", category: .network)
+//            }
+//        case .event:
+//            Logger.debug("Event frame received", category: .network)
+//        }
 
         return frame
     }

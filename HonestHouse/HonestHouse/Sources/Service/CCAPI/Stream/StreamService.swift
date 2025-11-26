@@ -142,8 +142,8 @@ private class StreamDelegate: NSObject, URLSessionDataDelegate {
 
         let dataCopy = Data(buffer)
 
-        Logger.debug("Received chunk: \(data.count) bytes, buffer total: \(buffer.count) bytes", category: .network)
-        Logger.debug("First 20 bytes: \(dataCopy.prefix(20).map { String(format: "%02X", $0) }.joined(separator: " "))", category: .network)
+//        Logger.debug("Received chunk: \(data.count) bytes, buffer total: \(buffer.count) bytes", category: .network)
+//        Logger.debug("First 20 bytes: \(dataCopy.prefix(20).map { String(format: "%02X", $0) }.joined(separator: " "))", category: .network)
 
         onBinaryDataReceived(dataCopy)
 
