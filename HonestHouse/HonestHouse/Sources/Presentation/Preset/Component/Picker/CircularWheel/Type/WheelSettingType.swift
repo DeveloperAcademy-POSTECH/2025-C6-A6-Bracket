@@ -17,7 +17,7 @@ enum WheelSettingType: CaseIterable {
     var icon: Image {
         switch self {
         case .tintMagentaGreen:
-            return Image(.colortemperatureIcon) // TODO: - tint 로 변경
+            return Image(.wbshiftIcon)
         case .exposureCompensation:
             return Image(.exposureIcon)
         case .colorTemperature:
