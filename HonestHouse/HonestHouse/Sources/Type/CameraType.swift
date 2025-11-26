@@ -58,8 +58,10 @@ enum CameraType: String, CaseIterable {
         switch self {
         case .eosR6, .eosR7:
             return .ver110
-        case .eosR50, .eosR6MarkII, .eosR8:
+        case .eosR6MarkII, .eosR8:
             return .ver120
+        case .eosR50:
+            return .ver130
         case .eosR50V:
             return .ver140
         }

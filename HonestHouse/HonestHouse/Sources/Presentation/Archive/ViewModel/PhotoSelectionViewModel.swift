@@ -287,7 +287,7 @@ final class PhotoSelectionViewModel {
             
             // 2. Directory 설정
             switch cameraType.imageOperationsVersion {
-            case .ver110, .ver120:
+            case .ver110, .ver120, .ver130:
                 try await setPresentDirectory(storage: storage)
             case .ver140:
                 try await setPresentDirectoryV140(storage: storage)
