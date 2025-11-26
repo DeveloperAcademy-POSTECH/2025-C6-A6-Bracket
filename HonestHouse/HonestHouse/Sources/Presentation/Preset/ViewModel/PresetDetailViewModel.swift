@@ -350,10 +350,13 @@ class PresetDetailViewModel {
 
     @MainActor
     func fetchCurrentCameraSettings() async {
+        Logger.info("🚀 fetchCurrentCameraSettings started", category: .preset)
         isLoading = true
         currentError = nil
 
         do {
+            Logger.debug("📡 Fetching camera settings from API...", category: .preset)
+            
             async let shootingModeResponse = container.services.shootingSettingsService.getShootingMode()
             async let pictureStyleResponse = container.services.shootingSettingsService.getPictureStyle()
             async let avResponse = container.services.shootingSettingsService.getAV()
@@ -367,8 +370,16 @@ class PresetDetailViewModel {
                 try await (shootingModeResponse, pictureStyleResponse, avResponse, tvResponse,
                            isoResponse, exposureCompResponse, colorTempResponse, wbShiftResponse)
 
+            Logger.info("✅ API responses received", category: .preset)
+            Logger.debug("Raw API values - shootingMode: \(shootingMode.value ?? "nil"), pictureStyle: \(pictureStyle.value ?? "nil")", category: .preset)
+            Logger.debug("Raw API values - av: \(av.value ?? "nil"), tv: \(tv.value ?? "nil"), iso: \(iso.value ?? "nil")", category: .preset)
+            Logger.debug("Raw API values - exposureComp: \(exposureComp.value ?? "nil"), colorTemp: \(colorTemp.value?.description ?? "nil")", category: .preset)
+            Logger.debug("Raw API values - wbShift: \(wbShift.value?.magentaGreen?.description ?? "nil")", category: .preset)
+
             let mappedShootingMode = ShootingModeType.from(apiValue: shootingMode.value ?? "") ?? .av
             let mappedPictureStyle = PictureStyleType.from(apiValue: pictureStyle.value ?? "") ?? .auto
+
+            Logger.info("📝 Before update - tintMagentaGreen: \(currentPreset.tintMagentaGreen?.description ?? "nil"), exposureCompensation: \(currentPreset.exposureCompensation ?? "nil"), colorTemperature: \(currentPreset.colorTemperature?.description ?? "nil")", category: .preset)
 
             currentPreset.pictureStyle = mappedPictureStyle
             currentPreset.shootingMode = mappedShootingMode
@@ -379,9 +390,13 @@ class PresetDetailViewModel {
             currentPreset.colorTemperature = colorTemp.value
             currentPreset.tintMagentaGreen = wbShift.value?.magentaGreen
 
+            Logger.info("✅ After update - tintMagentaGreen: \(currentPreset.tintMagentaGreen?.description ?? "nil"), exposureCompensation: \(currentPreset.exposureCompensation ?? "nil"), colorTemperature: \(currentPreset.colorTemperature?.description ?? "nil")", category: .preset)
+            Logger.info("🎉 fetchCurrentCameraSettings completed successfully", category: .preset)
+
             isLoading = false
         } catch {
             isLoading = false
+            Logger.error("❌ fetchCurrentCameraSettings failed: \(error)", category: .preset)
             handleFetchError(error)
         }
     }

@@ -73,25 +73,20 @@ struct ExpandableWheel: View {
                             withAnimation {
                                 viewModel.isCircleVisible.toggle()
                             }
-                            // 드래그 종료 시 preset 값만 업데이트
-                            setValue()
+                            // 드래그 종료 시 preset 값 업데이트 및 카메라 적용
+                            updatePresetAndApplyCamera()
                         }
                 )
         }
         .frame(width: viewModel.circleSize, height: viewModel.circleSize)
         .sensoryFeedback(.selection, trigger: index)
-        // index가 변경될 때마다 카메라 설정 적용
+        // index가 변경될 때마다 Preset 값 업데이트 및 카메라 설정 적용
         .onChange(of: index) { oldValue, newValue in
             // View 모드가 아니고, 실제로 값이 변경되었을 때만 적용
             guard viewModel.viewMode != .view, oldValue != newValue else { return }
             
-            // Preset 값 업데이트
-            setValue()
-            
-            // 카메라 설정 적용
-            Task {
-                await applyCameraSetting()
-            }
+            // Preset 값 업데이트 및 카메라 적용
+            updatePresetAndApplyCamera()
         }
     }
     
@@ -118,34 +113,50 @@ struct ExpandableWheel: View {
         )
     }
     
-    // Preset 값 업데이트
-    private func setValue() {
+    // Preset 값 업데이트 및 카메라 적용
+    private func updatePresetAndApplyCamera() {
         switch type {
         case .tintMagentaGreen:
-            preset.tintMagentaGreen = CameraConstants.tintMagentaGreenValues[index]
+            guard index >= 0 && index < CameraConstants.tintMagentaGreenValues.count else {
+                Logger.error("Invalid index \(index) for tintMagentaGreen", category: .preset)
+                return
+            }
             
-        case .exposureCompensation:
-            preset.exposureCompensation = CameraConstants.exposureCompensationValues[index]
-            
-        case .colorTemperature:
-            preset.colorTemperature = CameraConstants.colorTemperatureValues[index]
-        }
-    }
-    
-    // 카메라 설정 적용
-    private func applyCameraSetting() async {
-        switch type {
-        case .tintMagentaGreen:
             let value = CameraConstants.tintMagentaGreenValues[index]
-            await presetViewModel.applyCameraSettings(for: .tintMagentaGreen, value: value)
+            preset.tintMagentaGreen = value
+            
+            guard viewModel.viewMode != .view else { return }
+            Task {
+                await presetViewModel.applyCameraSettings(for: .tintMagentaGreen, value: value)
+            }
             
         case .exposureCompensation:
+            guard index >= 0 && index < CameraConstants.exposureCompensationValues.count else {
+                Logger.error("Invalid index \(index) for exposureCompensation", category: .preset)
+                return
+            }
+            
             let value = CameraConstants.exposureCompensationValues[index]
-            await presetViewModel.applyCameraSettings(for: .exposure, value: value)
+            preset.exposureCompensation = value
+            
+            guard viewModel.viewMode != .view else { return }
+            Task {
+                await presetViewModel.applyCameraSettings(for: .exposure, value: value)
+            }
             
         case .colorTemperature:
+            guard index >= 0 && index < CameraConstants.colorTemperatureValues.count else {
+                Logger.error("Invalid index \(index) for colorTemperature", category: .preset)
+                return
+            }
+            
             let value = CameraConstants.colorTemperatureValues[index]
-            await presetViewModel.applyCameraSettings(for: .colorTemp, value: value)
+            preset.colorTemperature = value
+            
+            guard viewModel.viewMode != .view else { return }
+            Task {
+                await presetViewModel.applyCameraSettings(for: .colorTemp, value: value)
+            }
         }
     }
     
