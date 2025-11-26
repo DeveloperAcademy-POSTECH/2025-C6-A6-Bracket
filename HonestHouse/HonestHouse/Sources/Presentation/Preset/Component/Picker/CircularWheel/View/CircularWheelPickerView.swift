@@ -78,10 +78,6 @@ struct CircularWheelPickerView: View {
                 wheelManager.deactivateWheel()
             }
         }
-        .onAppear {
-            // View가 나타날 때 Preset 값으로 index 초기화
-            updateIndexFromPreset()
-        }
         .onChange(of: presetViewModel.isLoading) { _, isLoading in
             // fetchCurrentCameraSettings 완료 후 index 업데이트
             if !isLoading {
