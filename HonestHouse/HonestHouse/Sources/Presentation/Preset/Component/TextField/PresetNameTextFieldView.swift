@@ -10,7 +10,7 @@ import SwiftUI
 struct PresetNameTextFieldView: View {
     let placeholder: String
     @Binding var text: String
-    @FocusState private var isFocused: Bool
+    var isFocused: FocusState<Bool>.Binding
     
     var body: some View {
         TextField(placeholder, text: $text)
@@ -19,12 +19,9 @@ struct PresetNameTextFieldView: View {
             .fontStyle(.num2)
             .foregroundStyle(Color.g0)
             .multilineTextAlignment(.leading)
-            .focused($isFocused)
+            .focused(isFocused)
             .onSubmit {
-                isFocused = false
-                if text.isEmpty {
-                    text = "새 프리셋"
-                }
+                isFocused.wrappedValue = false
             }
             .frame(maxWidth: .infinity, alignment: .leading)
     }

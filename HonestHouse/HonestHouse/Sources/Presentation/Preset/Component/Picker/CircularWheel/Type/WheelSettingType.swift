@@ -51,22 +51,22 @@ enum WheelSettingType: CaseIterable {
     var minAngle: Double {
         switch self {
         case .tintMagentaGreen:
-            return -20
+            return -30
         case .exposureCompensation:
             return -65
         case .colorTemperature:
-            return -160
+            return -130
         }
     }
     
     var maxAngle: Double {
         switch self {
         case .tintMagentaGreen:
-            return 140
+            return 130
         case .exposureCompensation:
             return 65
         case .colorTemperature:
-            return 0
+            return 30
         }
     }
     

@@ -12,6 +12,7 @@ struct PresetDetailView: View {
     @State private var wheelManager = WheelStateManager()
     @State var vm: PresetDetailViewModel
     @State private var showUnsavedChangesAlert = false
+    @State private var showEmptyNameAlert = false
     @FocusState private var isNameFieldFocused: Bool
     
     var body: some View {
@@ -35,6 +36,18 @@ struct PresetDetailView: View {
                     settingsView()
                 }
             }
+            .padding(.top, isNameFieldFocused ? 44 : 0)
+            .animation(.easeInOut(duration: 0.25), value: isNameFieldFocused)
+
+            // 키보드 떴을 때 배경 터치로 키보드 내리기
+            if isNameFieldFocused {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        isNameFieldFocused = false
+                    }
+            }
             
             if vm.showOptionsMenu {
                 Color.clear
@@ -54,6 +67,7 @@ struct PresetDetailView: View {
                 }
             }
         }
+        .ignoresSafeArea(.keyboard)
         .environment(wheelManager)
         .navigationBarWithBack(title: "", showShadow: false) {
             if vm.viewMode == .create {
@@ -66,13 +80,13 @@ struct PresetDetailView: View {
         } rightView: {
             navigationRightView()
         }
-        .alert("변경사항 저장", isPresented: $showUnsavedChangesAlert) {
-            Button("삭제하기", role: .destructive) {
+        .customAlert(title: "Preset이 저장되지 않았습니다.\n정말 나가시겠습니까?",
+                     isPresented: $showUnsavedChangesAlert
+        ) {
+            AlertButton.cancel("취소")
+            AlertButton.delete("삭제하기") {
                 vm.send(.popToPresetView)
             }
-            Button("취소", role: .cancel) { }
-        } message: {
-            Text("이 프리셋이 저장되지 않았습니다.\n정말 나가시겠습니까?")
         }
         .customAlert(
             title: "정말 삭제하시겠습니까?",
@@ -84,6 +98,14 @@ struct PresetDetailView: View {
                 vm.deletePreset()
             }
         }
+        .customAlert(
+                    title: "Preset을 저장하려면\n이름을 작성해주세요.",
+                    message: "",
+                    isPresented: $showEmptyNameAlert
+                ) {
+                    AlertButton.cancel("취소")
+                    AlertButton.default("확인")
+                }
         .customErrorAlert(error: $vm.currentError) { error in
             switch error {
             case .cameraDisconnected:
@@ -134,11 +156,9 @@ struct PresetDetailView: View {
     private func navigationRightView() -> some View {
         switch vm.viewMode {
         case .view:
-            // View 모드: 3점 메뉴만
             optionsMenuButton()
             
         case .edit, .create:
-            // Edit/Create 모드: 저장 버튼만
             saveButtonView()
         }
     }
@@ -155,16 +175,21 @@ struct PresetDetailView: View {
     }
     
     private func saveButtonView() -> some View {
-        Button {
-            Task {
-                try await vm.savePreset()
+            Button {
+                // 이름 검증
+                if vm.currentPreset.name.trimmingCharacters(in: .whitespaces).isEmpty {
+                    showEmptyNameAlert = true
+                } else {
+                    Task {
+                        try await vm.savePreset()
+                    }
+                    vm.send(.popToPresetView)
+                }
+            } label: {
+                Text("저장")
+                    .foregroundStyle(Color.g0)
             }
-            vm.send(.popToPresetView)
-        } label: {
-            Text("저장")
-                .foregroundStyle(Color.g0)
         }
-    }
     
     private func nameView() -> some View {
         HStack() {
@@ -175,16 +200,15 @@ struct PresetDetailView: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
             } else {
-                PresetNameTextFieldView(placeholder: "프리셋 이름", text: $vm.currentPreset.name)
+                PresetNameTextFieldView(
+                    placeholder: "이름 입력",
+                    text: $vm.currentPreset.name,
+                    isFocused: $isNameFieldFocused
+                )
             }
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
-        .onTapGesture {
-            if vm.viewMode != .view {
-                isNameFieldFocused = true
-            }
-        }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     

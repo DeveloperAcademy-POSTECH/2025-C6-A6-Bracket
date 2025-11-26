@@ -38,7 +38,7 @@ class PresetDetailViewModel {
             self.currentPreset = preset
             self.viewMode = mode
         } else {
-            self.currentPreset = .init(name: "새 프리셋", pictureStyle: .auto, shootingMode: .av)
+            self.currentPreset = .init(name: "", pictureStyle: .auto, shootingMode: .av)
             self.viewMode = .create
         }
     }
@@ -47,7 +47,7 @@ class PresetDetailViewModel {
         guard viewMode == .view else { return }
         originalPreset = currentPreset.copy()
         viewMode = .edit
-        showOptionsMenu = false  // 메뉴 닫기
+        showOptionsMenu = false
     }
     
     func switchToViewMode() {
@@ -57,7 +57,7 @@ class PresetDetailViewModel {
     }
     
     func initializeForCreate() {
-        currentPreset = .init(name: "새 프리셋", pictureStyle: .auto, shootingMode: .av)
+        currentPreset = .init(name: "", pictureStyle: .auto, shootingMode: .av)
         viewMode = .create
         originalPreset = nil
     }
@@ -397,7 +397,7 @@ class PresetDetailViewModel {
     }
 
     func useDefaultPreset() {
-        currentPreset = .init(name: "새 프리셋", pictureStyle: .auto, shootingMode: .av)
+        currentPreset = .init(name: "", pictureStyle: .auto, shootingMode: .av)
         currentError = nil
     }
 
