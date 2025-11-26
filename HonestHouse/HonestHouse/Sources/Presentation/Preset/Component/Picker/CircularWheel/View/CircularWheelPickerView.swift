@@ -62,7 +62,7 @@ struct CircularWheelPickerView: View {
                         preset: $preset,
                         type: vm.settingType,
                         isVisible: vm.isCircleVisible,
-                        presetViewModel: presetViewModel  // 전달
+                        presetViewModel: presetViewModel
                     )
                 }
             }
@@ -77,6 +77,33 @@ struct CircularWheelPickerView: View {
             } else if isActive {
                 wheelManager.deactivateWheel()
             }
+        }
+        .onChange(of: presetViewModel.isLoading) { _, isLoading in
+            // fetchCurrentCameraSettings 완료 후 index 업데이트
+            if !isLoading {
+                updateIndexFromPreset()
+            }
+        }
+    }
+    
+    private func updateIndexFromPreset() {
+        let newIndex: Int
+        switch vm.settingType {
+        case .tintMagentaGreen:
+            let value = preset.tintMagentaGreen ?? 0
+            newIndex = CameraConstants.tintMagentaGreenValues.firstIndex(of: value) ?? 9
+            
+        case .exposureCompensation:
+            let value = preset.exposureCompensation ?? "+0.0"
+            newIndex = CameraConstants.exposureCompensationValues.firstIndex(of: value) ?? 9
+            
+        case .colorTemperature:
+            let value = preset.colorTemperature ?? 2500
+            newIndex = CameraConstants.colorTemperatureValues.firstIndex(of: value) ?? 0
+        }
+        
+        if index != newIndex {
+            index = newIndex
         }
     }
     

@@ -46,7 +46,7 @@ final class EventMonitorService: StreamService, EventMonitorServiceType {
         onEvent: @escaping (CameraStatus.EventMonitorResponse) -> Void,
         onError: @escaping (Error) -> Void
     ) async -> Bool {
-        Logger.info("Starting event monitoring", category: .eventMonitor)
+//        Logger.info("Starting event monitoring", category: .eventMonitor)
         await parser.reset()
         lastDataReceivedAt = Date()
 
@@ -55,14 +55,14 @@ final class EventMonitorService: StreamService, EventMonitorServiceType {
                 guard let self = self else { return }
                 // 데이터 도착 시간 업데이트
                 self.lastDataReceivedAt = Date()
-                Logger.debug("EventMonitor data received: \(data.count) bytes - timer reset", category: .eventMonitor)
+//                Logger.debug("EventMonitor data received: \(data.count) bytes - timer reset", category: .eventMonitor)
                 
-                Logger.debug("EventMonitor received data: \(data.count) bytes", category: .eventMonitor)
+//                Logger.debug("EventMonitor received data: \(data.count) bytes", category: .eventMonitor)
                 Task {
                     await self.parser.appendChunk(data)
                     let events = await self.parser.extractEvents()
                     if !events.isEmpty {
-                        Logger.info("Parsed \(events.count) event(s)", category: .eventMonitor)
+//                        Logger.info("Parsed \(events.count) event(s)", category: .eventMonitor)
                         await MainActor.run {
                             for event in events {
                                 onEvent(event)
@@ -70,12 +70,12 @@ final class EventMonitorService: StreamService, EventMonitorServiceType {
                         }
                     }
                     else {
-                        Logger.debug("No events extracted from chunk", category: .eventMonitor)
+//                        Logger.debug("No events extracted from chunk", category: .eventMonitor)
                     }
                 }
             },
             onError: { [weak self] error in
-                Logger.error("EventMonitor error: \(error.localizedDescription)", category: .eventMonitor)
+//                Logger.error("EventMonitor error: \(error.localizedDescription)", category: .eventMonitor)
                 self?.stopConnectionCheckTimer()
                 onError(error)
             }
@@ -85,7 +85,7 @@ final class EventMonitorService: StreamService, EventMonitorServiceType {
             startConnectionCheckTimer(onError: onError)
         }
         
-        Logger.info("Event monitoring start result: \(result)", category: .eventMonitor)
+//        Logger.info("Event monitoring start result: \(result)", category: .eventMonitor)
         return result
     }
 
@@ -98,7 +98,7 @@ final class EventMonitorService: StreamService, EventMonitorServiceType {
     private func startConnectionCheckTimer(onError: @escaping (Error) -> Void) {
         stopConnectionCheckTimer()
         
-        Logger.info("Starting connection check timer (timeout: \(connectionTimeout)s)", category: .eventMonitor)
+//        Logger.info("Starting connection check timer (timeout: \(connectionTimeout)s)", category: .eventMonitor)
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -107,10 +107,10 @@ final class EventMonitorService: StreamService, EventMonitorServiceType {
                 guard let self = self else { return }
                 
                 let timeSinceLastData = Date().timeIntervalSince(self.lastDataReceivedAt)
-                Logger.debug("Connection check: \(String(format: "%.1f", timeSinceLastData))s since last data", category: .eventMonitor)
+//                Logger.debug("Connection check: \(String(format: "%.1f", timeSinceLastData))s since last data", category: .eventMonitor)
                 
                 if timeSinceLastData >= self.connectionTimeout {
-                    Logger.error("Connection lost - no data received for \(String(format: "%.1f", timeSinceLastData))s", category: .eventMonitor)
+//                    Logger.error("Connection lost - no data received for \(String(format: "%.1f", timeSinceLastData))s", category: .eventMonitor)
                     self.stopConnectionCheckTimer()
                     
                     let error = CCAPIError.networkError(URLError(.networkConnectionLost))
