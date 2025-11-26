@@ -27,7 +27,7 @@ actor ChunkedStreamParser {
         }
 
         if frames.isEmpty && buffer.count > 0 {
-            Logger.debug("Waiting for more data (buffer: \(buffer.count) bytes)", category: .network)
+//            Logger.debug("Waiting for more data (buffer: \(buffer.count) bytes)", category: .network)
         }
 
         return frames
