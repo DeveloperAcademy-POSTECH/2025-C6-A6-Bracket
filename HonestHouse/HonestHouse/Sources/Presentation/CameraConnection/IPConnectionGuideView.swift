@@ -72,7 +72,7 @@ struct IPConnectionGuideView: View {
     private func ipAddressTextField() -> some View {
         ZStack(alignment: .center) {
             if ipAddress.isEmpty {
-                Text("192.168.1.2:443")
+                Text("http://192.168.1.2:8080")
                     .fontStyle(.num4)
                     .foregroundColor(.g6)
             }
@@ -100,15 +100,16 @@ struct IPConnectionGuideView: View {
             if cameraConnectionManager.connectionState != .connecting {
                 cameraConnectionManager.connectionState = .disconnected
             }
-            
-            if !ipAddress.isEmpty {
-                parseAndSetURLComponents(from: ipAddress)
-            } else {
+
+            if ipAddress.isEmpty {
                 BaseURLConstants.scheme = "http"
                 BaseURLConstants.cameraIP = "192.168.1.2"
                 BaseURLConstants.port = "8080"
+            } else if !parseAndSetURLComponents(from: ipAddress) {
+                cameraConnectionManager.connectionState = .failed(.invalidIPAddress)
+                return
             }
-            
+
             cameraConnectionManager.connectCamera(ipAddress: BaseURLConstants.cameraIP)
         } label: {
             Text("연결하기")
@@ -124,11 +125,32 @@ struct IPConnectionGuideView: View {
 }
 
 extension IPConnectionGuideView {
-    private func parseAndSetURLComponents(from urlString: String) {
-        guard let url = URL(string: urlString) else { return }
-        
-        if let scheme = url.scheme { BaseURLConstants.scheme = scheme }
-        if let host = url.host { BaseURLConstants.cameraIP = host }
-        if let port = url.port { BaseURLConstants.port = String(port) }
+    /// 입력 문자열을 파싱해 scheme/IP/port를 원자적으로 설정
+    /// 스킴이 없으면 http로 보정, 포트가 없으면 스킴 기준 기본값(http: 8080, https: 443) 적용
+    @discardableResult
+    private func parseAndSetURLComponents(from urlString: String) -> Bool {
+        let trimmed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalized = trimmed.contains("://") ? trimmed : "http://\(trimmed)"
+
+        guard let components = URLComponents(string: normalized),
+              let scheme = components.scheme?.lowercased(),
+              ["http", "https"].contains(scheme),
+              let host = components.host,
+              !host.isEmpty else {
+            Logger.warning("Invalid connection URL input: \(urlString)", category: .connection)
+            return false
+        }
+
+        let port: Int
+        if let inputPort = components.port {
+            port = inputPort
+        } else {
+            port = scheme == "https" ? 443 : 8080
+        }
+
+        BaseURLConstants.scheme = scheme
+        BaseURLConstants.cameraIP = host
+        BaseURLConstants.port = String(port)
+        return true
     }
 }
