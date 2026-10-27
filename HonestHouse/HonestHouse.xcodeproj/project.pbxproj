@@ -23,6 +23,7 @@
 		6C6E6D962EB3733500F8E6A4 /* Exceptions for "HonestHouse" folder in "HonestHouse" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				HonestHouse.entitlements,
 				Info.plist,
 			);
 			target = 21C47E2D2E9AA5FC00FB6029 /* HonestHouse */;
@@ -297,9 +298,12 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3HYFT54PK2;
 				ENABLE_PREVIEWS = YES;
+				CODE_SIGN_ENTITLEMENTS = HonestHouse/HonestHouse.entitlements;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HonestHouse/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Bracket;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "카메라를 찾고 연결하기 위해 Bluetooth를 사용합니다.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "카메라와 같은 Wi-Fi에서 통신하기 위해 로컬 네트워크 접근이 필요합니다.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "앨범의 사진을 가져와서 확인하고 기기에 저장하기 위해 사진 앱에 접근 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -338,9 +342,12 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3HYFT54PK2;
 				ENABLE_PREVIEWS = YES;
+				CODE_SIGN_ENTITLEMENTS = HonestHouse/HonestHouse.entitlements;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HonestHouse/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Bracket;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "카메라를 찾고 연결하기 위해 Bluetooth를 사용합니다.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "카메라와 같은 Wi-Fi에서 통신하기 위해 로컬 네트워크 접근이 필요합니다.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "앨범의 사진을 가져와서 확인하고 기기에 저장하기 위해 사진 앱에 접근 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
