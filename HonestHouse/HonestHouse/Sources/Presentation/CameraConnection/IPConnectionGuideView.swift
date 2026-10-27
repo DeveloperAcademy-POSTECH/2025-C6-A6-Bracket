@@ -101,7 +101,7 @@ struct IPConnectionGuideView: View {
                 cameraConnectionManager.connectionState = .disconnected
             }
 
-            if ipAddress.isEmpty {
+            if ipAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 BaseURLConstants.scheme = "http"
                 BaseURLConstants.cameraIP = "192.168.1.2"
                 BaseURLConstants.port = "8080"
@@ -127,30 +127,38 @@ struct IPConnectionGuideView: View {
 extension IPConnectionGuideView {
     /// 입력 문자열을 파싱해 scheme/IP/port를 원자적으로 설정
     /// 스킴이 없으면 http로 보정, 포트가 없으면 스킴 기준 기본값(http: 8080, https: 443) 적용
-    @discardableResult
     private func parseAndSetURLComponents(from urlString: String) -> Bool {
         let trimmed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
-        let normalized = trimmed.contains("://") ? trimmed : "http://\(trimmed)"
+        let hasScheme = trimmed.range(of: "^[A-Za-z][A-Za-z0-9+.-]*://", options: .regularExpression) != nil
+        let normalized = hasScheme ? trimmed : "http://\(trimmed)"
 
         guard let components = URLComponents(string: normalized),
               let scheme = components.scheme?.lowercased(),
               ["http", "https"].contains(scheme),
               let host = components.host,
-              !host.isEmpty else {
-            Logger.warning("Invalid connection URL input: \(urlString)", category: .connection)
+              isValidHost(host) else {
+            Logger.warning("Invalid connection URL input", category: .connection)
             return false
         }
 
-        let port: Int
-        if let inputPort = components.port {
-            port = inputPort
-        } else {
-            port = scheme == "https" ? 443 : 8080
+        let port = components.port ?? (scheme == "https" ? 443 : 8080)
+        guard (1...65535).contains(port) else {
+            Logger.warning("Invalid connection port", category: .connection)
+            return false
         }
 
         BaseURLConstants.scheme = scheme
         BaseURLConstants.cameraIP = host
         BaseURLConstants.port = String(port)
         return true
+    }
+
+    /// IPv4 주소 또는 점(.)을 포함한 호스트명만 허용
+    private func isValidHost(_ host: String) -> Bool {
+        if host.allSatisfy({ $0.isNumber || $0 == "." }) {
+            let octets = host.split(separator: ".", omittingEmptySubsequences: false)
+            return octets.count == 4 && octets.allSatisfy { Int($0).map { (0...255).contains($0) } ?? false }
+        }
+        return host.range(of: "^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$", options: .regularExpression) != nil
     }
 }
