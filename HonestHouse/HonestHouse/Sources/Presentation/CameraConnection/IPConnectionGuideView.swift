@@ -72,7 +72,7 @@ struct IPConnectionGuideView: View {
     private func ipAddressTextField() -> some View {
         ZStack(alignment: .center) {
             if ipAddress.isEmpty {
-                Text("192.168.1.2:443")
+                Text("http://192.168.1.2:8080")
                     .fontStyle(.num4)
                     .foregroundColor(.g6)
             }
@@ -100,15 +100,16 @@ struct IPConnectionGuideView: View {
             if cameraConnectionManager.connectionState != .connecting {
                 cameraConnectionManager.connectionState = .disconnected
             }
-            
-            if !ipAddress.isEmpty {
-                parseAndSetURLComponents(from: ipAddress)
-            } else {
+
+            if ipAddress.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 BaseURLConstants.scheme = "http"
                 BaseURLConstants.cameraIP = "192.168.1.2"
                 BaseURLConstants.port = "8080"
+            } else if !parseAndSetURLComponents(from: ipAddress) {
+                cameraConnectionManager.connectionState = .failed(.invalidIPAddress)
+                return
             }
-            
+
             cameraConnectionManager.connectCamera(ipAddress: BaseURLConstants.cameraIP)
         } label: {
             Text("연결하기")
@@ -124,11 +125,40 @@ struct IPConnectionGuideView: View {
 }
 
 extension IPConnectionGuideView {
-    private func parseAndSetURLComponents(from urlString: String) {
-        guard let url = URL(string: urlString) else { return }
-        
-        if let scheme = url.scheme { BaseURLConstants.scheme = scheme }
-        if let host = url.host { BaseURLConstants.cameraIP = host }
-        if let port = url.port { BaseURLConstants.port = String(port) }
+    /// 입력 문자열을 파싱해 scheme/IP/port를 원자적으로 설정
+    /// 스킴이 없으면 http로 보정, 포트가 없으면 스킴 기준 기본값(http: 8080, https: 443) 적용
+    private func parseAndSetURLComponents(from urlString: String) -> Bool {
+        let trimmed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+        let hasScheme = trimmed.range(of: "^[A-Za-z][A-Za-z0-9+.-]*://", options: .regularExpression) != nil
+        let normalized = hasScheme ? trimmed : "http://\(trimmed)"
+
+        guard let components = URLComponents(string: normalized),
+              let scheme = components.scheme?.lowercased(),
+              ["http", "https"].contains(scheme),
+              let host = components.host,
+              isValidHost(host) else {
+            Logger.warning("Invalid connection URL input", category: .connection)
+            return false
+        }
+
+        let port = components.port ?? (scheme == "https" ? 443 : 8080)
+        guard (1...65535).contains(port) else {
+            Logger.warning("Invalid connection port", category: .connection)
+            return false
+        }
+
+        BaseURLConstants.scheme = scheme
+        BaseURLConstants.cameraIP = host
+        BaseURLConstants.port = String(port)
+        return true
+    }
+
+    /// IPv4 주소 또는 점(.)을 포함한 호스트명만 허용
+    private func isValidHost(_ host: String) -> Bool {
+        if host.allSatisfy({ $0.isNumber || $0 == "." }) {
+            let octets = host.split(separator: ".", omittingEmptySubsequences: false)
+            return octets.count == 4 && octets.allSatisfy { Int($0).map { (0...255).contains($0) } ?? false }
+        }
+        return host.range(of: "^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$", options: .regularExpression) != nil
     }
 }
