@@ -9,12 +9,13 @@ struct Preset: Hashable, Identifiable {
     var id: UUID, name: String
     var pictureStyle: PictureStyleType   // auto/faithful/landscape 등
     var shootingMode: ShootingModeType   // av / tv / p
-    var aperture, shutterSpeed, iso, exposureCompensation: String?  // nil = Auto
+    var aperture, shutterSpeed, iso, exposureCompensation: String?  // nil = 지정 안 함
     var colorTemperature, tintBlueAmber, tintMagentaGreen: Int?
     var createdAt, updatedAt: Date
 }
 ```
 - 표시용 값은 `displayXxx` computed property (nil → "Auto"/"0").
+- **주의**: nil은 화면에 "Auto"로 표시되지만 카메라에 auto 값을 보내지 않는다. 적용할 때 nil 항목은 건너뛰므로(`if let`), 카메라는 이전 값을 그대로 유지한다.
 - 동일성은 `id` 기준.
 
 ## CoreData 스키마 (`Core/CoreData/PresetModel.xcdatamodeld`)

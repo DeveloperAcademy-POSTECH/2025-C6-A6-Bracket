@@ -23,6 +23,12 @@
 
 ## 연결 절차 (`connectCamera(ipAddress:)`)
 
+0. (`IPConnectionGuideView`) 입력 파싱
+   - 빈 값이거나 공백만 있으면 `http://192.168.1.2:8080`
+   - 스킴이 없으면 `http://`를 붙임. http/https만 허용
+   - 포트가 없으면 http는 8080, https는 443
+   - 호스트는 IPv4 또는 점이 포함된 호스트명만 허용, 포트는 1~65535
+   - 실패하면 `.failed(.invalidIPAddress)`. 성공하면 `BaseURLConstants`의 scheme/IP/port를 한 번에 설정
 1. IP 유효성 검사 (빈 값이면 `.failed(.invalidIPAddress)`)
 2. `NetworkManager.configure(cameraIP:)` — 세션/Digest 인증/SSL 설정
 3. `initializeAuthentication()` — 401 유도로 nonce 획득

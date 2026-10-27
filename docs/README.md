@@ -10,6 +10,7 @@ Canon 카메라 원격 제어 + Tri-shot 연속 촬영 + 유사 사진 그룹핑
 ### 기술 문서
 - [architecture.md](architecture.md) — 전체 아키텍처: 레이어링, DI, 내비게이션, 에러 처리, 상태 관리, 카메라 기종 대응
 - [networking.md](networking.md) — CCAPI 통신: Digest 인증, NetworkManager, DTO 규칙, 스트리밍 계층, 503 회피 전략
+- [ccapi-improvements.md](ccapi-improvements.md) — Canon Camera Connect(PTP/IP) 분석과 비교한 개선 항목 및 추가 기능 제안
 
 ### 기능별 문서 ([features/](features/))
 - [camera-connection.md](features/camera-connection.md) — 카메라 연결/재연결, CameraType 판별

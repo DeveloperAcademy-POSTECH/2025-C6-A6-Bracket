@@ -56,12 +56,13 @@ BaseStreamService  ← 인증 헤더/SSL/세션 설정 공통 (timeout ∞)
  └─ StreamDownloadService  ← 유한 chunked 응답 점진 파싱 (contents 목록)
 ```
 
-### 프레임 바이너리 포맷 (LiveView / EventMonitor 공통)
+### 프레임 바이너리 포맷
+CCAPI 스펙상 스트림 프레임 형식은 다음과 같다.
 ```
 [0xFF 0x00] [DataType 1byte] [DataSize 4bytes BE] [payload] [0xFF 0xFF]
 ```
-- LiveView: `ChunkedStreamParser`(actor)가 JPEG SOI(0xFFD8)~EOI(0xFFD9) 추출
-- EventMonitor: `EventMonitorParser`(actor)가 DataType 0x02(Event JSON)를 디코딩 → `CameraStatus.EventMonitorResponse`
+- EventMonitor: `EventMonitorParser`(actor)가 위 프레임을 해석하고, DataType 0x02(Event JSON)를 디코딩 → `CameraStatus.EventMonitorResponse`
+- LiveView: 프레임 헤더를 해석하지 않는다. `ChunkedStreamParser`(actor)가 수신 바이트에서 JPEG SOI(0xFFD8)~EOI(0xFFD9)를 직접 찾아 잘라낸다. 그래서 `scrolldetail`의 정보 프레임(AF 프레임 등)은 쓰지 않는다. `LiveViewService.parseFrame`은 현재 호출되지 않는 코드다.
 - EventMonitorService는 2초간 데이터 미수신 시 연결 끊김으로 판단하는 워치독 타이머 보유.
 
 ### StreamDownloadService
