@@ -37,6 +37,8 @@ enum LogCategory: String {
     case eventMonitor = "EventMonitor"
     case trishot = "Trishot"
     case preset = "Preset"
+    case bluetooth = "Bluetooth"
+    case ptpip = "PTPIP"
     case general = "General"
 
     var osLog: OSLog {
